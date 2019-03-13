@@ -38,7 +38,7 @@ include(GNUInstallDirs)
 
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-set(version_config "${generated_dir}/${PROJqECT_NAME}ConfigVersion.cmake")
+set(version_config "${generated_dir}/${PROJECT_NAME}ConfigVersion.cmake")
 set(project_config "${generated_dir}/${PROJECT_NAME}Config.cmake")
 set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 set(namespace "")
@@ -48,8 +48,6 @@ file(GLOB_RECURSE header_files
   "${PROJECT_SOURCE_DIR}/external/cppzmq/*.hpp"
   "${CMAKE_CURRENT_BINARY_DIR}/*.pb.h"
   )
-
-message(${header_files})
 
 set_target_properties(argos_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
 
