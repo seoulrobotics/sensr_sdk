@@ -11,6 +11,12 @@ Samples also depend on [GLFW](https://www.glfw.org/).
 
 ### From Source
 
+Update submodule:
+
+```bash
+git submodule update --init
+```
+
 Make sure you have the listed dependencies installed:
 
 ```bash
