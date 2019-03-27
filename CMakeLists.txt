@@ -22,7 +22,6 @@ target_compile_options(argos_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-co
 
 target_include_directories(argos_sdk
     PUBLIC 
-        $<INSTALL_INTERFACE:include/argos>
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/cppzmq>

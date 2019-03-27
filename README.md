@@ -63,7 +63,7 @@ mkdir build
 cd build
 cmake ..
 make
-make install
+sudo make install
 ```
 
 Or you can simply run build_sdk.sh from the root source folder.
