@@ -12,7 +12,7 @@ include(FindProtobuf REQUIRED)
 set(PROTO_FILES proto/output.proto)
 set(SOURCE_FILES src/argos_client.cpp)
 protobuf_generate_cpp(generated_code generated_header_code ${PROTO_FILES})
-add_library(argos_sdk SHARED ${generated_code} ${generated_header_code} ${PROTO_SRC} ${SOURCE_FILES})
+add_library(argos_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
 ####### Compiler Flags ###########
 target_compile_features(argos_sdk PRIVATE cxx_std_11)
@@ -28,7 +28,7 @@ target_include_directories(argos_sdk
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(argos_sdk protobuf::libprotobuf libzmq)
+target_link_libraries(argos_sdk libzmq protobuf)
 
 ######## Installation script ##########
 
@@ -45,10 +45,9 @@ set(namespace "")
 file(GLOB_RECURSE header_files
   "${PROJECT_SOURCE_DIR}/include/*.h"
   "${PROJECT_SOURCE_DIR}/external/cppzmq/*.hpp"
-  "${CMAKE_CURRENT_BINARY_DIR}/*.pb.h"
   )
 
-set_target_properties(argos_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
+set_target_properties(argos_sdk PROPERTIES PUBLIC_HEADER "${header_files};${generated_header_code}")
 
 write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion
