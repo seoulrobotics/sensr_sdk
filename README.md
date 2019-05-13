@@ -37,17 +37,16 @@ cd ../../ && rm -rf libzmq
 Protobuf (3.6.0) from source:
 
 ```bash
-git clone https://github.com/protocolbuffers/protobuf.git
-cd protobuf
-git checkout v3.6.0
-git submodule update --init --recursive
+curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.zip
+unzip protobuf-cpp-3.6.0.zip
+rm protobuf-cpp-3.6.0.zip
+cd protobuf-3.6.0
 ./autogen.sh
 ./configure
 make
 make check
 sudo make install
 sudo ldconfig
-cd .. && rm -rf protobuf
 ```
 
 Glfw (optional - only needed for samples).
