@@ -28,7 +28,7 @@ target_include_directories(argos_sdk
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(argos_sdk libzmq protobuf)
+target_link_libraries(argos_sdk libzmq ${PROTOBUF_LIBRARY})
 
 ######## Installation script ##########
 
