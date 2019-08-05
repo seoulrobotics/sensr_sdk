@@ -4,7 +4,7 @@
 
 ### Dependencies
 
-SENSR SDK depends on [ZeroMQ 4.3.1+](http://zeromq.org/intro:get-the-software) and [Protobuf 3.6.0+](https://developers.google.com/protocol-buffers/).
+SENSR SDK depends on [ZeroMQ (Tested with 4.3.1)](http://zeromq.org/intro:get-the-software) and [Protobuf (Tested with 3.6.0)](https://developers.google.com/protocol-buffers/).
 
 ImGui sample code also depends on [GLFW](https://www.glfw.org/). (optional)
 
