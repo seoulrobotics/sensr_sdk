@@ -1,27 +1,15 @@
 ![SDK Logo](https://gitlab.com/stefano6/sdk_public_test/blob/master/images/Logo.png)
-# Argos SDK
+# Seoul Robotics SENSR SDK
 
 ## Installation
 
 ### Dependencies
 
-Argos SDK depends on [ZeroMQ](http://zeromq.org/intro:get-the-software) and [Protobuf](https://developers.google.com/protocol-buffers/).
+SENSR SDK depends on [ZeroMQ](http://zeromq.org/intro:get-the-software) and [Protobuf](https://developers.google.com/protocol-buffers/).
 
-Samples also depend on [GLFW](https://www.glfw.org/).
+ImGui sample code also depends on [GLFW](https://www.glfw.org/). (optional)
 
-### From Source
-
-Update submodule:
-
-```bash
-git submodule update --init
-```
-
-Make sure you have the listed dependencies installed:
-
-```bash
-sudo apt-get install autoconf automake libtool curl make g++ unzip
-```
+#### Build Dependencies from Source
 
 ZeroMQ (4.3.1) from source:
 
@@ -49,13 +37,21 @@ sudo make install
 sudo ldconfig
 ```
 
-Glfw (optional - only needed for samples).
+### Build SENSR SDK
+
+Update submodule:
 
 ```bash
-sudo apt-get install libglfw3-dev
+git submodule update --init
 ```
 
-And finally:
+Make sure you have the listed dependencies installed:
+
+```bash
+sudo apt-get install autoconf automake libtool curl make g++ unzip
+```
+
+Build SENSR SDK:
 
 ```bash
 mkdir build

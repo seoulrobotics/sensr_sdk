@@ -1,10 +1,10 @@
-#ifndef ARGOS_CLIENT_H
-#define ARGOS_CLIENT_H
+#ifndef SENSR_CLIENT_H
+#define SENSR_CLIENT_H
 
 #include <zmq.hpp>
 #include "output.pb.h"
 
-namespace argos
+namespace sensr
 {
 class Client
 {
@@ -18,6 +18,6 @@ private:
   zmq::context_t context_;
   zmq::socket_t subscriber_;
 };
-} // namespace argos
+} // namespace sensr
 
-#endif // ARGOS_CLIENT_H
+#endif // SENSR_CLIENT_H

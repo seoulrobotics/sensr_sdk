@@ -1,8 +1,8 @@
-#include "argos_client.h"
+#include "sensr_client.h"
 
 const int MAX_ADDRESS_LEN = 512;
 
-namespace argos
+namespace sensr
 {
 Client::Client(const char *address)
     : context_(), subscriber_(context_, ZMQ_SUB)
@@ -44,4 +44,4 @@ bool Client::ReceiveMessage(output_message &message)
   return false;
 }
 
-} // namespace argos
+} // namespace sensr

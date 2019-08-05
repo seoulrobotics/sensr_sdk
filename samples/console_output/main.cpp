@@ -1,4 +1,5 @@
-#include "argos.h"
+#include "sensr.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -7,14 +8,14 @@ int main(int argc, char *argv[])
   {
     client_address = argv[1];
   }
-  argos::Client client(client_address);
+  sensr::Client client(client_address);
 
   while (true)
   {
     output_message message;
     if (client.ReceiveMessage(message))
     {
-      std::cout << "Message received from argos!" << std::endl;
+      std::cout << "Message received from SENSR!" << std::endl;
     }
   }
 }

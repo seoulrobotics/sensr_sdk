@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "argos.h"
+#include "sensr.h"
 
-const char *label_to_string[argos::Label_Max + 1] =
+const char *label_to_string[sensr::LabelType::Max+1] =
     {
         "Car",
         "Pedestrian",
@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
 
-  argos::Client client(client_address);
+  sensr::Client client(client_address);
 
   if (!glfwInit())
     return 1;
@@ -87,8 +87,9 @@ int main(int argc, char *argv[])
                       latest_message.time_stamp().seconds(),
                       latest_message.time_stamp().nano_seconds());
 
-    ImGui::BulletText("Ground points: %d.", latest_message.ground_points().size());
-    ImGui::BulletText("Invalid points: %d.", latest_message.invalid_points().size());
+    ImGui::BulletText("Ground points: %d.", latest_message.point_cloud().ground_points().size());
+    ImGui::BulletText("Object points: %d.", latest_message.point_cloud().object_points().size());
+    ImGui::BulletText("Invalid points: %d.", latest_message.point_cloud().invalid_points().size());
     ImGui::BulletText("Tracked Objects: %d.", latest_message.tracked_objects_size());
     ImGui::BulletText("Non Tracked Objects: %d.", latest_message.non_tracked_objects_size());
 

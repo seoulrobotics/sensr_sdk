@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
-project(argos_sample_imgui VERSION 1.0.0 LANGUAGES CXX)
+project(sensr_sample_imgui VERSION 1.0.0 LANGUAGES CXX)
 
 
 find_package(Protobuf REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(argos_sdk REQUIRED)
+find_package(sensr_sdk REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
@@ -19,7 +19,7 @@ add_executable(imgui_display_sample main.cpp
 
 target_compile_features(imgui_display_sample PRIVATE cxx_std_11)
 target_compile_definitions(imgui_display_sample PRIVATE -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
-target_link_libraries(imgui_display_sample argos_sdk glfw ${CMAKE_DL_LIBS})
+target_link_libraries(imgui_display_sample sensr_sdk glfw ${CMAKE_DL_LIBS})
 target_include_directories(imgui_display_sample
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>

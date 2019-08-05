@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(argos_sdk VERSION 1.0.0 LANGUAGES CXX)
+project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 
 ######## PACKAGE Dependency Management ##########
 
@@ -10,17 +10,17 @@ include(FindProtobuf REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
 set(PROTO_FILES proto/output.proto)
-set(SOURCE_FILES src/argos_client.cpp)
+set(SOURCE_FILES src/sensr_client.cpp)
 protobuf_generate_cpp(generated_code generated_header_code ${PROTO_FILES})
-add_library(argos_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
+add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
 ####### Compiler Flags ###########
-target_compile_features(argos_sdk PRIVATE cxx_std_11)
-target_compile_options(argos_sdk PRIVATE -fPIC -Wall -Werror -rdynamic)
-target_compile_options(argos_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-comment -Wno-strict-aliasing -Wno-format-security -Wno-int-to-pointer-cast -Wno-unused-result -Wno-unused-function)
+target_compile_features(sensr_sdk PRIVATE cxx_std_11)
+target_compile_options(sensr_sdk PRIVATE -fPIC -Wall -Werror -rdynamic)
+target_compile_options(sensr_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-comment -Wno-strict-aliasing -Wno-format-security -Wno-int-to-pointer-cast -Wno-unused-result -Wno-unused-function)
 ####### Compiler Flags ###########
 
-target_include_directories(argos_sdk
+target_include_directories(sensr_sdk
     PUBLIC 
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -28,7 +28,7 @@ target_include_directories(argos_sdk
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(argos_sdk libzmq ${PROTOBUF_LIBRARY})
+target_link_libraries(sensr_sdk libzmq ${PROTOBUF_LIBRARY})
 
 ######## Installation script ##########
 
@@ -47,7 +47,7 @@ file(GLOB_RECURSE header_files
   "${PROJECT_SOURCE_DIR}/external/cppzmq/*.hpp"
   )
 
-set_target_properties(argos_sdk PROPERTIES PUBLIC_HEADER "${header_files};${generated_header_code}")
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files};${generated_header_code}")
 
 write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion
@@ -60,7 +60,7 @@ configure_package_config_file(
 )
 
 install(
-    TARGETS argos_sdk
+    TARGETS sensr_sdk
     EXPORT "${TARGETS_EXPORT_NAME}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"

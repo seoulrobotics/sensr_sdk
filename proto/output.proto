@@ -10,6 +10,12 @@ message point_list {
   bytes points = 2;
 }
 
+message point_cloud {
+  point_list ground_points = 1;
+  point_list object_points = 2;
+  point_list invalid_points = 3;
+}
+
 message bounding_box {
   bytes position = 1;
   bytes size = 2;
@@ -18,26 +24,29 @@ message bounding_box {
 
 message non_tracked_object { 
   int32 id = 1;
-  point_list object_points = 2;
-  bounding_box bbox = 3;
+  bounding_box bbox = 2;
 }
 
 message tracked_object { 
   int32 id = 1;
-  point_list object_points = 2;
-  bounding_box bbox = 3;
-  int32 label = 4;
-  float probability = 5;
-  bool tracking_reliable = 6;
-  bytes velocity = 7;
-  point_list history = 8;
-  point_list prediction = 9;
+  bounding_box bbox = 2;
+  int32 label = 3;
+  float probability = 4;
+  bool tracking_reliable = 5;
+  bytes velocity = 6;
+  point_list history = 7;
+  point_list prediction = 8;
+}
+
+message zone {
+  bounding_box bbox = 1;
+  repeated int32 object_ids = 2;
 }
 
 message output_message {
   time_stamp time_stamp = 1;
-  point_list ground_points = 2;
-  point_list invalid_points = 3;
-  repeated non_tracked_object non_tracked_objects = 4;
-  repeated tracked_object tracked_objects = 5;
+  point_cloud point_cloud = 2;
+  repeated non_tracked_object non_tracked_objects = 3;
+  repeated tracked_object tracked_objects = 4;
+  repeated zone region_of_interest = 5;
 }
