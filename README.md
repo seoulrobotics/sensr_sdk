@@ -1,4 +1,3 @@
-![SDK Logo](https://gitlab.com/stefano6/sdk_public_test/blob/master/images/Logo.png)
 # Seoul Robotics SENSR SDK
 
 ## Installation

@@ -83,19 +83,19 @@ int main(int argc, char *argv[])
 
     ImGui::Begin("Message Explorer");
 
-    ImGui::BulletText("Timestamp (s)%ld (ns)%d",
+    ImGui::BulletText("Timestamp %ld (s) %d (ns)",
                       latest_message.time_stamp().seconds(),
                       latest_message.time_stamp().nano_seconds());
 
-    ImGui::BulletText("Ground points: %d.", latest_message.point_cloud().ground_points().size());
-    ImGui::BulletText("Object points: %d.", latest_message.point_cloud().object_points().size());
-    ImGui::BulletText("Invalid points: %d.", latest_message.point_cloud().invalid_points().size());
+    ImGui::BulletText("Ground Points: %d.", latest_message.point_cloud().ground_points().size());
+    ImGui::BulletText("Object Points: %d.", latest_message.point_cloud().object_points().size());
+    ImGui::BulletText("Invalid Points: %d.", latest_message.point_cloud().invalid_points().size());
     ImGui::BulletText("Tracked Objects: %d.", latest_message.tracked_objects_size());
     ImGui::BulletText("Non Tracked Objects: %d.", latest_message.non_tracked_objects_size());
 
     ImGui::BeginTabBar("Test");
 
-    if (ImGui::BeginTabItem("Non Tracked objects"))
+    if (ImGui::BeginTabItem("Non Tracked Objects"))
     {
 
       ImGui::Columns(2);
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
       ImGui::EndTabItem();
     }
 
-    if (ImGui::BeginTabItem("Tracked objects"))
+    if (ImGui::BeginTabItem("Tracked Objects"))
     {
       ImGui::Columns(8);
       ImGui::Separator();
@@ -141,9 +141,9 @@ int main(int argc, char *argv[])
       ImGui::NextColumn();
       ImGui::Text("Velocity");
       ImGui::NextColumn();
-      ImGui::Text("History points");
+      ImGui::Text("History Points");
       ImGui::NextColumn();
-      ImGui::Text("Prediction points");
+      ImGui::Text("Prediction Points");
       ImGui::NextColumn();
       ImGui::Separator();
 
