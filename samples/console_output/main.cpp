@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-  const char *client_address = "localhost";
+  const char *client_address = "192.168.77.3";
   if (argc > 1)
   {
     client_address = argv[1];
@@ -16,13 +16,13 @@ int main(int argc, char *argv[])
     if (client.ReceiveMessage(message))
     {
       std::cout << "Message received from SENSR!" << std::endl
-                << "Timestamp: " << latest_message.time_stamp().seconds() << " (s) "
-                                 << latest_message.time_stamp().nano_seconds() " (ns)" << std::endl
-                << "Ground Points: " << latest_message.point_cloud().ground_points().size() << std::endl
-                << "Object Points: " << latest_message.point_cloud().object_points().size() << std::endl
-                << "Invalid Points: " << latest_message.point_cloud().invalid_points().size() << std::endl
-                << "Tracked Objects: " << latest_message.tracked_objects_size() << std::endl
-                << "Non Tracked Objects: " << latest_message.non_tracked_objects_size() << std::endl
+                << "Timestamp: " << message.time_stamp().seconds() << " (s) "
+                                 << message.time_stamp().nano_seconds() << " (ns)" << std::endl
+                << "Ground Points: " << message.point_cloud().ground_points().size() << std::endl
+                << "Object Points: " << message.point_cloud().object_points().size() << std::endl
+                << "Invalid Points: " << message.point_cloud().invalid_points().size() << std::endl
+                << "Tracked Objects: " << message.tracked_objects_size() << std::endl
+                << "Non Tracked Objects: " << message.non_tracked_objects_size() << std::endl
                 << std::endl;
     }
   }
