@@ -13,7 +13,6 @@ message point_list {
 message point_cloud {
   point_list ground_points = 1;
   point_list object_points = 2;
-  point_list invalid_points = 3;
 }
 
 message bounding_box {
@@ -22,12 +21,12 @@ message bounding_box {
   float yaw = 3;
 }
 
-message non_tracked_object { 
+message non_tracked_object {
   int32 id = 1;
   bounding_box bbox = 2;
 }
 
-message tracked_object { 
+message tracked_object {
   int32 id = 1;
   bounding_box bbox = 2;
   int32 label = 3;

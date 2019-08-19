@@ -89,7 +89,6 @@ int main(int argc, char *argv[])
 
     ImGui::BulletText("Ground Points: %d.", latest_message.point_cloud().ground_points().size());
     ImGui::BulletText("Object Points: %d.", latest_message.point_cloud().object_points().size());
-    ImGui::BulletText("Invalid Points: %d.", latest_message.point_cloud().invalid_points().size());
     ImGui::BulletText("Tracked Objects: %d.", latest_message.tracked_objects_size());
     ImGui::BulletText("Non Tracked Objects: %d.", latest_message.non_tracked_objects_size());
 

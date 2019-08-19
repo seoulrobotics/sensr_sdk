@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
                                  << message.time_stamp().nano_seconds() << " (ns)" << std::endl
                 << "Ground Points: " << message.point_cloud().ground_points().size() << std::endl
                 << "Object Points: " << message.point_cloud().object_points().size() << std::endl
-                << "Invalid Points: " << message.point_cloud().invalid_points().size() << std::endl
                 << "Tracked Objects: " << message.tracked_objects_size() << std::endl
                 << "Non Tracked Objects: " << message.non_tracked_objects_size() << std::endl
                 << std::endl;
