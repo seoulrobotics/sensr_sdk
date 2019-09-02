@@ -108,13 +108,13 @@ int main(int argc, char *argv[])
       for (int i = 0; i < latest_message.non_tracked_objects_size(); ++i)
       {
         auto &item = latest_message.non_tracked_objects(i);
-        const float *bbox_position = (const float *)item.bbox().position().data();
-        const float *bbox_size = (const float *)item.bbox().size().data();
+        const vector3& bbox_position = item.bbox().position();
+        const vector3& bbox_size = item.bbox().size();
         ImGui::Text("%d", item.id());
         ImGui::NextColumn();
         ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                    bbox_position[0], bbox_position[1], bbox_position[2],
-                    bbox_size[0], bbox_size[1], bbox_size[2]);
+                    bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                    bbox_size.x(), bbox_size.y(), bbox_size.z());
         ImGui::NextColumn();
         ImGui::Separator();
       }
@@ -149,14 +149,14 @@ int main(int argc, char *argv[])
       for (int i = 0; i < latest_message.tracked_objects_size(); ++i)
       {
         auto &item = latest_message.tracked_objects(i);
-        const float *bbox_position = (const float *)item.bbox().position().data();
-        const float *bbox_size = (const float *)item.bbox().size().data();
-        const float *velocity = (const float *)item.velocity().data();
+        const vector3& bbox_position = item.bbox().position();
+        const vector3& bbox_size = item.bbox().size();
+        const vector3& velocity = item.velocity();
         ImGui::Text("%d", item.id());
         ImGui::NextColumn();
         ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                    bbox_position[0], bbox_position[1], bbox_position[2],
-                    bbox_size[0], bbox_size[1], bbox_size[2]);
+                    bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                    bbox_size.x(), bbox_size.y(), bbox_size.z());
         ImGui::NextColumn();
         ImGui::Text("%s", label_to_string[item.label()]);
         ImGui::NextColumn();
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
         ImGui::NextColumn();
         ImGui::Text(item.tracking_reliable() ? "Reliable" : "Unreliable");
         ImGui::NextColumn();
-        ImGui::Text("(%.3f, %.3f, %.3f )", velocity[0], velocity[1], velocity[2]);
+        ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
         ImGui::NextColumn();
         ImGui::Text("%d points", item.history().size());
         ImGui::NextColumn();

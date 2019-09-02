@@ -15,9 +15,15 @@ message point_cloud {
   point_list object_points = 2;
 }
 
+message vector3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
 message bounding_box {
-  bytes position = 1;
-  bytes size = 2;
+  vector3 position = 1;
+  vector3 size = 2;
   float yaw = 3;
 }
 
@@ -32,9 +38,9 @@ message tracked_object {
   int32 label = 3;
   float probability = 4;
   bool tracking_reliable = 5;
-  bytes velocity = 6;
-  point_list history = 7;
-  point_list prediction = 8;
+  vector3 velocity = 6;
+  repeated vector3 history = 7;
+  repeated vector3 prediction = 8;
 }
 
 message zone {
