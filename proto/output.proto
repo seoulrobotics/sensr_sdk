@@ -15,6 +15,11 @@ message point_cloud {
   point_list object_points = 2;
 }
 
+message vector2 {
+  float x = 1;
+  float y = 2;
+}
+
 message vector3 {
   float x = 1;
   float y = 2;
@@ -25,6 +30,12 @@ message bounding_box {
   vector3 position = 1;
   vector3 size = 2;
   float yaw = 3;
+}
+
+message polygon_box {
+  repeated vector2 points = 1;
+  float min_z = 2;
+  float max_z = 3;
 }
 
 message non_tracked_object {
@@ -44,8 +55,10 @@ message tracked_object {
 }
 
 message zone {
-  bounding_box bbox = 1;
-  repeated int32 object_ids = 2;
+  int32 id = 1;
+  polygon_box polygon_box = 2;
+  repeated int32 object_ids = 3;
+  bool negative = 4;
 }
 
 message output_message {
