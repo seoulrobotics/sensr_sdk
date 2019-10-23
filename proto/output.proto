@@ -58,7 +58,7 @@ message zone {
   int32 id = 1;
   polygon_box polygon_box = 2;
   repeated int32 object_ids = 3;
-  bool negative = 4;
+  bool is_exclusion = 4;
 }
 
 message output_message {
