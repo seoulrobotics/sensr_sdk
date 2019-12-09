@@ -9,7 +9,7 @@ include(FindProtobuf REQUIRED)
 
 ######## PACKAGE Dependency Management ##########
 
-set(PROTO_FILES proto/output.proto)
+set(PROTO_FILES proto/output.proto proto/labels.proto)
 set(SOURCE_FILES src/sensr_client.cpp)
 protobuf_generate_cpp(generated_code generated_header_code ${PROTO_FILES})
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
