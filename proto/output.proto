@@ -4,8 +4,6 @@ import "google/protobuf/descriptor.proto";
 import "google/protobuf/timestamp.proto";
 import "labels.proto";
 
-option cc_enable_arenas = true;
-
 // Custom Message type
 message Vector2 {
   float x = 1;
@@ -43,7 +41,7 @@ message Object {
   BoundingBox bbox = 2;
   label_types.LabelType label = 3;
   TrackingInfo track = 101;
-  bytes points = 102;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
+  bytes points = 102;                    // Array of Vector3f (12 bytes)
 }
 
 message Zone {
@@ -58,21 +56,5 @@ message OutputMessage {
   google.protobuf.Timestamp time_stamp = 1;
   repeated Object objects = 2;
   repeated Zone region_of_interest = 101;
-  bytes ground_points = 102;              // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
-}
-
-// Deprecated Message type
-message point_list {
-  int32 size = 1 [deprecated=true];
-  bytes points = 2 [deprecated=true];
-}
-
-message point_cloud {
-  point_list ground_points = 1 [deprecated=true];
-  point_list environment_points = 2 [deprecated=true];
-}
-
-message time_stamp {
-  int64 seconds = 1 [deprecated=true];
-  int32 nano_seconds = 2 [deprecated=true];
+  bytes ground_points = 102;              // Array of Vector3f (12 bytes)
 }
