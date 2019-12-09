@@ -6,12 +6,13 @@
 #include <GLFW/glfw3.h>
 #include "sensr.h"
 
-const char *label_to_string[sensr::LabelType::Max+1] =
+const char *label_to_string[label_types::LabelType::Max + 1] =
     {
         "Car",
         "Pedestrian",
         "Cyclist",
         "Misc",
+        "Ground",
         "INVALID"};
 
 int main(int argc, char *argv[])
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init(glsl_version);
 
-  output_message latest_message;
+  OutputMessage latest_message;
   int message_received_count = 0;
   while (!glfwWindowShouldClose(window))
   {
@@ -81,16 +82,28 @@ int main(int argc, char *argv[])
       message_received_count++;
     }
 
+    const int size_of_vec3 = sizeof(float) * 3;
+    size_t object_points_size = 0;
+    int tracked_objects_size = 0, non_tracked_objects_size = 0;
+    for(const auto& object : latest_message.objects()) {
+      object_points_size += (object.points().length() / size_of_vec3);
+      if (object.has_track() && object.track().tracking_reliable()) {
+        tracked_objects_size++;
+      } else {
+        non_tracked_objects_size++;
+      }
+    }
+
     ImGui::Begin("Message Explorer");
 
     ImGui::BulletText("Timestamp %ld (s) %d (ns)",
                       latest_message.time_stamp().seconds(),
-                      latest_message.time_stamp().nano_seconds());
-
-    ImGui::BulletText("Ground Points: %d.", latest_message.point_cloud().ground_points().size());
-    ImGui::BulletText("Object Points: %d.", latest_message.point_cloud().object_points().size());
-    ImGui::BulletText("Tracked Objects: %d.", latest_message.tracked_objects_size());
-    ImGui::BulletText("Non Tracked Objects: %d.", latest_message.non_tracked_objects_size());
+                      latest_message.time_stamp().nanos());
+    
+    ImGui::BulletText("Ground Points: %d.", latest_message.ground_points().length() / size_of_vec3);
+    ImGui::BulletText("Object Points: %d.", object_points_size);
+    ImGui::BulletText("Tracked Objects: %d.", tracked_objects_size);
+    ImGui::BulletText("Non Tracked Objects: %d.", non_tracked_objects_size);
 
     ImGui::BeginTabBar("Test");
 
@@ -104,19 +117,18 @@ int main(int argc, char *argv[])
       ImGui::Text("Bounding Box");
       ImGui::NextColumn();
       ImGui::Separator();
-
-      for (int i = 0; i < latest_message.non_tracked_objects_size(); ++i)
-      {
-        auto &item = latest_message.non_tracked_objects(i);
-        const vector3& bbox_position = item.bbox().position();
-        const vector3& bbox_size = item.bbox().size();
-        ImGui::Text("%d", item.id());
-        ImGui::NextColumn();
-        ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                    bbox_position.x(), bbox_position.y(), bbox_position.z(),
-                    bbox_size.x(), bbox_size.y(), bbox_size.z());
-        ImGui::NextColumn();
-        ImGui::Separator();
+      for(const auto& object : latest_message.objects()) {
+        if (!object.has_track() || (object.has_track() && !(object.track().tracking_reliable()))) {
+          const Vector3& bbox_position = object.bbox().position();
+          const Vector3& bbox_size = object.bbox().size();
+          ImGui::Text("%d", object.id());
+          ImGui::NextColumn();
+          ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
+                      bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                      bbox_size.x(), bbox_size.y(), bbox_size.z());
+          ImGui::NextColumn();
+          ImGui::Separator();
+        }
       }
 
       ImGui::Columns(1);
@@ -145,32 +157,31 @@ int main(int argc, char *argv[])
       ImGui::Text("Prediction Points");
       ImGui::NextColumn();
       ImGui::Separator();
-
-      for (int i = 0; i < latest_message.tracked_objects_size(); ++i)
-      {
-        auto &item = latest_message.tracked_objects(i);
-        const vector3& bbox_position = item.bbox().position();
-        const vector3& bbox_size = item.bbox().size();
-        const vector3& velocity = item.velocity();
-        ImGui::Text("%d", item.id());
-        ImGui::NextColumn();
-        ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                    bbox_position.x(), bbox_position.y(), bbox_position.z(),
-                    bbox_size.x(), bbox_size.y(), bbox_size.z());
-        ImGui::NextColumn();
-        ImGui::Text("%s", label_to_string[item.label()]);
-        ImGui::NextColumn();
-        ImGui::Text("%.3f", item.probability());
-        ImGui::NextColumn();
-        ImGui::Text(item.tracking_reliable() ? "Reliable" : "Unreliable");
-        ImGui::NextColumn();
-        ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
-        ImGui::NextColumn();
-        ImGui::Text("%d points", item.history().size());
-        ImGui::NextColumn();
-        ImGui::Text("%d points", item.prediction().size());
-        ImGui::NextColumn();
-        ImGui::Separator();
+      for(const auto& object : latest_message.objects()) {
+        if (object.has_track() && object.track().tracking_reliable()) {
+          const Vector3& bbox_position = object.bbox().position();
+          const Vector3& bbox_size = object.bbox().size();
+          const Vector3& velocity = object.track().velocity();
+          ImGui::Text("%d", object.id());
+          ImGui::NextColumn();
+          ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
+                      bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                      bbox_size.x(), bbox_size.y(), bbox_size.z());
+          ImGui::NextColumn();
+          ImGui::Text("%s", label_to_string[(int)object.label()]);
+          ImGui::NextColumn();
+          ImGui::Text("%.3f", object.track().probability());
+          ImGui::NextColumn();
+          ImGui::Text(object.track().tracking_reliable() ? "Reliable" : "Unreliable");
+          ImGui::NextColumn();
+          ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
+          ImGui::NextColumn();
+          ImGui::Text("%d points", object.track().history().size());
+          ImGui::NextColumn();
+          ImGui::Text("%d points", object.track().prediction().size());
+          ImGui::NextColumn();
+          ImGui::Separator();
+        }
       }
 
       ImGui::Columns(1);

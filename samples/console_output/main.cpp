@@ -12,16 +12,26 @@ int main(int argc, char *argv[])
 
   while (true)
   {
-    output_message message;
+    OutputMessage message;
     if (client.ReceiveMessage(message))
     {
+      size_t object_points_size = 0;
+      int tracked_objects_size = 0, non_tracked_objects_size = 0;
+      for(const auto& object : message.objects()) {
+        object_points_size += (object.points().length() / (sizeof(float) * 3));
+        if (object.has_track() && object.track().tracking_reliable()) {
+          tracked_objects_size++;
+        } else {
+          non_tracked_objects_size++;
+        }
+      }
       std::cout << "Message received from SENSR!" << std::endl
                 << "Timestamp: " << message.time_stamp().seconds() << " (s) "
-                                 << message.time_stamp().nano_seconds() << " (ns)" << std::endl
-                << "Ground Points: " << message.point_cloud().ground_points().size() << std::endl
-                << "Object Points: " << message.point_cloud().object_points().size() << std::endl
-                << "Tracked Objects: " << message.tracked_objects_size() << std::endl
-                << "Non Tracked Objects: " << message.non_tracked_objects_size() << std::endl
+                                 << message.time_stamp().nanos() << " (ns)" << std::endl
+                << "Ground Points: " << message.ground_points().length() / (sizeof(float) * 3) << std::endl
+                << "Object Points: " << object_points_size << std::endl
+                << "Tracked Objects: " << tracked_objects_size << std::endl
+                << "Non Tracked Objects: " << non_tracked_objects_size << std::endl
                 << std::endl;
     }
   }

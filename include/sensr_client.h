@@ -3,6 +3,7 @@
 
 #include <zmq.hpp>
 #include "output.pb.h"
+#include "labels.pb.h"
 
 namespace sensr
 {
@@ -11,8 +12,8 @@ class Client
 public:
   Client(const char *address);
   ~Client();
-  bool ReceiveMessageAsync(output_message &message);
-  bool ReceiveMessage(output_message &message);
+  bool ReceiveMessageAsync(OutputMessage &message);
+  bool ReceiveMessage(OutputMessage &message);
 
 private:
   zmq::context_t context_;

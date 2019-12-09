@@ -20,7 +20,7 @@ Client::~Client()
 {
 }
 
-bool Client::ReceiveMessageAsync(output_message &message)
+bool Client::ReceiveMessageAsync(OutputMessage &message)
 {
   zmq::message_t network_message;
   if (subscriber_.recv(&network_message, ZMQ_DONTWAIT))
@@ -32,7 +32,7 @@ bool Client::ReceiveMessageAsync(output_message &message)
   return false;
 }
 
-bool Client::ReceiveMessage(output_message &message)
+bool Client::ReceiveMessage(OutputMessage &message)
 {
   zmq::message_t network_message;
   if (subscriber_.recv(&network_message, 0))
