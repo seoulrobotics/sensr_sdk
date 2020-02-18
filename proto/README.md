@@ -1,5 +1,15 @@
 # Output Data Specification
 
+## Object
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+id | - | int32 | ID of the object.
+bbox | - | BoundingBox | Bounding box of the object.
+label | - | int32 | Classification of the object. see [labels.proto](labels.proto)
+track | - | TrackingInfo | Tracking information of the object.
+points | meters | bytes | List of sequential 3 float value set (XYZ).
+
 ### BoundingBox
 
 Field | Unit | Type | Description
