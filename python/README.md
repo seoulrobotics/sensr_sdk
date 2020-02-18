@@ -17,3 +17,7 @@ pip3 install -r requirements.txt
 ```bash
 python3 parse_output.py sample_output/frame_00006.bin
 ```
+
+## TODO
+
+- Integrate Pyzmq (https://zeromq.org/languages/python/)
