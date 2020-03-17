@@ -3,7 +3,6 @@ import sys
 import tqdm
 import zmq
 
-import labels_pb2
 import output_pb2
 
 class MessageReceiver(object):
