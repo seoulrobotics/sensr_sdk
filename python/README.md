@@ -1,6 +1,6 @@
 # Python Guide
 
-If you want to copy and paste some code snippets, please refer to devtips.md.
+If you want to copy and paste some code snippets, please refer to [devtips.md](./devtips.md).
 
 ## Requirements
 
