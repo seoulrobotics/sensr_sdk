@@ -1,1 +1,2 @@
-protobuf>=3.6.0
+protobuf>=3.6
+pyzmq
