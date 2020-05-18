@@ -5,6 +5,5 @@ build_imgui
 protobuf-3.6.0
 
 __pycache__
-*pb*
 
 *.bin
