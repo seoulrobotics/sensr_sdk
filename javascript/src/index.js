@@ -17,20 +17,20 @@ main()
 
 function main() {
   
+  const filename = parseCmdArgs();
+  parseOutputFile(filename);
+}
+
+function parseCmdArgs () {
   let args = process.argv.slice(2);
   if (args === undefined ||  args.length == 0) {
-    console.log("No binary file specified.");
+    throw "No binary file specified.";
   } else if (args.length > 1) {
-    console.log("Wrong number of command line arguements.");
-  } else {
-
-    const filename = args[0];
-    parseOutputFile(filename);
-
+    throw "Wrong number of command line arguements.";
   }
 
-  
-
+  const filename = args[0];
+  return filename;
 }
 
 function parseOutputFile(filename) {

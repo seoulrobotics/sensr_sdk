@@ -4,7 +4,7 @@
   "description": "Javascript interface for Seoul Robotics SENSR output",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js sample_output/0027.bin",
+    "start": "node src/index.js sample_output/0000.bin",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
