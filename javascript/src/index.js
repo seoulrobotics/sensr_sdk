@@ -19,28 +19,49 @@ main()
 
 
 function main() {
-  const filename = parseCmdArgs();
-  parseOutputFile(filename);
+  parseCmdArgs();
 }
 
 
 function parseCmdArgs() {
   const argv = yargs
-    .option('filename', {
-      description: "File to be parsed",
-      alias: 'f',
-      type: 'string',
+    .command('parse', 'Parse from binary file.', {
+      filename: {
+        description: "File to be parsed",
+        alias: 'f',
+        type: 'string',
+      }
+    })
+    .command('receive', 'Receive messages from SENSR.', {
+      todo: {
+        description: "todo",
+        alias: 't',
+        type: 'boolean',
+      }
+    })
+    .check(function (argv) {
+      if (argv._.includes('parse') && argv.filename != undefined) {
+        return true;
+      } else if (argv._.includes('receive')) {
+        return true;
+      } else {
+        return false;
+      }
     })
     .help()
     .alias('help', 'h')
     .argv;
-  
-  if (argv.filename == undefined) {
-    throw "No filename specified. See --help."
+
+  if (argv._.includes('parse')) {
+    parseOutputFile(argv.filename)
   }
 
-  return argv.filename;
+  if (argv._.includes('receive')) {
+    console.log("RECEIVING... rip this doesn't actually do anything yet.")
+  }
+  
 }
+
 
 function parseOutputFile(filename) {
 
