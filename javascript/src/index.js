@@ -10,9 +10,12 @@ const output_msg = require('./../js_proto/output_pb.js')
 // Formatting
 const print_utils = require('./print_utils')
 
+// Arg parsing
+const yargs = require('yargs')
 
 
 main()
+
 
 
 function main() {
@@ -21,16 +24,22 @@ function main() {
 }
 
 
-function parseCmdArgs () {
-  let args = process.argv.slice(2);
-  if (args === undefined ||  args.length == 0) {
-    throw "No binary file specified.";
-  } else if (args.length > 1) {
-    throw "Wrong number of command line arguements.";
+function parseCmdArgs() {
+  const argv = yargs
+    .option('filename', {
+      description: "File to be parsed",
+      alias: 'f',
+      type: 'string',
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
+  
+  if (argv.filename == undefined) {
+    throw "No filename specified. See --help."
   }
 
-  const filename = args[0];
-  return filename;
+  return argv.filename;
 }
 
 function parseOutputFile(filename) {

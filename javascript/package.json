@@ -4,12 +4,13 @@
   "description": "Javascript interface for Seoul Robotics SENSR output",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js sample_output/0000.bin",
+    "start": "node src/index.js -f sample_output/0000.bin",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "google-protobuf": "^3.12.0"
+    "google-protobuf": "^3.12.0",
+    "yargs": "^15.3.1"
   }
 }
