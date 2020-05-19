@@ -1,6 +1,6 @@
 'use strict';
 
-var label_msg = require('./../js_proto/labels_pb.js')
+const label_msg = require('./../js_proto/labels_pb.js')
 
 module.exports = {
   labelToString

@@ -1,14 +1,14 @@
 'use strict';
 
 // Filesystem
-var fs = require('fs');
+const fs = require('fs');
 
 // Proto
-var label_msg = require('./../js_proto/labels_pb.js')
-var output_msg = require('./../js_proto/output_pb.js')
+const label_msg = require('./../js_proto/labels_pb.js')
+const output_msg = require('./../js_proto/output_pb.js')
 
 // Formatting
-var print_utils = require('./print_utils')
+const print_utils = require('./print_utils')
 
 
 
@@ -16,10 +16,10 @@ main()
 
 
 function main() {
-  
   const filename = parseCmdArgs();
   parseOutputFile(filename);
 }
+
 
 function parseCmdArgs () {
   let args = process.argv.slice(2);

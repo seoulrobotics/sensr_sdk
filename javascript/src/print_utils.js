@@ -1,17 +1,17 @@
 'use strict';
 
 // Proto
-var label_utils = require('./label_utils.js')
+const label_utils = require('./label_utils.js')
 
 // Formatter settings
-const num_decimal_places = 3;
+const NUM_DECIMALS = 3;
 
 module.exports = {
   printObject
 }
 
 function Format(float) {
-  return float.toFixed(num_decimal_places);
+  return float.toFixed(NUM_DECIMALS);
 }
   
 function PrettyPrintFloat(float, name) {
