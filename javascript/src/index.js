@@ -1,17 +1,10 @@
 'use strict';
 
-// Filesystem
-const fs = require('fs');
-
-// Proto
-const label_msg = require('./../js_proto/labels_pb.js')
-const output_msg = require('./../js_proto/output_pb.js')
-
-// Formatting
-const print_utils = require('./print_utils')
-
 // Arg parsing
 const yargs = require('yargs')
+
+// Parsing
+const parsing = require('./parse_output')
 
 
 main()
@@ -22,9 +15,8 @@ function main() {
   parseCmdArgs();
 }
 
-
-function parseCmdArgs() {
-  const argv = yargs
+function fetchArgs() {
+  return yargs
     .command('parse', 'Parse from binary file.', {
       filename: {
         description: "File to be parsed",
@@ -51,31 +43,20 @@ function parseCmdArgs() {
     .help()
     .alias('help', 'h')
     .argv;
+}
+
+function parseCmdArgs() {
+  const argv = fetchArgs();
 
   if (argv._.includes('parse')) {
-    parseOutputFile(argv.filename)
+    parsing.parseOutputFile(argv.filename)
   }
 
   if (argv._.includes('receive')) {
     console.log("RECEIVING... rip this doesn't actually do anything yet.")
   }
-  
+
 }
 
 
-function parseOutputFile(filename) {
-
-  const bytes = fs.readFileSync(filename);
-  const output = output_msg.OutputMessage.deserializeBinary(bytes);
-
-  const objects = output.getObjectsList();
-  
-  objects.forEach(function(obj, key) {
-    console.log("------------------------------");
-    print_utils.printObject(obj);
-  });
-
-  
-  
-}
 

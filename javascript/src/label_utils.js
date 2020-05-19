@@ -7,7 +7,7 @@ module.exports = {
 }
 
 function labelToString(label) {
-  switch(label) {
+  switch (label) {
     case label_msg.LabelType.CAR:
       return "Car";
     case label_msg.LabelType.PEDESTRIAN:
