@@ -1,14 +1,16 @@
 'use strict';
 
 // Arg parsing
-const yargs = require('yargs')
+const yargs = require('yargs');
+
+// Message receiver
+const receiver = require('./message_receiver');
 
 // Parsing
-const parsing = require('./parse_output')
+const parsing = require('./parse_output');
 
 
-main()
-
+main();
 
 
 function main() {
@@ -17,46 +19,44 @@ function main() {
 
 function fetchArgs() {
   return yargs
-    .command('parse', 'Parse from binary file.', {
-      filename: {
-        description: "File to be parsed",
-        alias: 'f',
-        type: 'string',
-      }
-    })
-    .command('receive', 'Receive messages from SENSR.', {
-      todo: {
-        description: "todo",
-        alias: 't',
-        type: 'boolean',
-      }
-    })
-    .check(function (argv) {
-      if (argv._.includes('parse') && argv.filename != undefined) {
-        return true;
-      } else if (argv._.includes('receive')) {
-        return true;
-      } else {
-        return false;
-      }
-    })
-    .help()
-    .alias('help', 'h')
-    .argv;
+      .command('parse', 'Parse from binary file.', {
+        filename: {
+          description: 'File to be parsed',
+          alias: 'f',
+          type: 'string',
+        },
+      })
+      .command('receive', 'Receive messages from SENSR.', {
+        todo: {
+          description: 'todo',
+          alias: 't',
+          type: 'boolean',
+        },
+      })
+      .check(function(argv) {
+        if (argv._.includes('parse') && argv.filename != undefined) {
+          return true;
+        } else if (argv._.includes('receive')) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .help()
+      .alias('help', 'h')
+      .argv;
 }
 
 function parseCmdArgs() {
   const argv = fetchArgs();
 
   if (argv._.includes('parse')) {
-    parsing.parseOutputFile(argv.filename)
+    parsing.parseOutputFile(argv.filename);
   }
 
   if (argv._.includes('receive')) {
-    console.log("RECEIVING... rip this doesn't actually do anything yet.")
+    console.log('RECEIVING... rip this doesn\'t actually do anything yet.');
   }
-
 }
-
 
 
