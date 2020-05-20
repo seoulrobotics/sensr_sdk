@@ -34,7 +34,6 @@ class MessageReceiver {
   async subscribe(timeout=1000) {
     this.resetTimeout();
 
-    console.log('Starting subscription...');
     this._socket.subscribe();
 
     const outputs = [];
@@ -51,12 +50,10 @@ class MessageReceiver {
       } catch (err) {
         console.log(`No message received for ${timeout} ms.`);
         console.log('Stopping collection of messages.');
-        console.log(`Received a total of ${outputs.length} messages.`);
         break;
       }
     }
 
-    console.log('Ending subscription...');
     this._socket.unsubscribe();
 
     return outputs;

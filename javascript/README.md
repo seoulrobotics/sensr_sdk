@@ -13,9 +13,9 @@ npm install
 
 ## Execution
 
-- Dump the output messages received from SENSR (TODO make sure this is correct)
+- Dump the output messages received from SENSR
   ```bash
-  npm start receive
+  npm start receive --output_dir sample_output
   # Run SENSR in another terminal
   ```
 
@@ -27,5 +27,9 @@ npm install
 For more information, see
 ```bash
 npm start --help
+# or
+npm start parse --help
+# or
+npm start receive --help
 ```
 

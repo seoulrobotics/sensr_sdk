@@ -27,10 +27,10 @@ function fetchArgs() {
         },
       })
       .command('receive', 'Receive messages from SENSR.', {
-        todo: {
-          description: 'todo',
-          alias: 't',
-          type: 'boolean',
+        output_dir: {
+          description: 'Directory of where the received files are dumped',
+          alias: 'o',
+          type: 'string',
         },
       })
       .check(function(argv) {
@@ -55,20 +55,19 @@ async function parseCmdArgs() {
   }
 
   if (argv._.includes('receive')) {
-    // TODO make directory if it does not exist
-    const outputFolder = './javascript/testing_output';
+    const outputDir = (argv.output_dir != undefined) ? argv.output_dir :
+                                        './javascript/testing_output';
 
-    const outputs = await receive();
-
+    const outputs = await receiveOutputs();
     console.log(`Successfully received ${outputs.length} messages from SENSR.`);
-    console.log('Exporting to binary files...');
 
-    parsing.exportToBinary(outputs, outputFolder);
+    console.log('Exporting to binary files...');
+    parsing.exportToBinary(outputs, outputDir);
     console.log('Done!');
   }
 }
 
-async function receive() {
+async function receiveOutputs() {
   const messageReceiver = new receiver.MessageReceiver();
   messageReceiver.connect();
   const outputs = await messageReceiver.subscribe();
