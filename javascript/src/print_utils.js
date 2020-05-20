@@ -32,7 +32,7 @@ function prettyPrintVec3(vec, name) {
 }
 
 function printBbox(bbox) {
-  prettyPrintVec2(bbox.getPosition(), 'position');
+  prettyPrintVec3(bbox.getPosition(), 'position');
   prettyPrintVec3(bbox.getSize(), 'size');
   prettyPrintFloat(bbox.getYaw(), 'yaw');
 }

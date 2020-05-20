@@ -49,7 +49,7 @@ function fetchArgs() {
 
 function setupOutputDir(argv) {
   const outputDir = (argv.output_dir != undefined) ? argv.output_dir :
-                                        './javascript/testing_output';
+                                        './javascript/sample_output';
   parsing.mkdir(outputDir);
   return outputDir;
 }
@@ -64,7 +64,7 @@ async function parseCmdArgs() {
   if (argv._.includes('receive')) {
     const outputDir = setupOutputDir(argv);
 
-    console.log(`Dumping output to ${outputDir}...`);
+    console.log(`Dumping SENSR output to ${outputDir}...`);
     const numExported = await receiveOutputs(outputDir);
     console.log(`Finished dumping ${numExported} messages from SENSR.`);
   }
