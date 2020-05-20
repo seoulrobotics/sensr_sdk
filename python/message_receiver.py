@@ -38,7 +38,7 @@ class MessageReceiver(object):
             try:
                 msg = self._socket.recv()
     
-                output_fn = os.path.join(self._output_dir, f'{num_received:04}.bin')
+                output_fn = os.path.join(self._output_dir, f'{num_received:06}.bin')
                 with open(output_fn, 'wb') as fp:
                     fp.write(msg)
 
