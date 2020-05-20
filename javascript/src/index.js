@@ -56,9 +56,15 @@ async function parseCmdArgs() {
 
   if (argv._.includes('receive')) {
     // TODO make directory if it does not exist
-    const outputFolder = 'sample_output2';
+    const outputFolder = './javascript/testing_output';
 
     const outputs = await receive();
+
+    console.log(`Successfully received ${outputs.length} messages from SENSR.`);
+    console.log('Exporting to binary files...');
+
+    parsing.exportToBinary(outputs, outputFolder);
+    console.log('Done!');
   }
 }
 
@@ -67,6 +73,7 @@ async function receive() {
   messageReceiver.connect();
   const outputs = await messageReceiver.subscribe();
   messageReceiver.disconnect();
+  return outputs;
 }
 
 

@@ -2,6 +2,8 @@
 
 const zmq = require('zeromq');
 
+const parsing = require('./parse_output');
+
 
 class MessageReceiver {
   constructor() {
@@ -35,12 +37,13 @@ class MessageReceiver {
     console.log('Starting subscription...');
     this._socket.subscribe();
 
-    const output = [];
+    const outputs = [];
     let receivedOnce = false;
     while (true) {
       try {
         const [msg] = await this._socket.receive();
-        output.push(msg);
+        const output = parsing.deserializeBinary(msg);
+        outputs.push(output);
         receivedOnce = true;
         if (receivedOnce) {
           this.setTimeout(timeout);
@@ -48,14 +51,15 @@ class MessageReceiver {
       } catch (err) {
         console.log(`No message received for ${timeout} ms.`);
         console.log('Stopping collection of messages.');
-        console.log(`Received a total of ${output.length} messages.`);
+        console.log(`Received a total of ${outputs.length} messages.`);
         break;
       }
     }
 
+    console.log('Ending subscription...');
     this._socket.unsubscribe();
 
-    return output;
+    return outputs;
   }
 }
 
