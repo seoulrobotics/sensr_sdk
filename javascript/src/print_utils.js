@@ -1,45 +1,45 @@
 'use strict';
 
 // Proto
-const label_utils = require('./label_utils.js')
+const labelUtils = require('./label_utils.js');
 
 // Formatter settings
 const NUM_DECIMALS = 3;
 
 module.exports = {
-  printObject
-}
+  printObject,
+};
 
-function Format(float) {
+function format(float) {
   return float.toFixed(NUM_DECIMALS);
 }
-  
-function PrettyPrintFloat(float, name) {
-  console.log(`${name}:\n\t${Format(float)}`);
+
+function prettyPrintFloat(float, name) {
+  console.log(`${name}:\n\t${format(float)}`);
 }
 
-function PrettyPrintVec2(vec, name) {
-  const x = Format(vec.getX());
-  const y = Format(vec.getY());
+function prettyPrintVec2(vec, name) {
+  const x = format(vec.getX());
+  const y = format(vec.getY());
   console.log(`${name}:\n\t${x}\n\t${y}`);
 }
 
-function PrettyPrintVec3(vec, name) {
-  const x = Format(vec.getX());
-  const y = Format(vec.getY());
-  const z = Format(vec.getZ());
+function prettyPrintVec3(vec, name) {
+  const x = format(vec.getX());
+  const y = format(vec.getY());
+  const z = format(vec.getZ());
   console.log(`${name}:\n\t${x}\n\t${y}\n\t${z}`);
 }
 
-function PrintBbox(bbox) {
-  PrettyPrintVec2(bbox.getPosition(), "position");
-  PrettyPrintVec3(bbox.getSize(), "size");
-  PrettyPrintFloat(bbox.getYaw(), "yaw")
+function printBbox(bbox) {
+  prettyPrintVec2(bbox.getPosition(), 'position');
+  prettyPrintVec3(bbox.getSize(), 'size');
+  prettyPrintFloat(bbox.getYaw(), 'yaw');
 }
-  
+
 function printObject(obj) {
   const id = obj.getId();
-  const label = label_utils.labelToString(obj.getLabel());
+  const label = labelUtils.labelToString(obj.getLabel());
   console.log(`Object #${id}: ${label}`);
-  PrintBbox(obj.getBbox());
+  printBbox(obj.getBbox());
 }
