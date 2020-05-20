@@ -47,7 +47,7 @@ function fetchArgs() {
       .argv;
 }
 
-function parseCmdArgs() {
+async function parseCmdArgs() {
   const argv = fetchArgs();
 
   if (argv._.includes('parse')) {
@@ -55,8 +55,18 @@ function parseCmdArgs() {
   }
 
   if (argv._.includes('receive')) {
-    console.log('RECEIVING... rip this doesn\'t actually do anything yet.');
+    // TODO make directory if it does not exist
+    const outputFolder = 'sample_output2';
+
+    const outputs = await receive();
   }
+}
+
+async function receive() {
+  const messageReceiver = new receiver.MessageReceiver();
+  messageReceiver.connect();
+  const outputs = await messageReceiver.subscribe();
+  messageReceiver.disconnect();
 }
 
 
