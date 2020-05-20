@@ -6,7 +6,9 @@ const parsing = require('./parse_output');
 
 
 class MessageReceiver {
-  constructor() {
+  constructor(outputDir) {
+    this._outDir = outputDir;
+
     this._socket = new zmq.Subscriber;
     this._currentConnectedAddress = null;
   }
@@ -15,9 +17,11 @@ class MessageReceiver {
     this._currentConnectedAddress = `tcp://${address}:5050`;
     console.log(`Connecting to ${this._currentConnectedAddress}`);
     this._socket.connect(this._currentConnectedAddress);
+    this._socket.subscribe();
   }
 
   disconnect() {
+    this._socket.unsubscribe();
     this._socket.disconnect(this._currentConnectedAddress);
   }
 
@@ -31,32 +35,29 @@ class MessageReceiver {
     this._socket.linger = 0;
   }
 
-  async subscribe(timeout=1000) {
+  async receive(timeout=1000) {
+    this.connect();
     this.resetTimeout();
 
-    this._socket.subscribe();
-
-    const outputs = [];
-    let receivedOnce = false;
+    let numExported = 0;
     while (true) {
       try {
         const [msg] = await this._socket.receive();
-        const output = parsing.deserializeBinary(msg);
-        outputs.push(output);
-        receivedOnce = true;
-        if (receivedOnce) {
-          this.setTimeout(timeout);
-        }
+
+        const outFilename = parsing.formatFilename(this._outDir, numExported);
+        parsing.exportToBinary(msg, outFilename);
+
+        this.setTimeout(timeout);
+        ++numExported;
       } catch (err) {
-        console.log(`No message received for ${timeout} ms.`);
-        console.log('Stopping collection of messages.');
+        console.log(`No message received for ${timeout} ms, ` +
+                            'stopping collection of messages.');
         break;
       }
     }
 
-    this._socket.unsubscribe();
-
-    return outputs;
+    this.disconnect();
+    return numExported;
   }
 }
 

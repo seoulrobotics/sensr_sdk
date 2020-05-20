@@ -47,6 +47,13 @@ function fetchArgs() {
       .argv;
 }
 
+function setupOutputDir(argv) {
+  const outputDir = (argv.output_dir != undefined) ? argv.output_dir :
+                                        './javascript/testing_output';
+  parsing.mkdir(outputDir);
+  return outputDir;
+}
+
 async function parseCmdArgs() {
   const argv = fetchArgs();
 
@@ -55,24 +62,18 @@ async function parseCmdArgs() {
   }
 
   if (argv._.includes('receive')) {
-    const outputDir = (argv.output_dir != undefined) ? argv.output_dir :
-                                        './javascript/testing_output';
+    const outputDir = setupOutputDir(argv);
 
-    const outputs = await receiveOutputs();
-    console.log(`Successfully received ${outputs.length} messages from SENSR.`);
-
-    console.log('Exporting to binary files...');
-    parsing.exportToBinary(outputs, outputDir);
-    console.log('Done!');
+    console.log(`Dumping output to ${outputDir}...`);
+    const numExported = await receiveOutputs(outputDir);
+    console.log(`Finished dumping ${numExported} messages from SENSR.`);
   }
 }
 
-async function receiveOutputs() {
-  const messageReceiver = new receiver.MessageReceiver();
-  messageReceiver.connect();
-  const outputs = await messageReceiver.subscribe();
-  messageReceiver.disconnect();
-  return outputs;
+async function receiveOutputs(outputDir) {
+  const messageReceiver = new receiver.MessageReceiver(outputDir);
+  const numExported = await messageReceiver.receive();
+  return numExported;
 }
 
 

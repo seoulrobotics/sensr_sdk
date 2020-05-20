@@ -14,6 +14,8 @@ module.exports = {
   parseOutputFile,
   deserializeBinary,
   exportToBinary,
+  mkdir,
+  formatFilename,
 };
 
 function parseOutputFile(filename) {
@@ -38,19 +40,23 @@ function padLeft(string, paddingValue) {
   return String(paddingValue + string).slice(-paddingValue.length);
 }
 
-function exportToBinary(outputs, outputDir) {
-  try {
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
-    }
+function mkdir(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+}
 
-    outputs.forEach(function(output, key) {
-      const bytes = output.serializeBinary();
-      let fname = padLeft(String(key), '000000');
-      fname = `${outputDir}/${fname}.bin`;
-      fs.writeFileSync(fname, bytes);
-    });
+function exportToBinary(bytes, filename) {
+  try {
+    fs.writeFileSync(filename, bytes);
   } catch (err) {
     console.log(err);
   }
 }
+
+function formatFilename(dir, fileId) {
+  let fname = padLeft(String(fileId), '000000');
+  fname = `${dir}/${fname}.bin`;
+  return fname;
+}
+
