@@ -10,14 +10,12 @@ const receiver = require('./message_receiver');
 const parsing = require('./parse_output');
 
 module.exports = {
+  run,
   receiver,
   parsing,
 };
 
-// main();
-
-
-function main() {
+function run() {
   parseCmdArgs();
 }
 
