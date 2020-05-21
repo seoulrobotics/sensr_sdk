@@ -9,11 +9,12 @@ const receiver = require('./message_receiver');
 // Parsing
 const parsing = require('./parse_output');
 
-// Example
-const example = require('./../../example/social_distancing');
+module.exports = {
+  receiver,
+  parsing,
+};
 
-
-main();
+// main();
 
 
 function main() {
@@ -36,19 +37,10 @@ function fetchArgs() {
           type: 'string',
         },
       })
-      .command('example', 'Run example.', {
-        input_dir: {
-          description: 'Directory of binary files to be read',
-          alias: 'i',
-          type: 'string',
-        },
-      })
       .check(function(argv) {
         if (argv._.includes('parse') && argv.filename != undefined) {
           return true;
         } else if (argv._.includes('receive') && argv.output_dir != undefined) {
-          return true;
-        } else if (argv._.includes('example') && argv.input_dir != undefined) {
           return true;
         } else {
           return false;
@@ -73,12 +65,6 @@ async function parseCmdArgs() {
     console.log(`Dumping SENSR output to ${outputDir}...`);
     const numExported = await receiveOutputs(outputDir);
     console.log(`Finished dumping ${numExported} messages from SENSR.`);
-  }
-
-  if (argv._.includes('example')) {
-    const inputDir = argv.input_dir;
-
-    example.runSocialDistancing(inputDir);
   }
 }
 
