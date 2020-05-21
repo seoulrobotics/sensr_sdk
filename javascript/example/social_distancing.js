@@ -7,6 +7,9 @@ module.exports = {
 // Parsing
 const parsing = require('./../src/parse_output');
 
+// Proto
+const labelMsg = require('./../js_proto/labels_pb.js');
+
 // Math
 const math = require('mathjs');
 
@@ -38,11 +41,15 @@ function processOutput(output) {
   const objects = output.getObjectsList();
 
   for (let i = 0; i < objects.length; ++i) {
-    // Continue if not ped TODO
     const object1 = objects[i];
+    if (object1.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+      continue;
+    }
     for (let j = i+1; j < objects.length; ++j) {
-      // Continue if not ped TODO
       const object2 = objects[j];
+      if (object2.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+        continue;
+      }
       if (compareObjects(object1, object2)) {
         breachedObjects.add(object1.getId());
         breachedObjects.add(object2.getId());
@@ -50,6 +57,9 @@ function processOutput(output) {
     }
   }
   objects.forEach(function(obj) {
+    if (obj.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+      return;
+    }
     if (!breachedObjects.has(obj.getId())) {
       nonBreachedObjects.add(obj.getId());
     }
