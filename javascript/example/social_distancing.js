@@ -13,8 +13,8 @@ const sensr = require('sensr_js_sdk')
 const BREACH_DISTANCE = 2.0;
 
 
-main();
-// sensr.main();
+// main();
+sensr.run();
 
 function main() {
   const argv = fetchArgs();
