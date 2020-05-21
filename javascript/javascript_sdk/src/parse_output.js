@@ -69,8 +69,8 @@ function exportToBinary(bytes, filename) {
 }
 
 function formatFilename(dir, fileId) {
-  let fname = padLeft(String(fileId), '000000');
-  fname = path.join(dir, fname, '.bin');
+  let fname = padLeft(String(fileId), '000000') + '.bin';
+  fname = path.join(dir, fname);
   return fname;
 }
 
