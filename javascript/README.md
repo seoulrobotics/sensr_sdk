@@ -34,4 +34,13 @@ npm start receive --help
 ```
 
 ## Running the example
-TODO
+First install the required dependencies for the example:
+```bash
+cd example
+npm install
+```
+
+Running
+```bash
+#TODO
+```

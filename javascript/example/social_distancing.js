@@ -5,7 +5,7 @@ module.exports = {
 };
 
 // Includes
-const parsing = require('./../src/parse_output');
+const parsing = require('./../javascript_sdk/src/parse_output');
 const math = require('mathjs');
 const path = require('path');
 

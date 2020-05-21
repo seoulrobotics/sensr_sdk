@@ -10,7 +10,7 @@ const receiver = require('./message_receiver');
 const parsing = require('./parse_output');
 
 // Example
-const example = require('./../example/social_distancing');
+const example = require('./../../example/social_distancing');
 
 
 main();
