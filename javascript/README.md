@@ -1,6 +1,6 @@
 ## Javascript Guide
 
-TODO
+Interfacing with SENSR output using javascript.
 
 
 ## Installation

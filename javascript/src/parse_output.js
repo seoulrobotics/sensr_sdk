@@ -11,16 +11,33 @@ const outputMsg = require('./../js_proto/output_pb.js');
 const printUtils = require('./print_utils');
 
 module.exports = {
+  mkdir,
+  getFileList,
+  getOutput,
   parseOutputFile,
   deserializeBinary,
   exportToBinary,
-  mkdir,
   formatFilename,
 };
 
-function parseOutputFile(filename) {
+function mkdir(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+}
+
+function getFileList(dir) {
+  return fs.readdirSync(dir);
+}
+
+function getOutput(filename) {
   const bytes = fs.readFileSync(filename);
   const output = outputMsg.OutputMessage.deserializeBinary(bytes);
+  return output;
+}
+
+function parseOutputFile(filename) {
+  const output = getOutput(filename);
 
   const objects = output.getObjectsList();
 
@@ -40,11 +57,6 @@ function padLeft(string, paddingValue) {
   return String(paddingValue + string).slice(-paddingValue.length);
 }
 
-function mkdir(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
-}
 
 function exportToBinary(bytes, filename) {
   try {
