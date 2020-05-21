@@ -48,7 +48,7 @@ sensr.run()
 The are some command line options that you can pass to access different functionality.
 - Dump the output messages received from SENSR
   ```bash
-  node run_sdk.js receive --output_dir sample_output
+  node run_sdk.js dump --output_dir sample_output
   # Run SENSR in another terminal
   ```
 
@@ -63,7 +63,7 @@ node run_sdk.js --help
 # or
 node run_sdk.js parse --help
 # or
-node run_sdk.js receive --help
+node run_sdk.js dump --help
 ```
 
 

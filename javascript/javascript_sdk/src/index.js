@@ -21,24 +21,26 @@ function run() {
 
 function fetchArgs() {
   return yargs
-      .command('parse', 'Parse from binary file.', {
-        filename: {
-          description: 'File to be parsed',
-          alias: 'f',
-          type: 'string',
-        },
-      })
-      .command('receive', 'Receive messages from SENSR.', {
-        output_dir: {
-          description: 'Directory of where the received files are dumped',
-          alias: 'o',
-          type: 'string',
-        },
-      })
+      .command('parse',
+          'Parse from binary file.', {
+            filename: {
+              description: 'File to be parsed',
+              alias: 'f',
+              type: 'string',
+            },
+          })
+      .command('dump',
+          'Dump all receive messages from SENSR to a specified folder.', {
+            output_dir: {
+              description: 'Directory of where the received files are dumped',
+              alias: 'o',
+              type: 'string',
+            },
+          })
       .check(function(argv) {
         if (argv._.includes('parse') && argv.filename != undefined) {
           return true;
-        } else if (argv._.includes('receive') && argv.output_dir != undefined) {
+        } else if (argv._.includes('dump') && argv.output_dir != undefined) {
           return true;
         } else {
           return false;
@@ -56,7 +58,7 @@ async function parseCmdArgs() {
     parsing.parseOutputFile(argv.filename);
   }
 
-  if (argv._.includes('receive')) {
+  if (argv._.includes('dump')) {
     const outputDir = argv.output_dir;
     parsing.mkdir(outputDir);
 
@@ -68,7 +70,7 @@ async function parseCmdArgs() {
 
 async function receiveOutputs(outputDir) {
   const messageReceiver = new receiver.MessageReceiver(outputDir);
-  const numExported = await messageReceiver.receive();
+  const numExported = await messageReceiver.dumpAllReceived();
   return numExported;
 }
 

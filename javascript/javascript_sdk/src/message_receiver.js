@@ -35,7 +35,7 @@ class MessageReceiver {
     this._socket.linger = 0;
   }
 
-  async receive(timeout=1000) {
+  async dumpAllReceived(timeout=1000) {
     this.connect();
     this.resetTimeout();
 
