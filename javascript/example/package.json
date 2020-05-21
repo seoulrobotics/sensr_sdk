@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "mathjs": "^7.0.0",
+    "sensr_js_sdk": "file:../javascript_sdk",
     "yargs": "^15.3.1"
   }
 }

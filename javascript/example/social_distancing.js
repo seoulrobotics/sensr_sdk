@@ -7,14 +7,14 @@ const path = require('path');
 const yargs = require('yargs');
 
 // Include SENSR SDK
-const sensr = require('./../javascript_sdk/src/index')
+const sensr = require('sensr_js_sdk')
 
 // Constants
 const BREACH_DISTANCE = 2.0;
 
 
 main();
-
+// sensr.main();
 
 function main() {
   const argv = fetchArgs();
