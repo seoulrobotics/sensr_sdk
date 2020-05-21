@@ -4,14 +4,10 @@ module.exports = {
   runSocialDistancing,
 };
 
-// Parsing
+// Includes
 const parsing = require('./../src/parse_output');
-
-// Proto
-const labelMsg = require('./../js_proto/labels_pb.js');
-
-// Math
 const math = require('mathjs');
+const path = require('path');
 
 // Constants
 const BREACH_DISTANCE = 2.0;
@@ -22,7 +18,7 @@ function runSocialDistancing(inputDir) {
 
   const fileList = parsing.getFileList(inputDir);
   fileList.forEach(function(file) {
-    const absPath = `${inputDir}/${file}`;
+    const absPath = path.join(inputDir, file);
     const output = parsing.getOutput(absPath);
     console.log(`Processing ${absPath}`);
 
@@ -42,12 +38,12 @@ function processOutput(output) {
 
   for (let i = 0; i < objects.length; ++i) {
     const object1 = objects[i];
-    if (object1.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+    if (object1.getLabel() != parsing.labelMsg.LabelType.PEDESTRIAN) {
       continue;
     }
     for (let j = i+1; j < objects.length; ++j) {
       const object2 = objects[j];
-      if (object2.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+      if (object2.getLabel() != parsing.labelMsg.LabelType.PEDESTRIAN) {
         continue;
       }
       if (compareObjects(object1, object2)) {
@@ -57,7 +53,7 @@ function processOutput(output) {
     }
   }
   objects.forEach(function(obj) {
-    if (obj.getLabel() != labelMsg.LabelType.PEDESTRIAN) {
+    if (obj.getLabel() != parsing.labelMsg.LabelType.PEDESTRIAN) {
       return;
     }
     if (!breachedObjects.has(obj.getId())) {

@@ -33,3 +33,5 @@ npm start parse --help
 npm start receive --help
 ```
 
+## Running the example
+TODO

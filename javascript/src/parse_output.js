@@ -2,6 +2,7 @@
 
 // Filesystem
 const fs = require('fs');
+const path = require('path');
 
 // Proto
 const labelMsg = require('./../js_proto/labels_pb.js');
@@ -18,6 +19,7 @@ module.exports = {
   deserializeBinary,
   exportToBinary,
   formatFilename,
+  labelMsg,
 };
 
 function mkdir(dir) {
@@ -68,7 +70,7 @@ function exportToBinary(bytes, filename) {
 
 function formatFilename(dir, fileId) {
   let fname = padLeft(String(fileId), '000000');
-  fname = `${dir}/${fname}.bin`;
+  fname = path.join(dir, fname, '.bin');
   return fname;
 }
 

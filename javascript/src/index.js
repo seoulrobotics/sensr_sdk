@@ -46,7 +46,7 @@ function fetchArgs() {
       .check(function(argv) {
         if (argv._.includes('parse') && argv.filename != undefined) {
           return true;
-        } else if (argv._.includes('receive')) {
+        } else if (argv._.includes('receive') && argv.output_dir != undefined) {
           return true;
         } else if (argv._.includes('example') && argv.input_dir != undefined) {
           return true;
@@ -59,13 +59,6 @@ function fetchArgs() {
       .argv;
 }
 
-function setupOutputDir(argv) {
-  const outputDir = (argv.output_dir != undefined) ? argv.output_dir :
-                                        './javascript/sample_output';
-  parsing.mkdir(outputDir);
-  return outputDir;
-}
-
 async function parseCmdArgs() {
   const argv = fetchArgs();
 
@@ -74,7 +67,8 @@ async function parseCmdArgs() {
   }
 
   if (argv._.includes('receive')) {
-    const outputDir = setupOutputDir(argv);
+    const outputDir = argv.output_dir;
+    parsing.mkdir(outputDir);
 
     console.log(`Dumping SENSR output to ${outputDir}...`);
     const numExported = await receiveOutputs(outputDir);
