@@ -6,9 +6,9 @@ Interfacing with SENSR output using javascript.
 ## Installation
 
 ```bash
-cd javascript
+sudo apt install nodejs
+cd javascript/javascript_sdk
 npm install
-./gen_proto.sh
 ```
 
 ## Execution
@@ -34,10 +34,16 @@ npm start receive --help
 ```
 
 ## Running the example
-First install the required dependencies for the example:
+Make sure to first install the Javascript SDK as detailed above.
+To run the example we first need to set up the example project:
+
 ```bash
-cd example
+cd javascript/example
 npm install
+# Note: The example depends on the sensr_js_sdk package which is a local module
+# If your project is in another folder than the example you will need to do
+# 'npm install ../relative/path/to/sensr_js_sdk'
+# to install the dependency
 ```
 
 Running
