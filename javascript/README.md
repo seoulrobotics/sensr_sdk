@@ -1,52 +1,85 @@
-## Javascript Guide
+# Javascript Guide
 
-Interfacing with SENSR output using javascript.
-
-
-## Installation
+This guide will show you how to use the SENSR output with Javascript using our SDK. 
+We use NodeJS for these examples so make sure you have the dev environment set up.
 
 ```bash
-sudo apt install nodejs
-cd javascript/javascript_sdk
-npm install
+sudo apt-get update
+sudo apt-get install nodejs
+sudo apt-get install npm
+```
+If you have ROS installed you might face some problems with installing npm, please refer to [troubleshooting.md](./troubleshooting.md).
+
+## Setting up your own project
+To use the SENSR SDK, you first need to create your own project. 
+
+Create an empty directory for your project and navigate to it. This can be located wherever you want. To initialize your project run:
+```bash 
+mkdir my_project
+cd my_project
+npm init # Follow the instructions, the defaults should be fine.
+
+# Add sensr_js_sdk as dependency. This is added as a local module,
+# hence you need to specify the relative (or absolute) path to 
+# sensr_js_sdk
+npm install ../relative/path/to/sensr_sdk/javascript/sensr_js_sdk 
+```
+You should now have a main file (called `index.js` by default) that you can run using `npm start` or `node index.js`. 
+
+## Basic usage
+The  `javascript/examples` folder includes some example projects. A good starting point is `javascript/examples/run_sdk.js`.
+
+First you need to install the dependencies for the examples. This includes sensr_js_sdk.
+```bash
+cd sensr_sdk/javascript/examples
+npm install 
 ```
 
-## Execution
+The minimal example in `javascript/examples/run_sdk.js` is as follows:
+```javascript
+'use strict';
 
+// Include SENSR SDK
+const sensr = require('sensr_js_sdk')
+
+sensr.run()
+```
+
+The are some command line options that you can pass to access different functionality.
 - Dump the output messages received from SENSR
   ```bash
-  npm start receive --output_dir sample_output
+  node run_sdk.js receive --output_dir sample_output
   # Run SENSR in another terminal
   ```
 
 - Parse a binary output file, for example
   ```bash
-  npm start parse -f sample_output/1234.bin
+  node run_sdk.js parse -f sample_output/1234.bin
   ```
 
 For more information, see
 ```bash
-npm start --help
+node run_sdk.js --help
 # or
-npm start parse --help
+node run_sdk.js parse --help
 # or
-npm start receive --help
+node run_sdk.js receive --help
 ```
 
-## Running the example
-Make sure to first install the Javascript SDK as detailed above.
-To run the example we first need to set up the example project:
+
+
+
+
+## Running the Social Distancing Example 
+Make sure all dependencies are installed first:
 
 ```bash
 cd javascript/example
 npm install
-# Note: The example depends on the sensr_js_sdk package which is a local module
-# If your project is in another folder than the example you will need to do
-# 'npm install ../relative/path/to/sensr_js_sdk'
-# to install the dependency
 ```
 
-Running
+Then we can run the example. The input directory should have SENSR binary output files.
+This is a very basic example that only prints out the ID of each object that breaches the social distancing radius (2m).
 ```bash
-#TODO
+node social_distancing.js --input_dir test_folder
 ```
