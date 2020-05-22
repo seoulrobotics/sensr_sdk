@@ -6,9 +6,7 @@ const parsing = require('./parse_output');
 
 
 class MessageReceiver {
-  constructor(outputDir) {
-    this._outDir = outputDir;
-
+  constructor() {
     this._socket = new zmq.Subscriber;
     this._currentConnectedAddress = null;
   }
@@ -21,6 +19,7 @@ class MessageReceiver {
   }
 
   disconnect() {
+    console.log(`Disconnecting from ${this._currentConnectedAddress}`);
     this._socket.unsubscribe();
     this._socket.disconnect(this._currentConnectedAddress);
   }
@@ -35,16 +34,21 @@ class MessageReceiver {
     this._socket.linger = 0;
   }
 
-  async dumpAllReceived(timeout=1000) {
+  async receive() {
+    const [msg] = await this._socket.receive();
+    return msg;
+  }
+
+  async dumpAllReceived(outputDir, timeout=1000) {
     this.connect();
     this.resetTimeout();
 
     let numExported = 0;
     while (true) {
       try {
-        const [msg] = await this._socket.receive();
+        const msg = await this.receive();
 
-        const outFilename = parsing.formatFilename(this._outDir, numExported);
+        const outFilename = parsing.formatFilename(outputDir, numExported);
         parsing.exportToBinary(msg, outFilename);
 
         this.setTimeout(timeout);

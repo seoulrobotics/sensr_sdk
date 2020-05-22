@@ -20,6 +20,8 @@ module.exports = {
   exportToBinary,
   formatFilename,
   labelMsg,
+  outputMsg,
+  printUtils,
 };
 
 function mkdir(dir) {

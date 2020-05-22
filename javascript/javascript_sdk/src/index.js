@@ -69,8 +69,8 @@ async function parseCmdArgs() {
 }
 
 async function receiveOutputs(outputDir) {
-  const messageReceiver = new receiver.MessageReceiver(outputDir);
-  const numExported = await messageReceiver.dumpAllReceived();
+  const messageReceiver = new receiver.MessageReceiver();
+  const numExported = await messageReceiver.dumpAllReceived(outputDir);
   return numExported;
 }
 
