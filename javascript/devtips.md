@@ -31,6 +31,10 @@ async function subscribeToSensrMessages() {
   }
   
 }
+
+function processMessage(msg) {
+  // You can process the message here any way you want
+}
 ```
 You can then implement whatever functionality you need inside the `processMessage` function. Note that we set the timeout to 1000 ms after receiving the first message in this code snippet so that the receiver shuts down if a new message is not received inside of that timeframe.
 
@@ -39,6 +43,7 @@ To get the message from SENSR to a usable format, we need to convert it to a pro
 
 ```javascript
 const sensr = require('sensr_js_sdk');
+const outputMsg = sensr.parsing.outputMsg;
 
 function convertToProtobuf(msg) {
   return  outputMsg.OutputMessage.deserializeBinary(msg);
