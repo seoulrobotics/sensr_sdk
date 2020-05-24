@@ -37,7 +37,7 @@ async function run() {
 async function processMessage(msg) {
   // Convert to protobuf object
   try {
-    const output = sensr.outputMsg.OutputMessage.deserializeBinary(msg);
+    const output = outputMsg.OutputMessage.deserializeBinary(msg);
 
     // You can process the SENSR output inside the doStuff function.
     // For example, here we print information about the objects.
