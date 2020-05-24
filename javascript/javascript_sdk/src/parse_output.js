@@ -35,9 +35,13 @@ function getFileList(dir) {
 }
 
 function getOutput(filename) {
-  const bytes = fs.readFileSync(filename);
-  const output = outputMsg.OutputMessage.deserializeBinary(bytes);
-  return output;
+  try {
+    const bytes = fs.readFileSync(filename);
+    const output = outputMsg.OutputMessage.deserializeBinary(bytes);
+    return output;
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 function parseOutputFile(filename) {
