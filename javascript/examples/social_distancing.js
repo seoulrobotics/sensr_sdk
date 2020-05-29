@@ -17,21 +17,20 @@ main();
 
 function main() {
   const argv = fetchArgs();
-  runSocialDistancing(argv.input_dir)
+  runSocialDistancing(argv.hostname)
 }
-
 
 function fetchArgs() {
   return yargs
       .command('run', 'Run social distancing example.', {
-        input_dir: {
-          description: 'Directory of binary files to be read',
-          alias: 'i',
+        address: {
+          description: 'Host IP address or hostname which runs SENSR',
+          alias: 'a',
           type: 'string',
         },
       })
       .check(function(argv) {
-        if (argv._.includes('run') && argv.input_dir != undefined) {
+        if (argv._.includes('run') && argv.address != undefined) {
           return true;
         } else {
           return false;
@@ -42,29 +41,31 @@ function fetchArgs() {
       .argv;
 }
 
+async function runSocialDistancing(hostname) {
 
+  const messageReceiver = new sensr.receiver.MessageReceiver();
+  const TIMEOUT = 1000;
 
-function runSocialDistancing(inputDir) {
-  console.log('Running social distancing example...');
+  try {
+    messageReceiver.connect(hostname);
+    while (true) {
+      const msg = await messageReceiver.receive();
+      messageReceiver.setTimeout(TIMEOUT);
 
-  const fileList = sensr.parsing.getFileList(inputDir);
-  fileList.forEach(function(file) {
-    const absPath = path.join(inputDir, file);
-    const output = sensr.parsing.getOutput(absPath);
-    console.log(`Processing ${absPath}`);
-
-    const [breachedObjects, nonBreachedObjects] = processOutput(output);
-
-    displayResult(breachedObjects, nonBreachedObjects);
-  });
-
-  console.log('Done');
+      const output = sensr.parsing.deserializeBinary(msg)
+      const [breachedObjectIds, nonbreachedObjects] = processOutput(output);
+      displayResult(breachedObjectIds);
+    }
+    messageReceiver.disconnect();
+  } catch (err) {
+    console.log(err);
+    console.log(`No message received for ${TIMEOUT} ms, ` +
+        'stopping collection of messages.');
+  }
 }
 
-
 function processOutput(output) {
-  const breachedObjects = new Set();
-  const nonBreachedObjects = new Set();
+  const breachedObjectIds = new Set();
   const objects = output.getObjectsList();
 
   for (let i = 0; i < objects.length; ++i) {
@@ -78,21 +79,28 @@ function processOutput(output) {
         continue;
       }
       if (compareObjects(object1, object2)) {
-        breachedObjects.add(object1.getId());
-        breachedObjects.add(object2.getId());
+        breachedObjectIds.add(object1.getId());
+        breachedObjectIds.add(object2.getId());
       }
     }
   }
+
+  let breachedObjects = []
+  let nonbreachedObjects = []
   objects.forEach(function(obj) {
     if (obj.getLabel() != sensr.parsing.labelMsg.LabelType.PEDESTRIAN) {
       return;
     }
-    if (!breachedObjects.has(obj.getId())) {
-      nonBreachedObjects.add(obj.getId());
+
+    if (breachedObjectIds.has(obj.getId())) {
+      breachedObjects.push(obj);
+    }
+    else {
+      nonbreachedObjects.push(obj);
     }
   });
 
-  return [breachedObjects, nonBreachedObjects];
+  return [breachedObjects, nonbreachedObjects];
 }
 
 function compareObjects(obj1, obj2) {
@@ -104,10 +112,11 @@ function compareObjects(obj1, obj2) {
   return dist < BREACH_DISTANCE;
 }
 
-function displayResult(breachedObjects, nonBreachedObjects) {
+function displayResult(breachedObjects) {
   // eslint-disable-next-line max-len
   console.log('The following objects have breached the social distancing protocols.');
   breachedObjects.forEach(function(obj) {
-    console.log(obj);
+    const pos = obj.getBbox().getPosition();
+    console.log(`id: ${obj.getId()}, position: (${pos.getX().toFixed(3)}, ${pos.getY().toFixed(3)})`);
   });
 }
