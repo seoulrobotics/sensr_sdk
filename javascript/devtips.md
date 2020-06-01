@@ -50,21 +50,3 @@ function convertToProtobuf(msg) {
 }
 ```
 For more info about how to use the protobuf objects, please refer to the [proto-files](./../proto) in this repository and the [official documentation](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated).
-
-# Specific examples
-
-## Social distancing example
-The social distancing example is located in [examples/social_distancing.js](./examples/social_distancing.js)
-
-Make sure all dependencies are installed first:
-
-```bash
-cd javascript/example
-npm install
-```
-
-Then we can run the example. The input directory should only have SENSR binary output files.
-This is a very basic example that only prints out the ID of each object that breaches the social distancing radius (2 meters).
-```bash
-node social_distancing.js --input_dir my_folder
-```

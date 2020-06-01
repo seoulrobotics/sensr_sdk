@@ -1,8 +1,8 @@
 {
   "name": "sensr_social_distancing_example",
   "version": "1.0.0",
-  "description": "Social distancing example using SENSR SDK",
-  "main": "social_distancing.js",
+  "description": "Examples using SENSR SDK",
+  "main": "run_sdk.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
