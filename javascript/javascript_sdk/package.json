@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js receive",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "./gen_proto.sh"
+    "postinstall": "./gen_proto.sh"
   },
   "author": "",
   "license": "ISC",
