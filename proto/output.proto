@@ -57,4 +57,5 @@ message OutputMessage {
   repeated Object objects = 2;
   repeated Zone region_of_interest = 101;
   bytes ground_points = 102;              // Array of Vector3f (12 bytes)
+  bytes background_points = 103;          // Array of Vector3f (12 bytes)
 }
