@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Proto
-const labelMsg = require('./../js_proto/labels_pb.js');
+const datatypeMsg = require('./../js_proto/data_type_pb.js');
 const outputMsg = require('./../js_proto/output_pb.js');
 
 // Formatting
@@ -19,7 +19,7 @@ module.exports = {
   deserializeBinary,
   exportToBinary,
   formatFilename,
-  labelMsg,
+  datatypeMsg,
   outputMsg,
   printUtils,
 };

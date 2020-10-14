@@ -11,4 +11,5 @@ fi
 protoc \
   --proto_path=$PROTO_DIR \
   --js_out=import_style=commonjs,binary:$OUT_DIR \
+  --grpc-web_out=import_style=commonjs,mode=grpcwebtext:$OUT_DIR \
   $PROTO_DIR/*.proto

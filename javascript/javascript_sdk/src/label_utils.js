@@ -1,6 +1,6 @@
 'use strict';
 
-const labelMsg = require('./../js_proto/labels_pb.js');
+const datatypeMsg = require('./../js_proto/data_type_pb.js');
 
 module.exports = {
   labelToString,
@@ -8,14 +8,16 @@ module.exports = {
 
 function labelToString(label) {
   switch (label) {
-    case labelMsg.LabelType.CAR:
+    case datatypeMsg.LabelType.LABEL_CAR:
       return 'Car';
-    case labelMsg.LabelType.PEDESTRIAN:
+    case datatypeMsg.LabelType.LABEL_PEDESTRIAN:
       return 'Ped';
-    case labelMsg.LabelType.CYCLIST:
+    case datatypeMsg.LabelType.LABEL_CYCLIST:
       return 'Cyclist';
-    case labelMsg.LabelType.MISC:
+    case datatypeMsg.LabelType.LABEL_MISC:
       return 'Misc';
+    case datatypeMsg.LabelType.LABEL_GROUND:
+      return 'Ground';
     default:
       return 'Misc';
   }

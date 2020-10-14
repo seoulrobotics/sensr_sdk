@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+option cc_enable_arenas = true;
+
+enum LabelType {
+  LABEL_CAR = 0;
+  LABEL_PEDESTRIAN = 1;
+  LABEL_CYCLIST = 2;
+  LABEL_MISC = 3;
+  LABEL_GROUND = 4;
+  LABEL_MAX = 5;
+}
+
+enum PointType {
+  POINT_TYPE_GROUND = 0;
+  POINT_TYPE_ENVIRONMENT = 1;
+  POINT_TYPE_RAW = 2;
+}
+
+message Vector2 {
+  float x = 1;
+  float y = 2;
+}
+
+message Vector3 {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+message BoundingBox {
+  Vector3 position = 1;
+  Vector3 size = 2;
+  float yaw = 3;
+}
+
+message TrackingInfo {
+  float probability = 4;
+  bool tracking_reliable = 5;
+  Vector3 velocity = 6;
+  repeated Vector3 history = 7;
+  repeated Vector3 prediction = 8;
+}
+
+message PointCloud {
+  PointType type = 1;
+  string id = 2;
+  bytes points = 3;
+}
+
+message Object {
+  int32 id = 1;
+  BoundingBox bbox = 2;
+  LabelType label = 3;
+  TrackingInfo track = 101;
+  bytes points = 102;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
+}
+
+message PolygonBox {
+  repeated Vector2 points = 1;
+  float min_z = 2;
+  float max_z = 3;
+}
+
+message Zone {
+  int32 id = 1;
+  PolygonBox polygon_box = 2;
+  repeated int32 object_ids = 3;
+  int32 zone_type = 4;
+}
+
+
