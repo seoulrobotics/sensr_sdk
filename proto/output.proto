@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
 import "data_type.proto";
 
 // The way to assign Field Numbers
@@ -11,8 +12,16 @@ import "data_type.proto";
 option cc_enable_arenas = true;
 
 service OutputService {
-  rpc UpdateOutput(OuputRequest) returns (stream OutputMessage);
-  rpc SendCommand(TestCommand) returns (TestReply);
+  rpc UpdateOutput(OuputRequest) returns (stream OutputMessage) {
+    option (google.api.http) = {
+      get: "/update"
+    };
+  }
+  rpc SendCommand(TestCommand) returns (TestReply) {
+    option (google.api.http) = {
+      post: "/send"
+    };
+  }
 }
 
 message OuputRequest {

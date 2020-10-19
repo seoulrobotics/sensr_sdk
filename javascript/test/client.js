@@ -1,6 +1,27 @@
 const {OuputRequest, OutputMessage, TestCommand, TestReply} = require('./output_pb.js');
 const {OutputServiceClient} = require('./output_grpc_web_pb.js');
 
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+async function demo() {
+
+    // Sleep in loop
+    for (let i = 0; i < 105; i++) {
+        await sleep(1000);
+        
+        var request = new TestCommand();
+        request.setMessage('Hello World!' + i);
+
+        client.sendCommand(request, {}, function(err, response) {
+            console.log(response.getMessage());
+        });
+
+    }
+}
+
 var client = new OutputServiceClient('http://localhost:8080');
 
 var request = new OuputRequest();
@@ -21,10 +42,4 @@ stream.on('data', function(response) {
   stream.on('end', function(end) {
     console.log("endddddd");
   });
-
-  var request = new TestCommand();
-    request.setMessage('Hello World!aaa');
-
-    client.sendCommand(request, {}, function(err, response) {
-        console.log(response.getMessage());
-    });
+  demo();
