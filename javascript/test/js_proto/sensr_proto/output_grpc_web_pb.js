@@ -18,8 +18,6 @@ grpc.web = require('grpc-web');
 
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
 
-var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js')
-
 var google_api_annotations_pb = require('../google/api/annotations_pb.js')
 
 var argos_proto_type_pb = require('../argos_proto/type_pb.js')
@@ -81,16 +79,16 @@ proto.sensr_proto.OutputServicePromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.google.protobuf.Empty,
+ *   !proto.sensr_proto.OuputRequest,
  *   !proto.sensr_proto.OutputMessage>}
  */
 const methodDescriptor_OutputService_UpdateOutput = new grpc.web.MethodDescriptor(
   '/sensr_proto.OutputService/UpdateOutput',
   grpc.web.MethodType.SERVER_STREAMING,
-  google_protobuf_empty_pb.Empty,
+  proto.sensr_proto.OuputRequest,
   proto.sensr_proto.OutputMessage,
   /**
-   * @param {!proto.google.protobuf.Empty} request
+   * @param {!proto.sensr_proto.OuputRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
@@ -103,13 +101,13 @@ const methodDescriptor_OutputService_UpdateOutput = new grpc.web.MethodDescripto
 /**
  * @const
  * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.google.protobuf.Empty,
+ *   !proto.sensr_proto.OuputRequest,
  *   !proto.sensr_proto.OutputMessage>}
  */
 const methodInfo_OutputService_UpdateOutput = new grpc.web.AbstractClientBase.MethodInfo(
   proto.sensr_proto.OutputMessage,
   /**
-   * @param {!proto.google.protobuf.Empty} request
+   * @param {!proto.sensr_proto.OuputRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
@@ -120,7 +118,7 @@ const methodInfo_OutputService_UpdateOutput = new grpc.web.AbstractClientBase.Me
 
 
 /**
- * @param {!proto.google.protobuf.Empty} request The request proto
+ * @param {!proto.sensr_proto.OuputRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
  * @return {!grpc.web.ClientReadableStream<!proto.sensr_proto.OutputMessage>}
@@ -137,7 +135,7 @@ proto.sensr_proto.OutputServiceClient.prototype.updateOutput =
 
 
 /**
- * @param {!proto.google.protobuf.Empty} request The request proto
+ * @param {!proto.sensr_proto.OuputRequest} request The request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
  * @return {!grpc.web.ClientReadableStream<!proto.sensr_proto.OutputMessage>}

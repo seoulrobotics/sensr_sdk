@@ -2,7 +2,9 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
-import "data_type.proto";
+import "argos_proto/type.proto";
+
+package sensr_proto;
 
 // The way to assign Field Numbers
 // 1 ~ 15 : very frequently occurring message elements
@@ -39,7 +41,7 @@ message TestReply {
 // Actual message using in SENSR SDK
 message OutputMessage {
   google.protobuf.Timestamp time_stamp = 1;
-  repeated Object objects = 2;
-  repeated Zone region_of_interest = 101;
+  repeated argos_proto.Object objects = 2;            // TODO: Need to define sensr's own Object type
+  repeated argos_proto.Zone region_of_interest = 101; // TODO:Need to define sensr's own Zone type
   bytes ground_points = 102;              // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
 }
