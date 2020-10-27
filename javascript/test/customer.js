@@ -1,13 +1,6 @@
-const{getData} = require("./client.js")
+const{getData, getStatus, getError, getEnd} = require("./client.js")
 
-// import{registerObjectUpdate, callback} from './client.js'
 
-// getData(function(tableData) {
-//     console.log(tableData); 
-//     console.log("Here")
-//   });
-
-var x = 0
 function tableData(response){
     console.log(response.getTimeStamp().getSeconds());
     var obj_list = response.getObjectsList();
@@ -15,21 +8,20 @@ function tableData(response){
         var vel = element.getVelocity();
         console.log(element.getId(), element.getConfidence(), element.getLabel())
         console.log("Velocity:", vel.getX(), vel.getY(), vel.getZ())
-    })
-    // console.log(response.getObjectList())
+    });
 }
 
-// getData((tableData) => {
-//     console.log(tableData)
-//     return tableData
-// })\
-
-getData(tableData)
+getData(tableData);
 
 
+// getStatus((status) => {
+//     console.log(status);
+// })
 
-// let x = response.getObjectList()
-//     x.forEach(element => {
-//         let y = element.getId()
-//         console.log(y)
-//     });
+// getError((error) => {
+//     console.log(error);
+// })
+
+// getEnd((end) =>{
+//     console.log(end);
+// })
