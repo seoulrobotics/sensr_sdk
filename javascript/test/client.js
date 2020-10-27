@@ -5,7 +5,7 @@ const { LidarPerceptionServiceClient } = require('./js_proto/sensr_proto/output_
 
 
 var client = new LidarPerceptionServiceClient(
-  'http://localhost:8080'
+  'http://112.216.77.162:8080'
 )
 var request = new Empty();
 var call = client.regularObjectUpdate(request, ()=>{});
