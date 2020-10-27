@@ -1,8 +1,10 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "argos_proto/type.proto";
+import "sensr_proto/type.proto";
 
 package sensr_proto;
 
@@ -13,29 +15,41 @@ package sensr_proto;
 
 option cc_enable_arenas = true;
 
-service OutputService {
-  rpc UpdateOutput(OuputRequest) returns (stream OutputMessage) {
-    option (google.api.http) = {
-      get: "/update"
-    };
+service LidarPerceptionService {
+  rpc RegularObjectUpdate(google.protobuf.Empty) returns (stream RegularObjectResponse) {
   }
-  rpc SendCommand(TestCommand) returns (TestReply) {
+  rpc SendCommand(CommandRequest) returns (CommandResponse) {
     option (google.api.http) = {
       post: "/send"
     };
   }
 }
 
-message OuputRequest {
-  string message = 1;
+enum Command {
+  CMD_NONE = 0;
+  CMD_START = 1;
+  CMD_STOP = 2;
+  CMD_STOP_PROG = 3;
+  CMD_LOAD = 4;
+  CMD_SAVE = 5;
+  CMD_SELECT_ITEM = 6;
+  CMD_DESELECT_ITEM = 7;
+  CMD_CUSTOM = 8;
 }
 
-message TestCommand {
-  string message = 1;
+message CommandRequest {
+  Command command = 1;
+  map<string, string> param = 2;
 }
 
-message TestReply {
-  string message = 1;
+message CommandResponse {
+  int32 return_code = 1;
+  map<string, string> param = 2;
+}
+
+message RegularObjectResponse {
+  google.protobuf.Timestamp time_stamp = 1;
+  repeated Object objects = 2;            // TODO: Need to define sensr's own Object type
 }
 
 // Actual message using in SENSR SDK

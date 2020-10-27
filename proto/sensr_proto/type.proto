@@ -34,3 +34,14 @@ message PolygonBox {
   float min_z = 2;
   float max_z = 3;
 }
+
+message Object {
+  int32 id = 1;
+  LabelType label = 2;
+  int32 confidence = 3;
+  BoundingBox bbox = 4;
+  Vector3 velocity = 5;
+  bytes points = 101;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
+  repeated Vector3 history = 102;
+  repeated Vector3 prediction = 103;
+}

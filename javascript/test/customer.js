@@ -9,14 +9,12 @@ const{getData} = require("./client.js")
 
 var x = 0
 function tableData(response){
-    console.log(response)
-    x = response
-    console.log(x)
-    console.log("Hello World")
-   
-    // console.log(x)
-    x.forEach(element => {
-        console.log(element.getId())
+    console.log(response.getTimeStamp().getSeconds());
+    var obj_list = response.getObjectsList();
+    obj_list.forEach(element => {
+        var vel = element.getVelocity();
+        console.log(element.getId(), element.getConfidence(), element.getLabel())
+        console.log("Velocity:", vel.getX(), vel.getY(), vel.getZ())
     })
     // console.log(response.getObjectList())
 }

@@ -1,5 +1,7 @@
-const {OuputRequest, OutputMessage, TestCommand, TestReply} = require('./js_proto/sensr_proto/output_pb.js');
-const {OutputServiceClient} = require('./js_proto/sensr_proto/output_grpc_web_pb.js');
+import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
+
+const {RegularObjectResponse, CommandRequest, CommandResponse} = require('./js_proto/sensr_proto/output_pb.js');
+const {LidarPerceptionServiceClient} = require('./js_proto/sensr_proto/output_grpc_web_pb.js');
 
 
 
@@ -26,13 +28,11 @@ const {OutputServiceClient} = require('./js_proto/sensr_proto/output_grpc_web_pb
 //   'http://localhost:8080'
 // )
 // var call1 = client.updateOutput(request, ()=>{});
-var client = new OutputServiceClient(
+var client = new LidarPerceptionServiceClient(
   'http://10.10.11.106:8080'
 )
-var request = new OuputRequest();
-
-request.setMessage('World');
-var call = client.updateOutput(request, ()=>{});
+var request = new Empty();
+var call = client.regularObjectUpdate(request, ()=>{});
 
 
 
@@ -106,10 +106,8 @@ export async function registerObjectUpdate(){
 // registerObjectUpdate()
 
 export function getData(callbackFunc) {
-	call.on('data', function(response) {
-    var obj_list = response.getObjectsList();
-    
-		callbackFunc(obj_list); // 서버에서 받은 데이터 response를 callbackFunc() 함수에 넘겨줌
+	call.on('data', function(response) {    
+		callbackFunc(response); // 서버에서 받은 데이터 response를 callbackFunc() 함수에 넘겨줌
 	});
 }
 
