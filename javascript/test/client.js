@@ -3,12 +3,17 @@ const { Empty } =require('google-protobuf/google/protobuf/empty_pb')
 const { RegularObjectResponse, CommandRequest, CommandResponse, Command } = require('./js_proto/sensr_proto/output_pb.js');
 const { LidarPerceptionServiceClient } = require('./js_proto/sensr_proto/output_grpc_web_pb.js');
 
+var client;
+var call;
 
-var client = new LidarPerceptionServiceClient(
-  'http://112.216.77.162:8080'
-)
-var request = new Empty();
-var call = client.regularObjectUpdate(request, ()=>{});
+export function init() {
+  client = new LidarPerceptionServiceClient(
+    'http://localhost:8080'
+  )
+  var request = new Empty();
+  call = client.regularObjectUpdate(request, ()=>{});
+  console.log("regularObjectUpdate");
+}
 
 window.onunload = window.onbeforeunload = function (evt) {
   var message = 'Are you sure?';
@@ -27,6 +32,7 @@ window.onunload = window.onbeforeunload = function (evt) {
   }
   return message;
 };
+
 
 export function getData(callbackFunc) {
   call.on('data', function(response) {

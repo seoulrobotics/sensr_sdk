@@ -1,4 +1,4 @@
-const{getData, getStatus, getError, getEnd} = require("./client.js")
+const{getData, getStatus, getError, getEnd, init} = require("./client.js")
 
 
 function tableData(response){
@@ -10,7 +10,7 @@ function tableData(response){
         console.log("Velocity:", vel.getX(), vel.getY(), vel.getZ())
     });
 }
-
+init();
 getData(tableData);
 
 
