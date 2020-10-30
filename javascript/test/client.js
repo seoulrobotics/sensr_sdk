@@ -8,7 +8,7 @@ var call;
 
 export function init() {
   client = new LidarPerceptionServiceClient(
-    'http://localhost:8080'
+    'http://112.216.77.162:8080'
   )
   var request = new Empty();
   call = client.regularObjectUpdate(request, ()=>{});
@@ -22,11 +22,11 @@ window.onunload = window.onbeforeunload = function (evt) {
   }
   if (evt) {
       if (evt.type == "unload" && evt.returnValue) {
-          let request1 = new CommandRequest();
-          request1.setCommand(Command.CMD_CUSTOM);
+          //let request1 = new CommandRequest();
+          //request1.setCommand(Command.CMD_CUSTOM);
           //request1.getParamMap()["stop"] = "empty";
-          request1.getParamMap().set("stop", "empty");
-          client.sendCommand(request1, ()=>{});
+          //request1.getParamMap().set("stop", "empty");
+          //client.sendCommand(request1, ()=>{});
       }
       evt.returnValue = message;
   }
