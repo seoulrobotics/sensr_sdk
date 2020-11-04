@@ -1,60 +1,27 @@
-// import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
-const { Empty } =require('google-protobuf/google/protobuf/empty_pb')
-const { RegularObjectResponse, CommandRequest, CommandResponse, Command } = require('./js_proto/sensr_proto/output_pb.js');
-const { LidarPerceptionServiceClient } = require('./js_proto/sensr_proto/output_grpc_web_pb.js');
-
-var client;
-var call;
-
-export function init() {
-  client = new LidarPerceptionServiceClient(
-    'http://112.216.77.162:8080'
-  )
-  var request = new Empty();
-  call = client.regularObjectUpdate(request, ()=>{});
-  console.log("regularObjectUpdate");
-}
-
-window.onunload = window.onbeforeunload = function (evt) {
-  var message = 'Are you sure?';
-  if (typeof evt == 'undefined') {
-      evt = window.event;
-  }
-  if (evt) {
-      if (evt.type == "unload" && evt.returnValue) {
-          //let request1 = new CommandRequest();
-          //request1.setCommand(Command.CMD_CUSTOM);
-          //request1.getParamMap()["stop"] = "empty";
-          //request1.getParamMap().set("stop", "empty");
-          //client.sendCommand(request1, ()=>{});
-      }
-      evt.returnValue = message;
-  }
-  return message;
-};
 
 
-export function getData(callbackFunc) {
-  call.on('data', function(response) {
-    callbackFunc(response); 
-  });
-}
+var output_msg = require('./js_proto/sensr_proto/output_pb.js');
+var socket;
 
-export function getStatus(callbackFunc) {
-  call.on("status", (status) => {
-    callbackFunc(status)
-  });
-}
 
-export function getError(callbackFunc) {
-  call.on("error", (error) =>{
-    callbackFunc(error)
-  });
-}
-
-export function getEnd(callbackFunc) {
-  call.on("end", (end)=>{
-    callbackFunc(end)
-  });
-}
+  socket = new WebSocket('ws://localhost:5050');
+  socket.binaryType = "arraybuffer";
+  socket.addEventListener('message', function (event) {
+    //callbackFunc(event.data);
+    var response = output_msg.OutputMessage.deserializeBinary(event.data);
+    var server_t = response.getTimeStamp();
+    var server_time = (server_t.getSeconds() * 1000) + (server_t.getNanos() / 1000000)
+    var client_t = new Date();
+    var client_time = client_t.getTime();
+    //console.log("Server:" , server_time);
+    //console.log("Client:" , client_time);
+    var diff = client_time - server_time;
+    console.log("Diff3:" , diff);
+    // var obj_list = response.getObjectsList();
+    // obj_list.forEach(element => {
+    //     var vel = element.getVelocity();
+    //     console.log(element.getId(), element.getConfidence(), element.getLabel())
+    //     console.log("Velocity:", vel.getX(), vel.getY(), vel.getZ())
+    // });
+  });  
 
