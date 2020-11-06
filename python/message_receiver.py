@@ -46,7 +46,7 @@ class MessageReceiver(object):
                 for obj in output.objects:
                     obj.points = b''
     
-                output_fn = os.path.join(self._output_dir, f'{num_received:06}.bin')
+                output_fn = os.path.join(self._output_dir, f'{num_received:09}.bin')
                 with open(output_fn, 'wb') as fp:
                     fp.write(output.SerializeToString())
 
