@@ -8,7 +8,7 @@ var socket;
   socket.binaryType = "arraybuffer";
   socket.addEventListener('message', function (event) {
     //callbackFunc(event.data);
-    var response = output_msg.OutputMessage.deserializeBinary(event.data);
+    var response = output_msg.RegularObjectResponse.deserializeBinary(event.data);
     var server_t = response.getTimeStamp();
     var server_time = (server_t.getSeconds() * 1000) + (server_t.getNanos() / 1000000)
     var client_t = new Date();
