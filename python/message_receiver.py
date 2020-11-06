@@ -37,10 +37,18 @@ class MessageReceiver(object):
             # output = output_pb2.OutputMessage()
             try:
                 msg = self._socket.recv()
+
+                # Remove points
+                output = output_pb2.OutputMessage()
+                output.ParseFromString(msg)
+                output.ground_points = b''
+                output.background_points = b''
+                for obj in output.objects:
+                    obj.points = b''
     
                 output_fn = os.path.join(self._output_dir, f'{num_received:06}.bin')
                 with open(output_fn, 'wb') as fp:
-                    fp.write(msg)
+                    fp.write(output.SerializeToString())
 
                 if not recv_once:
                     recv_once = True
