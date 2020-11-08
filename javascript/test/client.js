@@ -4,7 +4,7 @@ var output_msg = require('./js_proto/sensr_proto/output_pb.js');
 var socket;
 
 
-  socket = new WebSocket('ws://localhost:5050');
+  socket = new WebSocket("ws://localhost:5050", ["deflate-frame"]);
   socket.binaryType = "arraybuffer";
   socket.addEventListener('message', function (event) {
     //callbackFunc(event.data);
