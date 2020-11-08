@@ -23,7 +23,7 @@ class MessageReceiver(object):
         self._socket.setsockopt(zmq.RCVTIMEO, -1)
 
     def set_timeout(self, timeout):
-        assert timeout > 0
+        # assert timeout > 0
         self._socket.setsockopt(zmq.LINGER, 0)
         self._socket.setsockopt(zmq.RCVTIMEO, timeout)
 
@@ -45,6 +45,7 @@ class MessageReceiver(object):
                 output.background_points = b''
                 for obj in output.objects:
                     obj.points = b''
+                del output.region_of_interest[:]
     
                 output_fn = os.path.join(self._output_dir, f'{num_received:09}.bin')
                 with open(output_fn, 'wb') as fp:
@@ -64,13 +65,13 @@ class MessageReceiver(object):
         return num_received
 
 def main():
-    output_dir = 'sample_output'
+    output_dir = 'tmp_output'
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
 
     print('Dumping SENSR output to {}...'.format(output_dir))
     msg_rcv = MessageReceiver(output_dir)
-    num_received = msg_rcv.subscribe()
+    num_received = msg_rcv.subscribe(timeout=-1)
     print('Finished dumping {} messages from SENSR.'.format(num_received))
 
 if __name__ == '__main__':

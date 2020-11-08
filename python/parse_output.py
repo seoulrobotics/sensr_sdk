@@ -17,6 +17,7 @@ def parse_output_file(filename):
         for obj in output.objects:
             print(f'Object #{obj.id}: {label_to_string(obj.label)}')
             print(obj.bbox)
+        print(len(output.region_of_interest))
 
 def main():
     from argparse import ArgumentParser
