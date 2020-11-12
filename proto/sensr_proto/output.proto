@@ -1,9 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
-import "google/api/annotations.proto";
-import "argos_proto/type.proto";
+import "sensr_proto/global_type.proto";
 import "sensr_proto/type.proto";
 
 package sensr_proto;
@@ -13,49 +11,88 @@ package sensr_proto;
 // 101 ~ 2047 : normally occuring message elements
 // more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
 
-option cc_enable_arenas = true;
-
-service LidarPerceptionService {
-  rpc RegularObjectUpdate(google.protobuf.Empty) returns (stream RegularObjectResponse) {
+message ZoneEvent {
+  enum Type {
+    NONE = 0;
+    ENTRY = 1;
+    EXIT = 2;
+    LOITERING = 3;
+    VELOCITY = 4;
   }
-  rpc SendCommand(CommandRequest) returns (CommandResponse) {
-    option (google.api.http) = {
-      post: "/send"
-    };
+  message Object {
+    int32 id = 1;
+    Vector3 position = 2;
+    float heading = 3;
+    Vector3 velocity = 4;
   }
-}
-
-enum Command {
-  CMD_NONE = 0;
-  CMD_START = 1;
-  CMD_STOP = 2;
-  CMD_STOP_PROG = 3;
-  CMD_LOAD = 4;
-  CMD_SAVE = 5;
-  CMD_SELECT_ITEM = 6;
-  CMD_DESELECT_ITEM = 7;
-  CMD_CUSTOM = 8;
-}
-
-message CommandRequest {
-  Command command = 1;
-  map<string, string> param = 2;
-}
-
-message CommandResponse {
-  int32 return_code = 1;
-  map<string, string> param = 2;
-}
-
-message RegularObjectResponse {
   google.protobuf.Timestamp time_stamp = 1;
-  repeated Object objects = 2;            // TODO: Need to define sensr's own Object type
+  int32 id = 2;
+  Type type = 3;
+  Object object = 4;
+}
+
+message LosingEvent {
+  google.protobuf.Timestamp time_stamp = 1;
+  int32 id = 2;
+  Vector3 position = 3;
+  float heading = 4;
+}
+
+message SystemHealth {
+  enum Status {
+    NONE = 0;
+    OK = 1;
+    STORAGE_SHORTAGE = 2;
+    SLOWDOWN = 3;
+    INTERNAL_ERROR = 4;
+  }  
+  message Node {
+    enum Status {
+      NONE = 0;
+      OK = 1;
+      ROS_ERROR = 2;
+      LOST_CONNECTION = 3;
+    }
+    enum SensorStatus {
+      SENSOR_INACTIVE = 0;
+      SENSOR_ERROR = 1;
+      SENSOR_GOOD = 2;
+    }
+    Status status = 1;
+    map<string, SensorStatus> sensors = 3;
+  }
+  Status master = 1;
+  map<string, Node> nodes = 2;
+}
+
+message ZoneConfig {
+  enum Type {
+    NONE = 0;
+    EVENT = 1;
+    EXCLUSION = 2;
+  }
+  int32 id = 1;
+  string name = 2;
+  PolygonBox pbox = 3;
+  Type type = 4;
+}
+
+message StreamMessage {
+  repeated Object objects = 1;
+  repeated ZoneConfig zones = 2;
+  SystemHealth health = 3;
+}
+
+message EventMessage {
+  repeated ZoneEvent zone = 1;
+  repeated LosingEvent losing = 2;
+  repeated SystemHealth health = 3;
 }
 
 // Actual message using in SENSR SDK
 message OutputMessage {
   google.protobuf.Timestamp time_stamp = 1;
-  repeated argos_proto.Object objects = 2;            // TODO: Need to define sensr's own Object type
-  repeated argos_proto.Zone region_of_interest = 101; // TODO:Need to define sensr's own Zone type
-  bytes ground_points = 102;              // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
+  reserved 2, 101, 102, 103; // framework 1.0 used these.
+  StreamMessage stream = 3;
+  EventMessage event = 201;
 }

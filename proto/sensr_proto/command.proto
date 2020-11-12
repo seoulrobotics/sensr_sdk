@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package sensr_proto;
+
+// The way to assign Field Numbers
+// 1 ~ 15 : very frequently occurring message elements
+// 101 ~ 2047 : normally occuring message elements
+// more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
+
+message CommandRequest {
+  enum Command {
+    NONE= 0;
+    START = 1;
+    STOP = 2;
+    APPLY = 3;
+    NEW = 4;
+    LOAD = 5;
+    CUSTOM = 6;
+  }
+  Command cmd = 1;
+  map<string, string> params = 2; 
+}
+// Command
+message CommandResponse {
+  enum ReturnCode {
+    NONE= 0;
+    OK = 1;
+    NOT_SUPPORT = 2;
+    PROCESSING = 3;
+  }
+  ReturnCode code = 1;
+  map<string, string> params = 2; 
+}

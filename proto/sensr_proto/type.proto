@@ -7,21 +7,16 @@ package sensr_proto;
 option cc_enable_arenas = true;
 
 enum LabelType {
-  LABEL_CAR = 0;
-  LABEL_PEDESTRIAN = 1;
-  LABEL_CYCLIST = 2;
-  LABEL_MISC = 3;
-  LABEL_GROUND = 4;
-  LABEL_MAX = 5;
+  LABEL_NONE = 0;
+  LABEL_CAR = 1;
+  LABEL_PEDESTRIAN = 2;
+  LABEL_CYCLIST = 3;
+  LABEL_MISC = 4;
+  LABEL_GROUND = 5;
+  LABEL_MAX = 6;
 }
 
-enum ZoneEventType {
-  ZONE_EVENT_NONE = 0;
-  ZONE_EVENT_ENTRY = 1;
-  ZONE_EVENT_EXIT = 2;
-  ZONE_EVENT_LOITERING = 3;
-  ZONE_EVENT_VELOCITY = 4;
-}
+
 
 message BoundingBox {
   Vector3 position = 1;
@@ -38,10 +33,9 @@ message PolygonBox {
 message Object {
   int32 id = 1;
   LabelType label = 2;
-  int32 confidence = 3;
+  float confidence = 3;
   BoundingBox bbox = 4;
   Vector3 velocity = 5;
   bytes points = 101;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
   repeated Vector3 history = 102;
-  repeated Vector3 prediction = 103;
 }
