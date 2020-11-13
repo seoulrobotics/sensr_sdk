@@ -9,9 +9,9 @@ var stream_callback_func;
 var event_callback_func;
 
 export function init() {
-  socket_result = new WebSocket("ws://localhost:5050", ["deflate-frame"]);
+  socket_result = new WebSocket("ws://112.216.77.162:5050", ["deflate-frame"]);
   socket_result.binaryType = "arraybuffer";
-  socket_point = new WebSocket("ws://localhost:5051", ["deflate-frame"]);
+  socket_point = new WebSocket("ws://112.216.77.162:5051", ["deflate-frame"]);
   socket_point.binaryType = "arraybuffer";
 
   socket_result.addEventListener('message', function (event) {
