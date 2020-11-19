@@ -92,7 +92,7 @@ When an object is recognized by the lidar, voltage is applied to GPO1.
 
 ### Run the DIO control code (code c)
 ```bash
-cd src
+cd samples/rco_dio_control/code_c
 sudo su
 make
 ./RCO_DIO_control -O 1 -t
