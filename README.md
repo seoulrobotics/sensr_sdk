@@ -79,13 +79,23 @@ make
 
 Or you can simply run build_console_output.sh from the root source folder.
 
-### ImGui
+### Run the code
 
 ```bash
-mkdir build_imgui
-cd build_imgui
-cmake ../samples/imgui_display
-make
+cd build_console
+sudo su
+./console_output_sample
 ```
 
-Or you can simply run build_imgui_sample.sh from the root source folder.
+This code controls GPO1
+When an object is recognized by the lidar, voltage is applied to GPO1.
+
+### Run the DIO control code (code c)
+```bash
+cd src
+sudo su
+make
+./RCO_DIO_control -O 1 -t
+  #This example : using DO1 and voltage true(high)
+  #-O : output -I : input -h : help 
+```
