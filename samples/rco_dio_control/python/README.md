@@ -26,3 +26,17 @@ Please follow the installation section beforehand.
 
 For details about how to use the SDK in more complex projects, please refer to [devtips.md](./devtips.md)
 
+## how to control DIO in RCO
+
+after you finish ./configure.sh and then, you write in terminal
+  ```bash
+  sudo su
+  #change the root account
+  ```
+and run the python file
+  ```bash
+  sudo python3 RCO_control.py -O 1 -t
+  #This example : using DO1 and voltage true(high)
+  #-O : output -I : input -h : help 
+  ```
+
