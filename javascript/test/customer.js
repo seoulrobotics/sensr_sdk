@@ -2,11 +2,11 @@ const{init, getStreamMessage, getEventMessage, getPointResults } = require("./cl
 
 
 function streamData(response){
-    var obj_list = response.getObjectsList();
-     obj_list.forEach(element => {
-         var point_list = element.getPoints_asU8();
-         console.log(element.getId(), element.getConfidence(), element.getLabel(), point_list.length)
-     });
+    //  var obj_list = response.getObjectsList();
+    //   obj_list.forEach(element => {
+    //       var point_list = element.getPoints_asU8();
+    //       console.log(element.getId(), element.getBbox().getYaw(), element.getLabel(), point_list.length)
+    //   });
 }
 
 function pointData(response){
@@ -14,7 +14,7 @@ function pointData(response){
     pcloud_list.forEach(element => {
          var point_list = element.getPoints_asU8();
          console.log(element.getId(), point_list.length)
-     });
+    });
 }
 
 init();

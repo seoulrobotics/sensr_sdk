@@ -7,6 +7,7 @@ var socket_result;
 var socket_point;
 var stream_callback_func;
 var event_callback_func;
+var point_callback_func;
 
 export function init() {
   socket_result = new WebSocket("ws://112.216.77.162:5050", ["deflate-frame"]);
@@ -27,6 +28,10 @@ export function init() {
     } else if (response.hasEvent()) {
       event_callback_func(response.getEvent());
     }
+  });
+  socket_point.addEventListener('message', function (event) {
+    var response = point_msg.PointResult.deserializeBinary(event.data);
+    point_callback_func(response);
   }); 
 }
 
@@ -41,12 +46,16 @@ export function getEventMessage(callbackFunc) {
 export function streamMessageEnd(callbackFunc) {
   socket_result.addEventListener('close', function (event) {
     callbackFunc();
+    stream_callback_func = null;
+    event_callback_func = null;
   }); 
 }
 
 export function streamMessageError(callbackFunc) {
   socket_result.addEventListener('error', function (event) {
     callbackFunc();
+    stream_callback_func = null;
+    event_callback_func = null;
   }); 
 }
 
@@ -58,20 +67,19 @@ export function streamMessageError(callbackFunc) {
 // }
 
 export function getPointResults(callbackFunc) {
-  socket_point.addEventListener('message', function (event) {
-    var response = point_msg.PointResult.deserializeBinary(event.data);
-    callbackFunc(response);
-  }); 
+  point_callback_func = callbackFunc;
 }
 
 export function pointResultEnd(callbackFunc) {
   socket_point.addEventListener('close', function (event) {
     callbackFunc();
+    point_callback_func = null;
   }); 
 }
 
 export function pointResultError(callbackFunc) {
   socket_point.addEventListener('error', function (event) {
     callbackFunc();
+    point_callback_func = null;
   }); 
 }
