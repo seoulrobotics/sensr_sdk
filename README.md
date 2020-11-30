@@ -99,3 +99,28 @@ make
   #This example : using DO1 and voltage true(high)
   #-O : output -I : input -h : help 
 ```
+
+### Run the DIO with zone & velocity
+```bash
+mkdir rco_dio_zone_velocity
+cd rco_dio_zone_velocity
+cmake ../samples/rco_dio_zone_velocity
+make
+```
+Or you can simply run rco_dio_zone_velocity.sh from the root source folder.
+
+modify the zone_info(zone,pin,velocity).txt file in the root source folder.
+write the zone information
+
+zone_id is start number 0
+pin_number is start number 1 and finish number 4
+
+example
+1 1 2 (zone_id, pin_number, velocity(m/s))
+
+if you run the program
+1. run the SENSR program
+2. sudo su
+3. enter the rco_dio_zone_velocity in the root source folder
+4. ./rco_dio_zone_velocity
+
