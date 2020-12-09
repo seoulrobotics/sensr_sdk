@@ -17,7 +17,7 @@ message ZoneEvent {
     ENTRY = 1;
     EXIT = 2;
     LOITERING = 3;
-    VELOCITY = 4;
+    EXCEEDS_SPEED = 4;
   }
   message Object {
     int32 id = 1;
@@ -86,7 +86,7 @@ message StreamMessage {
 message EventMessage {
   repeated ZoneEvent zone = 1;
   repeated LosingEvent losing = 2;
-  repeated SystemHealth health = 3;
+  SystemHealth health = 3;
 }
 
 // Actual message using in SENSR SDK

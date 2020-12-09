@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 import "sensr_proto/global_type.proto";
+import "sensr_proto/type.proto";
 
 package sensr_proto;
 
@@ -9,32 +10,6 @@ package sensr_proto;
 // 1 ~ 15 : very frequently occurring message elements
 // 101 ~ 2047 : normally occuring message elements
 // more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
-
-// Config
-message ConfigRequest {
-  enum Type {
-    NONE= 0;
-    LIST = 1;
-    APP = 2;
-    PROJECT = 3;
-    ALGORITHM = 4;
-    SENSOR = 5;
-  }
-  Type type = 1;
-  map<string, string> params = 2; 
-}
-
-message ConfigResponse {
-  enum ReturnCode {
-    NONE= 0;
-    OK = 1;
-    BAD_TYPE = 2;
-    BAD_FORMAT = 3;
-    TOML_ERROR = 4;
-  }
-  ReturnCode code = 1;
-  map<string, string> params = 2; 
-}
 
 message ObjectShape {
   google.protobuf.Timestamp time_stamp = 1;
@@ -46,4 +21,17 @@ message ObjectHistory {
   google.protobuf.Timestamp time_stamp = 1;
   int32 id = 2;
   repeated Vector3 history = 3;
+}
+// The nested zone below is exactly same as ZoneConfig in output.proto except 'object_ids'.
+// This is a just for a better user experiences.(Hide 'object_id' in Websocket, Include 'object_id' in REST)
+// But definitely this is bad for maintainence. Later, we need to find a better for maintainence. 
+message ZoneConfigPlus {
+  message Zone {
+    int32 id = 1;
+    string name = 2;
+    PolygonBox pbox = 3;
+    string type = 4;
+    repeated int32 object_ids = 5;
+  }
+  repeated Zone zones = 1;
 }

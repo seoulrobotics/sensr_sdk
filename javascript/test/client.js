@@ -17,15 +17,17 @@ export function init() {
 
   socket_result.addEventListener('message', function (event) {
     var response = output_msg.OutputMessage.deserializeBinary(event.data);
-    var server_t = response.getTimeStamp();
-    var server_time = (server_t.getSeconds() * 1000) + (server_t.getNanos() / 1000000)
-    var client_t = new Date();
-    var client_time = client_t.getTime();
-    var diff = client_time - server_time;
-    console.log("Diff:" , diff);
+    // var server_t = response.getTimeStamp();
+    // var server_time = (server_t.getSeconds() * 1000) + (server_t.getNanos() / 1000000)
+    // var client_t = new Date();
+    // var client_time = client_t.getTime();
+    // var diff = client_time - server_time;
+    // console.log("Diff:" , diff);
     if (response.hasStream()) {
       stream_callback_func(response.getStream());
-    } else if (response.hasEvent()) {
+    }
+    
+    if (response.hasEvent()) {
       event_callback_func(response.getEvent());
     }
   });
