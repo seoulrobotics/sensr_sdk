@@ -1,6 +1,3 @@
-[submodule "external/cppzmq"]
-	path = external/cppzmq
-	url = https://github.com/zeromq/cppzmq.git
 [submodule "external/imgui"]
 	path = samples/imgui_display/imgui
 	url = https://github.com/ocornut/imgui.git
