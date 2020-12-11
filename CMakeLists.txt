@@ -2,11 +2,13 @@ cmake_minimum_required(VERSION 3.8)
 project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 
 ######## PACKAGE Dependency Management ##########
-
+find_package(
+  Boost REQUIRED
+  COMPONENTS system)
 ######## PACKAGE Dependency Management ##########
-add_subdirectory(proto)
 
-set(SOURCE_FILES src/sensr_client.cpp src/websocket_endpoint.cpp)
+set(SOURCE_FILES src/sensr_client.cpp)
+message ("${SOURCE_FILES}")
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
 ####### Compiler Flags ###########
@@ -23,7 +25,9 @@ target_include_directories(sensr_sdk
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(sensr_sdk sensr_proto)
+target_link_libraries(sensr_sdk PUBLIC sensr_proto
+                                        ${Boost_LIBRARIES}
+                                PRIVATE pthread)
 
 ######## Installation script ##########
 
@@ -41,38 +45,45 @@ file(GLOB_RECURSE header_files
   "${PROJECT_SOURCE_DIR}/include/*.h"
   "${PROJECT_SOURCE_DIR}/external/websocketpp/websocketpp/*.hpp"
   )
-get_target_property(PROTO_HEADERS sensr_proto PUBLIC_HEADER)
-set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files};${PROTO_HEADERS}")
 
-# write_basic_package_version_file(
-#     "${version_config}" COMPATIBILITY SameMajorVersion
-# )
+add_subdirectory(proto)
 
-# configure_package_config_file(
-#     "cmake/Config.cmake.in"
-#     "${project_config}"
-#     INSTALL_DESTINATION "${config_install_dir}"
-# )
+#get_target_property(PROTO_HEADERS sensr_proto PUBLIC_HEADER)
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
+set_target_properties(sensr_sdk PROPERTIES LINK_FLAGS "-Wl,-rpath,.")
+  
 
-# install(
-#     TARGETS sensr_sdk
-#     EXPORT "${TARGETS_EXPORT_NAME}"
-#     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-#     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-#     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-#     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-#     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-# )
+write_basic_package_version_file(
+    "${version_config}" COMPATIBILITY SameMajorVersion
+)
 
-# install(
-#     FILES "${project_config}" "${version_config}"
-#     DESTINATION "${config_install_dir}"
-# )
+configure_package_config_file(
+    "cmake/Config.cmake.in"
+    "${project_config}"
+    INSTALL_DESTINATION "${config_install_dir}"
+)
 
-# install(
-#     EXPORT "${TARGETS_EXPORT_NAME}"
-#     NAMESPACE "${namespace}"
-#     DESTINATION "${config_install_dir}"
-# )
+install(
+    TARGETS sensr_sdk
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+
+install(
+    FILES "${project_config}" "${version_config}"
+    DESTINATION "${config_install_dir}"
+)
+
+install(
+    EXPORT "${TARGETS_EXPORT_NAME}"
+    NAMESPACE "${namespace}"
+    DESTINATION "${config_install_dir}"
+)
 
 ######## Installation script ##########
+
+

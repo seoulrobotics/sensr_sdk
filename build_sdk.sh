@@ -2,10 +2,13 @@
 
 # function definitions
 function make_cpp_sdk() {
+    rm -rf build
+    rm -rf _install
     mkdir build
     cd build
-    cmake ..
-    make
+    #cmake ..
+    cmake -DCMAKE_INSTALL_PREFIX=../_install ..
+    make -j6
     sudo make install
 }
 
