@@ -3,15 +3,10 @@ project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 
 ######## PACKAGE Dependency Management ##########
 
-find_package(Protobuf REQUIRED)
-find_package(ZeroMQ REQUIRED)
-include(FindProtobuf REQUIRED)
-
 ######## PACKAGE Dependency Management ##########
+add_subdirectory(proto)
 
-set(PROTO_FILES proto/output.proto proto/labels.proto)
-set(SOURCE_FILES src/sensr_client.cpp)
-protobuf_generate_cpp(generated_code generated_header_code ${PROTO_FILES})
+set(SOURCE_FILES src/sensr_client.cpp src/websocket_endpoint.cpp)
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
 ####### Compiler Flags ###########
@@ -24,11 +19,11 @@ target_include_directories(sensr_sdk
     PUBLIC 
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/cppzmq>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/websocketpp>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(sensr_sdk libzmq ${PROTOBUF_LIBRARY})
+target_link_libraries(sensr_sdk sensr_proto)
 
 ######## Installation script ##########
 
@@ -44,40 +39,40 @@ set(namespace "")
 
 file(GLOB_RECURSE header_files
   "${PROJECT_SOURCE_DIR}/include/*.h"
-  "${PROJECT_SOURCE_DIR}/external/cppzmq/*.hpp"
+  "${PROJECT_SOURCE_DIR}/external/websocketpp/websocketpp/*.hpp"
   )
+get_target_property(PROTO_HEADERS sensr_proto PUBLIC_HEADER)
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files};${PROTO_HEADERS}")
 
-set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files};${generated_header_code}")
+# write_basic_package_version_file(
+#     "${version_config}" COMPATIBILITY SameMajorVersion
+# )
 
-write_basic_package_version_file(
-    "${version_config}" COMPATIBILITY SameMajorVersion
-)
+# configure_package_config_file(
+#     "cmake/Config.cmake.in"
+#     "${project_config}"
+#     INSTALL_DESTINATION "${config_install_dir}"
+# )
 
-configure_package_config_file(
-    "cmake/Config.cmake.in"
-    "${project_config}"
-    INSTALL_DESTINATION "${config_install_dir}"
-)
+# install(
+#     TARGETS sensr_sdk
+#     EXPORT "${TARGETS_EXPORT_NAME}"
+#     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+#     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+#     INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+#     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+# )
 
-install(
-    TARGETS sensr_sdk
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)
+# install(
+#     FILES "${project_config}" "${version_config}"
+#     DESTINATION "${config_install_dir}"
+# )
 
-install(
-    FILES "${project_config}" "${version_config}"
-    DESTINATION "${config_install_dir}"
-)
-
-install(
-    EXPORT "${TARGETS_EXPORT_NAME}"
-    NAMESPACE "${namespace}"
-    DESTINATION "${config_install_dir}"
-)
+# install(
+#     EXPORT "${TARGETS_EXPORT_NAME}"
+#     NAMESPACE "${namespace}"
+#     DESTINATION "${config_install_dir}"
+# )
 
 ######## Installation script ##########

@@ -4,24 +4,13 @@
 
 ### Dependencies
 
-SENSR SDK depends on [ZeroMQ](http://zeromq.org/intro:get-the-software) (tested with 4.3.1) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.6.0).
+SENSR SDK depends on [Websocket](https://en.wikipedia.org/wiki/WebSocket) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.12.0).
 
 ImGui sample code also depends on [GLFW](https://www.glfw.org/) (optional).
 
 You can install prebuilt binaries or build from source as following.
 
 #### Build Dependencies from Source
-
-ZeroMQ (4.3.1) from source:
-
-```bash
-git clone https://github.com/zeromq/libzmq
-cd libzmq
-git checkout v4.3.1
-mkdir build && cd build && cmake .. && make -j16 && sudo make install
-sudo ldconfig
-cd ../../ && rm -rf libzmq
-```
 
 Protobuf (3.6.0) from source:
 
