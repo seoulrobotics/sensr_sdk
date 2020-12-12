@@ -9,7 +9,7 @@ function make_cpp_sdk() {
     #cmake ..
     cmake -DCMAKE_INSTALL_PREFIX=../_install ..
     make -j6
-    sudo make install
+    make install
 }
 
 function make_javascript_sdk() {

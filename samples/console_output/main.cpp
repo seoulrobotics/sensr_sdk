@@ -23,7 +23,6 @@ void ReceiveOutputMessage(const sensr_proto::OutputMessage& message) {
 
 int main(int argc, char *argv[])
 {
-  std::cout << "1";
   const char *client_address = "localhost";
   if (argc > 1)
   {
@@ -31,9 +30,8 @@ int main(int argc, char *argv[])
   }
   std::string address = std::string(client_address);
   sensr::Client client;
-  std::cout << "1";
+  //auto func = std::bind(&ReceiveOutputMessage, std::placeholders::_1);
   client.SubscribeMessageListener(address, &ReceiveOutputMessage);
-  std::cout << "2";
   std::string s;
   std::getline(std::cin, s);
   while(s != "") { // if the person hits enter, s == "" and leave the loop
@@ -41,4 +39,5 @@ int main(int argc, char *argv[])
       std::getline(std::cin, s);
   }
   client.UnsubscribeMessageListener(address, &ReceiveOutputMessage);
+  return 0;
 }

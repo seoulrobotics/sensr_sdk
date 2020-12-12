@@ -17,21 +17,21 @@ public:
   ~Client();
   //bool Connect(const std::string& address);
   //void Disconnect();
-  bool SubscribeMessageListener(const std::string& address, OutputMessageListener listener);
-  bool SubscribeMessageListener(const std::string& address, PointResultListener listener);
-  void UnsubscribeMessageListener(const std::string& address, OutputMessageListener listener);
-  void UnsubscribeMessageListener(const std::string& address, PointResultListener listener);
+  bool SubscribeMessageListener(const std::string& address, const OutputMessageListener& listener);
+  bool SubscribeMessageListener(const std::string& address, const PointResultListener& listener);
+  void UnsubscribeMessageListener(const std::string& address, const OutputMessageListener& listener);
+  void UnsubscribeMessageListener(const std::string& address, const PointResultListener& listener);
   //bool ReceiveMessage(OutputMessage& output_result);
   //bool ReceiveMessage(PointResultListener& output_result);
 private:
-  websocket_endpoint<sensr_proto::OutputMessage> output_endpoint_;
-  websocket_endpoint<sensr_proto::PointResult> point_endpoint_;
+  websocket_endpoint output_endpoint_;
+  websocket_endpoint point_endpoint_;
   std::vector<OutputMessageListener> output_listener_;
   std::vector<PointResultListener> point_listener_;
 
   typedef websocketpp::client<websocketpp::config::asio_client> client;
-  void OnResultMessage(const sensr_proto::OutputMessage& msg);
-  void OnPointMessage(const sensr_proto::PointResult& msg);
+  void OnResultMessage(const std::string& msg);
+  void OnPointMessage(const std::string& msg);
 
   // std::function does not provide operator==, getAddress() replace this.)
   template<typename T, typename... U>
