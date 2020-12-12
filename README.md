@@ -12,15 +12,15 @@ You can install prebuilt binaries or build from source as following.
 
 #### Build Dependencies from Source
 
-Protobuf (3.6.0) from source:
+Protobuf (3.11.4) from source:
 
 ```bash
-curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.zip
-unzip protobuf-cpp-3.6.0.zip
-rm protobuf-cpp-3.6.0.zip
-cd protobuf-3.6.0
+curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-cpp-3.11.4.zip
+unzip protobuf-cpp-3.11.4.zip
+rm protobuf-cpp-3.11.4.zip
+cd protobuf-3.11.4
 ./autogen.sh
-./configure
+./configure CXXFLAGS=-fPIC
 make
 make check
 sudo make install
