@@ -1,19 +1,27 @@
 #include "sensr.h"
 #include <iostream>
-
+#include <google/protobuf/util/time_util.h>
 
 void ReceiveOutputMessage(const sensr_proto::OutputMessage& message) {
-   /*for(const auto& object : message.objects()) {
-    object_points_size += (object.points().length() / (sizeof(float) * 3));
-    if (object.has_track() && object.track().tracking_reliable()) {
-      tracked_objects_size++;
-    } else {
-      non_tracked_objects_size++;
+  // if (message.has_stream()) {
+  //   for(const auto& object : message.stream().objects()) {
+  //     int object_points_size = (object.points().length() / (sizeof(float) * 3));
+  //     std::cout << "Obj(" << object.id() << ") : point no. " << object_points_size << std::endl;
+  //   }
+  // }
+
+  if (message.has_event()) {
+    for(const auto& zone_event : message.event().zone()) {
+      if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
+        std::cout << "Entering Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
+      } else if (zone_event.type() == sensr_proto::ZoneEvent_Type_EXIT) {
+        std::cout << "Exiting Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
+      }
     }
-  }*/
-  std::cout << "Message received from SENSR!" << std::endl
-            << "Timestamp: " << message.time_stamp().seconds() << " (s) "
-                              << message.time_stamp().nanos() << " (ns)" << std::endl;
+  }
+   
+  //std::cout << "Message received from SENSR!" << std::endl
+  //          << "Timestamp: " << google::protobuf::util::TimeUtil::ToString(message.time_stamp()) << std::endl;
             /*<< "Ground Points: " << message.ground_points().length() / (sizeof(float) * 3) << std::endl
             << "Object Points: " << object_points_size << std::endl
             << "Tracked Objects: " << tracked_objects_size << std::endl
@@ -29,15 +37,14 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
   std::string address = std::string(client_address);
-  sensr::Client client;
-  //auto func = std::bind(&ReceiveOutputMessage, std::placeholders::_1);
-  client.SubscribeMessageListener(address, &ReceiveOutputMessage);
+  sensr::Client client(address);
+  client.SubscribeMessageListener(&ReceiveOutputMessage);
   std::string s;
   std::getline(std::cin, s);
   while(s != "") { // if the person hits enter, s == "" and leave the loop
       std::cout << s << std::endl;
       std::getline(std::cin, s);
   }
-  client.UnsubscribeMessageListener(address, &ReceiveOutputMessage);
+  client.UnsubscribeMessageListener();
   return 0;
 }

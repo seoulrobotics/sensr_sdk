@@ -15,7 +15,7 @@ namespace sensr
         websocket_endpoint();
         ~websocket_endpoint();
 
-        int connect(const std::string &uri, MsgReceiver func);
+        bool connect(const std::string &uri, MsgReceiver func);
         void close(websocketpp::close::status::value code);
 
     private:

@@ -22,12 +22,17 @@ namespace sensr
         }
     }
 
-    int websocket_endpoint::connect(const std::string &uri, MsgReceiver func) {
+    bool websocket_endpoint::connect(const std::string &uri, MsgReceiver func) {
+        
+        if (!m_hdl.expired()) {
+            std::cout << uri << " is already connected." << std::endl;
+            return false;
+        }
         websocketpp::lib::error_code ec;
         client::connection_ptr con = m_endpoint.get_connection(uri, ec);
         if (ec) {
             std::cout << "> Connect initialization error: " << ec.message() << std::endl;
-            return -1;
+            return false;
         }
         m_uri = uri;
         msg_receiver_ = func;
@@ -50,23 +55,22 @@ namespace sensr
             websocketpp::lib::placeholders::_2));
 
         m_endpoint.connect(con);
-        return 0;
+        return true;
     };
 
     void websocket_endpoint::close(websocketpp::close::status::value code) {
         websocketpp::lib::error_code ec;
         if (m_hdl.expired()) {
             std::cout << "> No connection found" << std::endl;
-            return;
-        }
-
-        if (m_status != "Open") {
-            // Only close open connections
-            m_endpoint.close(m_hdl, code, "", ec);
-            if (ec) {
-                std::cout << "> Error closing connection : " << ec.message() << std::endl;
-            }            
-        }
+        } else {
+            if (m_status != "Open") {
+                // Only close open connections
+                m_endpoint.close(m_hdl, code, "", ec);
+                if (ec) {
+                    std::cout << "> Error closing connection : " << ec.message() << std::endl;
+                }            
+            }
+        }        
         m_uri = "N/A";
         m_hdl.reset();
     }
@@ -84,6 +88,11 @@ namespace sensr
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         m_server = con->get_response_header("Server");
         m_error_reason = con->get_ec().message();
+        close(websocketpp::close::status::abnormal_close);
+        std::cerr << "Connection fail, Try re-connect" << std::endl;
+        if (connect(m_uri, msg_receiver_)) {
+            std::cerr << "re-connect failed." << std::endl;
+        }
     }
 
     void websocket_endpoint::on_close(client *c, websocketpp::connection_hdl hdl) {
@@ -97,17 +106,12 @@ namespace sensr
     }
 
     void websocket_endpoint::on_message(websocketpp::connection_hdl hdl, client::message_ptr msg) {
-        std::string message;
-        if (msg->get_opcode() == websocketpp::frame::opcode::text) {
-            message = msg->get_payload();
-        } else {
-            message = websocketpp::utility::to_hex(msg->get_payload());
-        }
-        if (msg_receiver_) {
-            //T output;
-            //output.ParseFromString(message);        
-            msg_receiver_(message);
-        }
+        if (msg->get_opcode() == websocketpp::frame::opcode::BINARY) {
+            std::string message = msg->get_payload();
+            if (msg_receiver_) {     
+                msg_receiver_(message);
+            }
+        }        
     }
 
 
