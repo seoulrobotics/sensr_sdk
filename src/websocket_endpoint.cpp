@@ -63,7 +63,7 @@ namespace sensr
         if (m_hdl.expired()) {
             std::cout << "> No connection found" << std::endl;
         } else {
-            if (m_status != "Open") {
+            if (m_status != "Closed") {
                 // Only close open connections
                 m_endpoint.close(m_hdl, code, "", ec);
                 if (ec) {
@@ -111,7 +111,7 @@ namespace sensr
             if (msg_receiver_) {     
                 msg_receiver_(message);
             }
-        }        
+        }         
     }
 
 
