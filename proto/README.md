@@ -38,12 +38,12 @@ Field | Unit | Type | Description
 id | - | int32 | ID of the object.
 label | - | [LabelType](sensr_proto/type.proto) | Classification of the object.
 confidnece | - | float | 0 to 1 probability of the object classification.
-bbox | - | BoundingBox | Bounding box of the object.
+bbox | - | [BoundingBox](#id-boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
 points | meters | bytes | List of sequential 3 float value set (XYZ).
 history | meters | Vector3 (list) | List of bounding box’s XYZ position values along the tracking history.
 
-### BoundingBox
+### BoundingBox {#id-boundingbox}
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
