@@ -100,6 +100,16 @@ make
   #-O : output -I : input -h : help 
 ```
 
+### Run the Xavier DIO control code (code c)
+```bash
+cd samples/xavier_dio_control
+sudo su
+make
+./xavier_dio -set 0 1
+  #This example : using DO0 and voltage true(high)
+  #-set : output -get : input
+```
+
 ### Run the DIO with zone & velocity
 ```bash
 mkdir rco_dio_zone_velocity
