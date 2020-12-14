@@ -9,22 +9,20 @@
 
 namespace sensr
 {
+  class MessageListener;
   class websocket_endpoint;
   class Client
   {
   public:
-    using OutputMessageListener = std::function<void(const sensr_proto::OutputMessage &message)>;
-    using PointResultListener = std::function<void(const sensr_proto::PointResult &message)>;
     Client(const std::string &address);
     ~Client();
-    bool SubscribeMessageListener(const OutputMessageListener &output_listener, const PointResultListener &point_listener = 0);
-    void UnsubscribeMessageListener();
+    bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
+    void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
   private:
     std::unique_ptr<websocket_endpoint> output_endpoint_;
     std::unique_ptr<websocket_endpoint> point_endpoint_;
-    OutputMessageListener output_listener_;
-    PointResultListener point_listener_;
+    std::vector<std::shared_ptr<MessageListener>> listeners_;
     const std::string address_;
 
     void OnResultMessage(const std::string &msg);

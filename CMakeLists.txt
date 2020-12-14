@@ -7,7 +7,7 @@ find_package(
   COMPONENTS system)
 ######## PACKAGE Dependency Management ##########
 
-set(SOURCE_FILES src/sensr_client.cpp src/websocket_endpoint.cpp)
+set(SOURCE_FILES src/sensr_client.cpp src/sensr_message_listener.cpp src/websocket_endpoint.cpp)
 message ("${SOURCE_FILES}")
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
@@ -25,7 +25,7 @@ target_include_directories(sensr_sdk
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(sensr_sdk PUBLIC sensr_proto
+target_link_libraries(sensr_sdk PUBLIC  sensr_proto
                                         ${Boost_LIBRARIES}
                                 PRIVATE pthread)
 
@@ -48,9 +48,7 @@ file(GLOB_RECURSE header_files
 add_subdirectory(proto)
 
 #get_target_property(PROTO_HEADERS sensr_proto PUBLIC_HEADER)
-set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
-set_target_properties(sensr_sdk PROPERTIES LINK_FLAGS "-Wl,-rpath,.")
-  
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")  
 
 write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion

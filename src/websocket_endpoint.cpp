@@ -26,7 +26,7 @@ namespace sensr
         
         if (!m_hdl.expired()) {
             std::cout << uri << " is already connected." << std::endl;
-            return false;
+            return true;
         }
         websocketpp::lib::error_code ec;
         client::connection_ptr con = m_endpoint.get_connection(uri, ec);

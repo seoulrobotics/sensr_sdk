@@ -1,5 +1,7 @@
 #include "sensr_client.h"
 #include "websocket_endpoint.h"
+#include "sensr_message_listener.h"
+#include <algorithm>
 
 namespace sensr
 {
@@ -10,54 +12,72 @@ namespace sensr
 
   Client::~Client()
   {
-    if (output_listener_ != 0) {
-      output_endpoint_->close(websocketpp::close::status::going_away);
-    }
-    if (point_listener_ != 0) {
-      point_endpoint_->close(websocketpp::close::status::going_away);
+    for (const auto& listener : listeners_) {
+      UnsubscribeMessageListener(listener);
     }
   }
 
-  bool Client::SubscribeMessageListener(const OutputMessageListener& output_listener, const PointResultListener& point_listener) { 
-    output_listener_ = output_listener;      
-    bool ret1 = output_endpoint_->connect("ws://" + address_ + ":5050", std::bind(&Client::OnResultMessage, this, std::placeholders::_1));
-    bool ret2 = true;
-    if (point_listener != 0) {
-      point_listener_ = point_listener;
-      ret2 = point_endpoint_->connect("ws://" + address_ + ":5051", std::bind(&Client::OnPointMessage, this, std::placeholders::_1));
+  bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) { 
+    bool ret = false;
+    // Connect to SENSR
+    if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+      // OutputMessage Port
+      if (listener->IsOutputMessageListening()) {
+        ret = output_endpoint_->connect("ws://" + address_ + ":5050", std::bind(&Client::OnResultMessage, this, std::placeholders::_1)); 
+      } 
+      // PointResult Port
+      if (listener->IsPointResultListening()) {
+        ret = point_endpoint_->connect("ws://" + address_ + ":5051", std::bind(&Client::OnPointMessage, this, std::placeholders::_1)); 
+      }
     }
-    return ret1 && ret2;
+    // Add listener in case connection success.
+    if (ret) {    
+      listeners_.push_back(listener);
+    }
+    return ret;
   }
 
-  void Client::UnsubscribeMessageListener() {
-    if (output_listener_ != 0) {
-      output_listener_ = 0;
+  void Client::UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {
+    auto itr = std::find(listeners_.begin(), listeners_.end(), listener);
+    if (itr != listeners_.end()) {      
+      listeners_.erase(itr);
+    }
+    // Close if no listener is listening OutputMessage.
+    if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+      return listener->IsOutputMessageListening();
+    })) {
       output_endpoint_->close(websocketpp::close::status::normal);
     }
-    if (point_listener_ != 0) {
-      point_listener_ = 0;
+    // Close if no listener is listening PointResult.
+    if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+      return listener->IsPointResultListening();
+    })) {
       point_endpoint_->close(websocketpp::close::status::normal);
     }
   }
 
   void Client::OnResultMessage(const std::string& message) {
-    if (output_listener_ != 0) {
-      sensr_proto::OutputMessage output;
-      if (output.ParseFromString(message)) {
-        output_listener_(output);
-      } else {
-        std::cerr << "Wrong format" << std::endl;
+    sensr_proto::OutputMessage output;
+    if (!output.ParseFromString(message)) {
+      std::cerr << "Wrong format" << std::endl;
+      return;
+    }
+    for (const auto& listener : listeners_) {
+      if (listener->IsOutputMessageListening()) {
+        listener->OnGetOutpuMessage(output);
       }
     }
   }
 
   void Client::OnPointMessage(const std::string& message) {
-    if (point_listener_ != 0) {
-      sensr_proto::PointResult result;
-      if (result.ParseFromString(message)) {
-        point_listener_(result);
-      } else {
-        std::cerr << "Wrong format" << std::endl;
+    sensr_proto::PointResult output;
+    if (!output.ParseFromString(message)) {
+      std::cerr << "Wrong format" << std::endl;
+      return;
+    }
+    for (const auto& listener : listeners_) {
+      if (listener->IsPointResultListening()) {
+        listener->OnGetPointResult(output);
       }
     }
   }
