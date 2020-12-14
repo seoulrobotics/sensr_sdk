@@ -15,7 +15,8 @@ namespace sensr {
     };
     enum struct Error {
         kNone,
-        kConnection,
+        kOutputMessageConnection,
+        kPointResultConnection,
         kMax
     };
 

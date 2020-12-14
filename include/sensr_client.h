@@ -16,6 +16,7 @@ namespace sensr
   public:
     Client(const std::string &address);
     ~Client();
+    bool Reconnect(); // Call when Error occur
     bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
     void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
@@ -27,6 +28,8 @@ namespace sensr
 
     void OnResultMessage(const std::string &msg);
     void OnPointMessage(const std::string &msg);
+    void OnResultError(const std::string &err);
+    void OnPointError(const std::string &err);
   };
 } // namespace sensr
 

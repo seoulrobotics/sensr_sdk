@@ -3,7 +3,7 @@
 namespace sensr
 {   
     websocket_endpoint::websocket_endpoint() : 
-        m_status("Connecting"), m_uri("N/A"), m_server("N/A")
+        m_status("Connecting"), m_uri("N/A"), m_server("N/A"), msg_receiver_(0), err_receiver_(0)
     {
         m_endpoint.clear_access_channels(websocketpp::log::alevel::all);
         m_endpoint.clear_error_channels(websocketpp::log::elevel::all);
@@ -22,7 +22,7 @@ namespace sensr
         }
     }
 
-    bool websocket_endpoint::connect(const std::string &uri, MsgReceiver func) {
+    bool websocket_endpoint::connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func) {
         
         if (!m_hdl.expired()) {
             std::cout << uri << " is already connected." << std::endl;
@@ -36,6 +36,7 @@ namespace sensr
         }
         m_uri = uri;
         msg_receiver_ = func;
+        err_receiver_ = err_func; 
         m_hdl = con->get_handle();
 
         con->set_open_handler(websocketpp::lib::bind(
@@ -73,6 +74,8 @@ namespace sensr
         }        
         m_uri = "N/A";
         m_hdl.reset();
+        msg_receiver_ = 0;
+        err_receiver_ = 0;
     }
 
     void websocket_endpoint::on_open(client *c, websocketpp::connection_hdl hdl) {
@@ -88,11 +91,14 @@ namespace sensr
         client::connection_ptr con = c->get_con_from_hdl(hdl);
         m_server = con->get_response_header("Server");
         m_error_reason = con->get_ec().message();
-        close(websocketpp::close::status::abnormal_close);
-        std::cerr << "Connection fail, Try re-connect" << std::endl;
-        if (connect(m_uri, msg_receiver_)) {
-            std::cerr << "re-connect failed." << std::endl;
+        if (err_receiver_ != 0) {
+            err_receiver_(m_error_reason);
         }
+        // close(websocketpp::close::status::abnormal_close);
+        // std::cerr << "Connection fail, Try re-connect" << std::endl;
+        // if (connect(m_uri, msg_receiver_)) {
+        //     std::cerr << "re-connect failed." << std::endl;
+        // }
     }
 
     void websocket_endpoint::on_close(client *c, websocketpp::connection_hdl hdl) {
@@ -108,7 +114,7 @@ namespace sensr
     void websocket_endpoint::on_message(websocketpp::connection_hdl hdl, client::message_ptr msg) {
         if (msg->get_opcode() == websocketpp::frame::opcode::BINARY) {
             std::string message = msg->get_payload();
-            if (msg_receiver_) {     
+            if (msg_receiver_ != 0) {     
                 msg_receiver_(message);
             }
         }         

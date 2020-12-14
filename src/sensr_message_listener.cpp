@@ -6,10 +6,11 @@ namespace sensr {
     : listening_type_(listening_type) {
 
     }
-    
+
     void MessageListener::OnError(MessageListener::Error error, const std::string& reason) {
         switch (error) {
-            case Error::kConnection: {
+            case Error::kOutputMessageConnection: 
+            case Error::kPointResultConnection: {
                 std::cerr << "Lost SENSR Connection fail(Reason: " << reason << "). Please reconnect." << std::endl; 
                 break;
             }
@@ -18,11 +19,11 @@ namespace sensr {
         }
     }
 
-    inline bool MessageListener::IsOutputMessageListening() const {
+    bool MessageListener::IsOutputMessageListening() const {
         return static_cast<uint32_t>(listening_type_) & static_cast<uint32_t>(ListeningType::kOutputMessage);
     }
 
-    inline bool MessageListener::IsPointResultListening() const {
+    bool MessageListener::IsPointResultListening() const {
         return static_cast<uint32_t>(listening_type_) & static_cast<uint32_t>(ListeningType::kPointResult);
     }
 }

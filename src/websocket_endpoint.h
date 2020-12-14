@@ -12,10 +12,11 @@ namespace sensr
     {
     public:
         using MsgReceiver = std::function<void(const std::string& msg)>;
+        using ErrorReceiver = std::function<void(const std::string& err)>;
         websocket_endpoint();
         ~websocket_endpoint();
 
-        bool connect(const std::string &uri, MsgReceiver func);
+        bool connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func);
         void close(websocketpp::close::status::value code);
 
     private:
@@ -31,5 +32,6 @@ namespace sensr
         std::string m_server;
         std::string m_error_reason;
         MsgReceiver msg_receiver_;
+        ErrorReceiver err_receiver_;
     };
 } // namespace sensr
