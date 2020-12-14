@@ -107,7 +107,7 @@ sudo su
 make
 ./xavier_dio -set 0 1
   #This example : using DO0 and voltage true(high)
-  #-set : output -get : input
+  #-set : output -get : input 
 ```
 
 ### Run the DIO with zone & velocity
