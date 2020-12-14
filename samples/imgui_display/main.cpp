@@ -5,15 +5,41 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "sensr.h"
+#include <mutex>
 
-const char *label_to_string[label_types::LabelType::Max + 1] =
+
+class OutputMessageListener : public sensr::MessageListener {
+public:
+  OutputMessageListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    latest_message_ = message;
+  }
+  void ReceiveMessage(sensr_proto::OutputMessage & output) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    output = latest_message_;
+  }
+private:
+  sensr::Client* client_;
+  std::mutex mutex_;
+  sensr_proto::OutputMessage latest_message_;
+};
+
+const char *label_to_string[sensr_proto::LabelType::LABEL_MAX] =
     {
+        "None",
         "Car",
         "Pedestrian",
         "Cyclist",
         "Misc",
-        "Ground",
-        "INVALID"};
+        "Ground"
+    };
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +92,10 @@ int main(int argc, char *argv[])
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init(glsl_version);
 
-  OutputMessage latest_message;
+  sensr_proto::OutputMessage output_msg;
+  sensr_proto::StreamMessage latest_message;
+  std::shared_ptr<OutputMessageListener> listener = std::make_shared<OutputMessageListener>(&client);
+  client.SubscribeMessageListener(listener);
   int message_received_count = 0;
   while (!glfwWindowShouldClose(window))
   {
@@ -77,120 +106,122 @@ int main(int argc, char *argv[])
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (client.ReceiveMessageAsync(latest_message))
-    {
+    listener->ReceiveMessage(output_msg);
+    if (output_msg.has_stream()) {
+      latest_message = output_msg.stream();
       message_received_count++;
-    }
-
-    const int size_of_vec3 = sizeof(float) * 3;
-    size_t object_points_size = 0;
-    int tracked_objects_size = 0, non_tracked_objects_size = 0;
-    for(const auto& object : latest_message.objects()) {
-      object_points_size += (object.points().length() / size_of_vec3);
-      if (object.has_track() && object.track().tracking_reliable()) {
-        tracked_objects_size++;
-      } else {
-        non_tracked_objects_size++;
-      }
-    }
-
-    ImGui::Begin("Message Explorer");
-
-    ImGui::BulletText("Timestamp %ld (s) %d (ns)",
-                      latest_message.time_stamp().seconds(),
-                      latest_message.time_stamp().nanos());
-    
-    ImGui::BulletText("Ground Points: %d.", latest_message.ground_points().length() / size_of_vec3);
-    ImGui::BulletText("Object Points: %d.", object_points_size);
-    ImGui::BulletText("Tracked Objects: %d.", tracked_objects_size);
-    ImGui::BulletText("Non Tracked Objects: %d.", non_tracked_objects_size);
-
-    ImGui::BeginTabBar("Test");
-
-    if (ImGui::BeginTabItem("Non Tracked Objects"))
-    {
-
-      ImGui::Columns(2);
-      ImGui::Separator();
-      ImGui::Text("Id");
-      ImGui::NextColumn();
-      ImGui::Text("Bounding Box");
-      ImGui::NextColumn();
-      ImGui::Separator();
+      
+      const float kTrackedObjThreshold = 0.5f;
+      const int size_of_vec3 = sizeof(float) * 3;
+      size_t object_points_size = 0;
+      int tracked_objects_size = 0, non_tracked_objects_size = 0;
       for(const auto& object : latest_message.objects()) {
-        if (!object.has_track() || (object.has_track() && !(object.track().tracking_reliable()))) {
-          const Vector3& bbox_position = object.bbox().position();
-          const Vector3& bbox_size = object.bbox().size();
-          ImGui::Text("%d", object.id());
-          ImGui::NextColumn();
-          ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                      bbox_position.x(), bbox_position.y(), bbox_position.z(),
-                      bbox_size.x(), bbox_size.y(), bbox_size.z());
-          ImGui::NextColumn();
-          ImGui::Separator();
+        object_points_size += (object.points().length() / size_of_vec3);
+        if (object.confidence() > kTrackedObjThreshold) {
+          tracked_objects_size++;
+        } else {
+          non_tracked_objects_size++;
         }
       }
 
-      ImGui::Columns(1);
+      ImGui::Begin("Message Explorer");
 
-      ImGui::EndTabItem();
-    }
+      ImGui::BulletText("Timestamp %ld (s) %d (ns)",
+                        output_msg.time_stamp().seconds(),
+                        output_msg.time_stamp().nanos());
+      
+      //ImGui::BulletText("Ground Points: %d.", latest_message.ground_points().length() / size_of_vec3);
+      ImGui::BulletText("Object Points: %d.", object_points_size);
+      ImGui::BulletText("Tracked Objects: %d.", tracked_objects_size);
+      ImGui::BulletText("Non Tracked Objects: %d.", non_tracked_objects_size);
 
-    if (ImGui::BeginTabItem("Tracked Objects"))
-    {
-      ImGui::Columns(8);
-      ImGui::Separator();
-      ImGui::Text("Id");
-      ImGui::NextColumn();
-      ImGui::Text("Bounding Box");
-      ImGui::NextColumn();
-      ImGui::Text("Label");
-      ImGui::NextColumn();
-      ImGui::Text("Probability");
-      ImGui::NextColumn();
-      ImGui::Text("Tracked");
-      ImGui::NextColumn();
-      ImGui::Text("Velocity");
-      ImGui::NextColumn();
-      ImGui::Text("History Points");
-      ImGui::NextColumn();
-      ImGui::Text("Prediction Points");
-      ImGui::NextColumn();
-      ImGui::Separator();
-      for(const auto& object : latest_message.objects()) {
-        if (object.has_track() && object.track().tracking_reliable()) {
-          const Vector3& bbox_position = object.bbox().position();
-          const Vector3& bbox_size = object.bbox().size();
-          const Vector3& velocity = object.track().velocity();
-          ImGui::Text("%d", object.id());
-          ImGui::NextColumn();
-          ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
-                      bbox_position.x(), bbox_position.y(), bbox_position.z(),
-                      bbox_size.x(), bbox_size.y(), bbox_size.z());
-          ImGui::NextColumn();
-          ImGui::Text("%s", label_to_string[(int)object.label()]);
-          ImGui::NextColumn();
-          ImGui::Text("%.3f", object.track().probability());
-          ImGui::NextColumn();
-          ImGui::Text(object.track().tracking_reliable() ? "Reliable" : "Unreliable");
-          ImGui::NextColumn();
-          ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
-          ImGui::NextColumn();
-          ImGui::Text("%d points", object.track().history().size());
-          ImGui::NextColumn();
-          ImGui::Text("%d points", object.track().prediction().size());
-          ImGui::NextColumn();
-          ImGui::Separator();
+      ImGui::BeginTabBar("Test");
+
+      if (ImGui::BeginTabItem("Non Tracked Objects"))
+      {
+
+        ImGui::Columns(2);
+        ImGui::Separator();
+        ImGui::Text("Id");
+        ImGui::NextColumn();
+        ImGui::Text("Bounding Box");
+        ImGui::NextColumn();
+        ImGui::Separator();
+        for(const auto& object : latest_message.objects()) {
+          if (object.confidence() <= kTrackedObjThreshold) {
+            const Vector3& bbox_position = object.bbox().position();
+            const Vector3& bbox_size = object.bbox().size();
+            ImGui::Text("%d", object.id());
+            ImGui::NextColumn();
+            ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
+                        bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                        bbox_size.x(), bbox_size.y(), bbox_size.z());
+            ImGui::NextColumn();
+            ImGui::Separator();
+          }
         }
+
+        ImGui::Columns(1);
+
+        ImGui::EndTabItem();
       }
 
-      ImGui::Columns(1);
+      if (ImGui::BeginTabItem("Tracked Objects"))
+      {
+        ImGui::Columns(8);
+        ImGui::Separator();
+        ImGui::Text("Id");
+        ImGui::NextColumn();
+        ImGui::Text("Bounding Box");
+        ImGui::NextColumn();
+        ImGui::Text("Label");
+        ImGui::NextColumn();
+        ImGui::Text("Probability");
+        ImGui::NextColumn();
+        ImGui::Text("Tracked");
+        ImGui::NextColumn();
+        ImGui::Text("Velocity");
+        ImGui::NextColumn();
+        ImGui::Text("History Points");
+        ImGui::NextColumn();
+        ImGui::Text("Prediction Points");
+        ImGui::NextColumn();
+        ImGui::Separator();
+        for(const auto& object : latest_message.objects()) {
+          if (object.confidence() > kTrackedObjThreshold) {
+            const Vector3& bbox_position = object.bbox().position();
+            const Vector3& bbox_size = object.bbox().size();
+            const Vector3& velocity = object.velocity();
+            ImGui::Text("%d", object.id());
+            ImGui::NextColumn();
+            ImGui::Text("(%.3f, %.3f, %.3f) - (%.3f, %.3f, %.3f)",
+                        bbox_position.x(), bbox_position.y(), bbox_position.z(),
+                        bbox_size.x(), bbox_size.y(), bbox_size.z());
+            ImGui::NextColumn();
+            ImGui::Text("%s", label_to_string[(int)object.label()]);
+            ImGui::NextColumn();
+            ImGui::Text("%.3f", object.confidence());
+            ImGui::NextColumn();
+            ImGui::Text("none");
+            ImGui::NextColumn();
+            ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
+            ImGui::NextColumn();
+            ImGui::Text("%d points", object.history().size());
+            ImGui::NextColumn();
+            ImGui::Text("none");
+            ImGui::NextColumn();
+            ImGui::Separator();
+          }
+        }
 
-      ImGui::EndTabItem();
+        ImGui::Columns(1);
+
+        ImGui::EndTabItem();
+      }
+
+      ImGui::EndTabBar();
+      ImGui::End();
     }
-
-    ImGui::EndTabBar();
-    ImGui::End();
 
     // Rendering
     ImGui::Render();
