@@ -41,7 +41,7 @@ int set_gpio(int direction, int gpio_idx, int value)
 
 	WriteByte(AddrPort, GPO_ADDR);
 	data=ReadByte(DataPort);
-	//data = 0;
+
 	if (value > 0)
 	{
 		//pull high
@@ -150,16 +150,8 @@ int main(int argc, char *argv[])
 		}
 		for(int i=0; i<4; i++) {
 			set_gpio(OUT, zone_info[i].first,zone_check[i]>0);				
-    }
+    		}
 
-      //std::cout << "Message received from SENSR!" << std::endl
-      //          << "Timestamp: " << message.time_stamp().seconds() << " (s) "
-      //                           << message.time_stamp().nanos() << " (ns)" << std::endl
-      //          << "Ground Points: " << message.ground_points().length() / (sizeof(float) * 3) << std::endl
-      //          << "Object Points: " << object_points_size << std::endl
-      //          << "Tracked Objects: " << tracked_objects_size << std::endl
-      //          << "Non Tracked Objects: " << non_tracked_objects_size << std::endl
-      //          << std::endl;
     }
   }
   WriteByte(AddrPort, SIO_LOCK_VALUE);
