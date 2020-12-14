@@ -6,7 +6,7 @@
 
 class SampleListener : public sensr::MessageListener {
 public:
-  SampleListener(sensr::Client* client) : client_(client) {
+  SampleListener(sensr::Client* client) : MessageListener(ListeningType::kBoth), client_(client) {
 
   }
   void OnError(Error error, const std::string& reason) {
@@ -44,7 +44,15 @@ public:
   }
 
   void OnGetPointResult(const sensr_proto::PointResult &message) {
-
+    for(const auto& point_cloud : message.points()) {
+        if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_RAW) {
+          std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+        } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
+          std::cout << "Gound points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+        } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_ENVIRONMENT) {
+          std::cout << "Environment points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+        }
+      }
   }
 private:
   sensr::Client* client_;
