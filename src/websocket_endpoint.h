@@ -4,33 +4,37 @@
 #include "websocketpp/config/asio_no_tls_client.hpp"
 #include "websocketpp/extensions/permessage_deflate/enabled.hpp"
 #include <functional>
-
+#include <thread>
+#include <memory>
 namespace sensr
 {
-    typedef websocketpp::client<websocketpp::config::asio_client> client;
-    class websocket_endpoint
+    typedef websocketpp::client<websocketpp::config::asio_client> websocketpp_client;
+    class WebSocketEndPoint
     {
     public:
         using MsgReceiver = std::function<void(const std::string& msg)>;
         using ErrorReceiver = std::function<void(const std::string& err)>;
-        websocket_endpoint();
-        ~websocket_endpoint();
+        WebSocketEndPoint();
+        ~WebSocketEndPoint();
 
-        bool connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func);
-        void close(websocketpp::close::status::value code);
+        bool Connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func);
+        void Close(websocketpp::close::status::value code);
 
     private:
-        void on_open(client *c, websocketpp::connection_hdl hdl);
-        void on_fail(client *c, websocketpp::connection_hdl hdl);
-        void on_close(client *c, websocketpp::connection_hdl hdl);
-        void on_message(websocketpp::connection_hdl hdl, client::message_ptr msg);
-        client m_endpoint;
-        websocketpp::lib::shared_ptr<websocketpp::lib::thread> m_thread;
-        websocketpp::connection_hdl m_hdl;
-        std::string m_status;
-        std::string m_uri;
-        std::string m_server;
-        std::string m_error_reason;
+        void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
+        void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
+        void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
+        void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
+        enum struct Status {
+            kConnecting,
+            kOpen,
+            kClosed,
+            kFailed
+        };
+        websocketpp_client endpoint_;
+        std::shared_ptr<std::thread> thread_;
+        websocketpp::connection_hdl connection_hdl_;
+        Status status_;
         MsgReceiver msg_receiver_;
         ErrorReceiver err_receiver_;
     };

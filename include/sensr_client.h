@@ -10,7 +10,7 @@
 namespace sensr
 {
   class MessageListener;
-  class websocket_endpoint;
+  class WebSocketEndPoint;
   class Client
   {
   public:
@@ -21,8 +21,8 @@ namespace sensr
     void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
   private:
-    std::unique_ptr<websocket_endpoint> output_endpoint_;
-    std::unique_ptr<websocket_endpoint> point_endpoint_;
+    std::unique_ptr<WebSocketEndPoint> output_endpoint_;
+    std::unique_ptr<WebSocketEndPoint> point_endpoint_;
     std::vector<std::shared_ptr<MessageListener>> listeners_;
     const std::string address_;
 
