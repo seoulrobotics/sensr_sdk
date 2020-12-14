@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/rco_dio_zone_velocity.dir/main.cpp.o  -o rco_dio_zone_velocity -Wl,-rpath,/usr/local/lib /usr/local/lib/libsensr_sdk.so /usr/local/lib/libzmq.so.5.2.1 -lpthread -lrt /usr/local/lib/libprotobuf.so 
