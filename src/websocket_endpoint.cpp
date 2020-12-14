@@ -62,7 +62,7 @@ namespace sensr
     void websocket_endpoint::close(websocketpp::close::status::value code) {
         websocketpp::lib::error_code ec;
         if (m_hdl.expired()) {
-            std::cout << "> No connection found" << std::endl;
+            //std::cout << "> No connection found" << std::endl;
         } else {
             if (m_status != "Closed") {
                 // Only close open connections
