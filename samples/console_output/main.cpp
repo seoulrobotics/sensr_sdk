@@ -1,29 +1,22 @@
 #include "sensr.h"
 #include <iostream>
-#include <google/protobuf/util/time_util.h>
 
+#define ZONE_EVENT_LISTENER 1
+#define POINT_RESULT_LISTENER 0
+#define OBJECT_LISTENER 0
+#define PACKET_TRAVEL_TIME_CHECK 0
 
-
-class SampleListener : public sensr::MessageListener {
+#if ZONE_EVENT_LISTENER
+class ZoneEventListener : public sensr::MessageListener {
 public:
-  SampleListener(sensr::Client* client) : MessageListener(ListeningType::kBoth), client_(client) {
-
-  }
+  ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-
   void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
-    // if (message.has_stream()) {
-    //   for(const auto& object : message.stream().objects()) {
-    //     int object_points_size = (object.points().length() / (sizeof(float) * 3));
-    //     std::cout << "Obj(" << object.id() << ") : point no. " << object_points_size << std::endl;
-    //   }
-    // }
-
     if (message.has_event()) {
       for(const auto& zone_event : message.event().zone()) {
         if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
@@ -33,30 +26,91 @@ public:
         }
       }
     }
-    
-    //std::cout << "Message received from SENSR!" << std::endl
-    //          << "Timestamp: " << google::protobuf::util::TimeUtil::ToString(message.time_stamp()) << std::endl;
-              /*<< "Ground Points: " << message.ground_points().length() / (sizeof(float) * 3) << std::endl
-              << "Object Points: " << object_points_size << std::endl
-              << "Tracked Objects: " << tracked_objects_size << std::endl
-              << "Non Tracked Objects: " << non_tracked_objects_size << std::endl
-              << std::endl;*/
-  }
-
-  void OnGetPointResult(const sensr_proto::PointResult &message) {
-    for(const auto& point_cloud : message.points()) {
-        if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_RAW) {
-          std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
-        } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
-          std::cout << "Gound points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
-        } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_ENVIRONMENT) {
-          std::cout << "Environment points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
-        }
-      }
   }
 private:
   sensr::Client* client_;
 };
+#endif
+
+
+#if POINT_RESULT_LISTENER
+class PointResultListener : public sensr::MessageListener {
+public:
+  PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetPointResult(const sensr_proto::PointResult &message) {
+    for(const auto& point_cloud : message.points()) {
+      if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_RAW) {
+        std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
+        std::cout << "Gound points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_ENVIRONMENT) {
+        std::cout << "Environment points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+      }
+    }
+  }
+private:
+  sensr::Client* client_;
+};
+#endif
+
+#if OBJECT_LISTENER
+class ObjectListener : public sensr::MessageListener {
+public:
+  ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+    if (message.has_stream()) {
+      for(const auto& object : message.stream().objects()) {
+        int object_points_size = (object.points().length() / (sizeof(float) * 3));
+        std::cout << "Obj(" << object.id() << ") : point no. " << object_points_size << std::endl;
+      }
+    }
+  }
+private:
+  sensr::Client* client_;
+};
+#endif
+
+#if PACKET_TRAVEL_TIME_CHECK
+#if defined(__linux__)
+#include <sys/time.h>
+#endif
+#include <google/protobuf/util/time_util.h>
+class TimeChecker : public sensr::MessageListener {
+public:
+  TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  #if defined(__linux__)
+    timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.time_stamp());
+    timeval tv;
+    gettimeofday(&tv, nullptr);
+    timeval diff;
+    timersub(&tv, &msg_tv, &diff);
+    std::cout << "Diff:" << diff.tv_usec / (float)1000 << "ms" << std::endl;
+  #endif
+              
+  }
+private:
+  sensr::Client* client_;
+};
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -67,14 +121,35 @@ int main(int argc, char *argv[])
   }
   std::string address = std::string(client_address);
   sensr::Client client(address);
-  std::shared_ptr<sensr::MessageListener> listener = std::make_shared<SampleListener>(&client);
-  client.SubscribeMessageListener(listener);
+#if ZONE_EVENT_LISTENER
+  {    
+    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<ZoneEventListener>(&client);
+    client.SubscribeMessageListener(listener);
+  }
+#endif
+#if POINT_RESULT_LISTENER
+  {    
+    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<PointResultListener>(&client);
+    client.SubscribeMessageListener(listener);
+  }
+#endif
+#if OBJECT_LISTENER
+  {    
+    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<ObjectListener>(&client);
+    client.SubscribeMessageListener(listener);
+  }
+#endif
+#if PACKET_TRAVEL_TIME_CHECK
+  {    
+    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<TimeChecker>(&client);
+    client.SubscribeMessageListener(listener);
+  }
+#endif
   std::string s;
   std::getline(std::cin, s);
   while(s != "") { // if the person hits enter, s == "" and leave the loop
       std::cout << s << std::endl;
       std::getline(std::cin, s);
   }
-  client.UnsubscribeMessageListener(listener);
   return 0;
 }
