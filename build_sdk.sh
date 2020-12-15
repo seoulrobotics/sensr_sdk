@@ -6,9 +6,9 @@ function make_cpp_sdk() {
     rm -rf _install
     mkdir build
     cd build
-    cmake -DCMAKE_INSTALL_PREFIX=../_install ..
+    cmake ..
     make -j6
-    make install
+    sudo make install
 }
 
 function make_javascript_sdk() {

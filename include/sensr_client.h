@@ -1,5 +1,4 @@
-#ifndef SENSR_CLIENT_H
-#define SENSR_CLIENT_H
+#pragma once
 
 #include "sensr_proto/output.pb.h"
 #include "sensr_proto/point_cloud.pb.h"
@@ -32,5 +31,3 @@ namespace sensr
     void OnPointError(const std::string &err);
   };
 } // namespace sensr
-
-#endif // SENSR_CLIENT_H

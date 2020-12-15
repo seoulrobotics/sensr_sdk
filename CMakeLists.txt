@@ -12,7 +12,7 @@ add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE
 
 ####### Compiler Flags ###########
 target_compile_features(sensr_sdk PRIVATE cxx_std_11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wall -Werror -rdynamic")
+target_compile_options(sensr_sdk PRIVATE -fPIC -Wall -Werror -rdynamic)
 target_compile_options(sensr_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-comment -Wno-strict-aliasing -Wno-format-security -Wno-int-to-pointer-cast -Wno-unused-result -Wno-unused-function)
 ####### Compiler Flags ###########
 

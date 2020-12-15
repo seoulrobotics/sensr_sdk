@@ -4,7 +4,7 @@ project(sensr_sample_imgui VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(Protobuf REQUIRED)
 find_package(ZeroMQ REQUIRED)
-find_package(sensr_sdk REQUIRED PATHS ../../_install)
+find_package(sensr_sdk REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 

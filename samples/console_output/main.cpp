@@ -1,12 +1,7 @@
 #include "sensr.h"
 #include <iostream>
+#include <string.h>
 
-#define ZONE_EVENT_LISTENER 1
-#define POINT_RESULT_LISTENER 0
-#define OBJECT_LISTENER 0
-#define PACKET_TRAVEL_TIME_CHECK 0
-
-#if ZONE_EVENT_LISTENER
 class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
@@ -30,10 +25,7 @@ public:
 private:
   sensr::Client* client_;
 };
-#endif
 
-
-#if POINT_RESULT_LISTENER
 class PointResultListener : public sensr::MessageListener {
 public:
   PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
@@ -57,9 +49,7 @@ public:
 private:
   sensr::Client* client_;
 };
-#endif
 
-#if OBJECT_LISTENER
 class ObjectListener : public sensr::MessageListener {
 public:
   ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
@@ -80,9 +70,7 @@ public:
 private:
   sensr::Client* client_;
 };
-#endif
 
-#if PACKET_TRAVEL_TIME_CHECK
 #if defined(__linux__)
 #include <sys/time.h>
 #endif
@@ -110,7 +98,6 @@ public:
 private:
   sensr::Client* client_;
 };
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -121,30 +108,28 @@ int main(int argc, char *argv[])
   }
   std::string address = std::string(client_address);
   sensr::Client client(address);
-#if ZONE_EVENT_LISTENER
-  {    
+  // Add sample listeners
+  if (argc > 2) {
+    for (int i = 2; i < argc; ++i) {
+      std::shared_ptr<sensr::MessageListener> listener;
+      if(strcmp(argv[i], "zone") == 0) {
+        listener = std::make_shared<ZoneEventListener>(&client);
+      } else if (strcmp(argv[i], "point") == 0) {
+        listener = std::make_shared<PointResultListener>(&client);
+      } else if (strcmp(argv[i], "object") == 0) {
+        listener = std::make_shared<ObjectListener>(&client);
+      } else if (strcmp(argv[i], "time") == 0) {
+        listener = std::make_shared<TimeChecker>(&client);
+      }
+      if (listener) {
+        client.SubscribeMessageListener(listener);
+      }
+    }
+  } else {
+    // Default sample listeners
     std::shared_ptr<sensr::MessageListener> listener = std::make_shared<ZoneEventListener>(&client);
     client.SubscribeMessageListener(listener);
   }
-#endif
-#if POINT_RESULT_LISTENER
-  {    
-    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<PointResultListener>(&client);
-    client.SubscribeMessageListener(listener);
-  }
-#endif
-#if OBJECT_LISTENER
-  {    
-    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<ObjectListener>(&client);
-    client.SubscribeMessageListener(listener);
-  }
-#endif
-#if PACKET_TRAVEL_TIME_CHECK
-  {    
-    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<TimeChecker>(&client);
-    client.SubscribeMessageListener(listener);
-  }
-#endif
   std::string s;
   std::getline(std::cin, s);
   while(s != "") { // if the person hits enter, s == "" and leave the loop

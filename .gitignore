@@ -2,7 +2,6 @@
 build
 build_console
 build_imgui
-_install
 javascript/test/dist
 javascript/test/js_proto
 protobuf-3.6.0

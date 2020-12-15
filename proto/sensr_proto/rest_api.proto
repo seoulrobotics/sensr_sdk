@@ -6,11 +6,6 @@ import "sensr_proto/type.proto";
 
 package sensr_proto;
 
-// The way to assign Field Numbers
-// 1 ~ 15 : very frequently occurring message elements
-// 101 ~ 2047 : normally occuring message elements
-// more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
-
 message ObjectShape {
   google.protobuf.Timestamp time_stamp = 1;
   int32 id = 2;
@@ -22,9 +17,7 @@ message ObjectHistory {
   int32 id = 2;
   repeated Vector3 history = 3;
 }
-// The nested zone below is exactly same as ZoneConfig in output.proto except 'object_ids'.
-// This is a just for a better user experiences.(Hide 'object_id' in Websocket, Include 'object_id' in REST)
-// But definitely this is bad for maintainence. Later, we need to find a better for maintainence. 
+
 message ZoneConfigPlus {
   message Zone {
     int32 id = 1;

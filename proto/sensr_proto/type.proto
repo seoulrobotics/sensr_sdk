@@ -16,8 +16,6 @@ enum LabelType {
   LABEL_MAX = 6;
 }
 
-
-
 message BoundingBox {
   Vector3 position = 1;
   Vector3 size = 2;
