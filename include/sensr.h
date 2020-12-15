@@ -1,6 +1,4 @@
-#ifndef SENSR_H
-#define SENSR_H
+#pragma once
 
 #include "sensr_client.h"
-
-#endif // SENSR_H
+#include "sensr_message_listener.h"

@@ -4,7 +4,7 @@
 
 ### Dependencies
 
-SENSR SDK depends on [ZeroMQ](http://zeromq.org/intro:get-the-software) (tested with 4.3.1) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.6.0).
+SENSR SDK depends on [Websocket](https://tools.ietf.org/html/rfc6455) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.12.0).
 
 ImGui sample code also depends on [GLFW](https://www.glfw.org/) (optional).
 
@@ -12,26 +12,15 @@ You can install prebuilt binaries or build from source as following.
 
 #### Build Dependencies from Source
 
-ZeroMQ (4.3.1) from source:
+Protobuf (3.11.4) from source:
 
 ```bash
-git clone https://github.com/zeromq/libzmq
-cd libzmq
-git checkout v4.3.1
-mkdir build && cd build && cmake .. && make -j16 && sudo make install
-sudo ldconfig
-cd ../../ && rm -rf libzmq
-```
-
-Protobuf (3.6.0) from source:
-
-```bash
-curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.6.0/protobuf-cpp-3.6.0.zip
-unzip protobuf-cpp-3.6.0.zip
-rm protobuf-cpp-3.6.0.zip
-cd protobuf-3.6.0
+curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-cpp-3.11.4.zip
+unzip protobuf-cpp-3.11.4.zip
+rm protobuf-cpp-3.11.4.zip
+cd protobuf-3.11.4
 ./autogen.sh
-./configure
+./configure CXXFLAGS=-fPIC
 make
 make check
 sudo make install
@@ -78,7 +67,14 @@ make
 ```
 
 Or you can simply run build_console_output.sh from the root source folder.
-
+#### How to run
+console_output_sample takes below arguments.
+arg[1]     : ip address of SENSR program running machine
+arg[2]-[5] : sample types. (zone object point time)
+```
+e.g.)
+$ ./build_console/console_output_sample localhost zone
+```
 ### ImGui
 
 ```bash
@@ -89,3 +85,10 @@ make
 ```
 
 Or you can simply run build_imgui_sample.sh from the root source folder.
+#### How to run
+imgui_display_sample takes below arguments.
+arg[1]     : ip address of SENSR program running machine
+```
+e.g.)
+$ ./build_imgui/imgui_display_sample localhost
+```

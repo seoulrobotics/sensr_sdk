@@ -2,6 +2,8 @@
 build
 build_console
 build_imgui
+javascript/test/dist
+javascript/test/js_proto
 protobuf-3.6.0
 
 __pycache__

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package sensr_proto;
+
+message PointResult {
+  message PointCloud {
+    enum Type {
+      NONE = 0;
+      GROUND = 1;
+      ENVIRONMENT = 2;
+      RAW = 3;
+    }
+    Type type = 1;
+    string id = 2;
+    bytes points = 3;
+  }
+  repeated PointCloud points = 1;
+  string uri = 201;
+}
