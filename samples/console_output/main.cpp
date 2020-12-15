@@ -1,6 +1,10 @@
 #include "sensr.h"
 #include <iostream>
 #include <string.h>
+#if defined(__linux__)
+#include <sys/time.h>
+#endif
+#include <google/protobuf/util/time_util.h>
 
 class ZoneEventListener : public sensr::MessageListener {
 public:
@@ -71,10 +75,6 @@ private:
   sensr::Client* client_;
 };
 
-#if defined(__linux__)
-#include <sys/time.h>
-#endif
-#include <google/protobuf/util/time_util.h>
 class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
