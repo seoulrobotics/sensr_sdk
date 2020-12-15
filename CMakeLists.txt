@@ -8,7 +8,6 @@ find_package(
 ######## PACKAGE Dependency Management ##########
 
 set(SOURCE_FILES src/sensr_client.cpp src/sensr_message_listener.cpp src/websocket_endpoint.cpp)
-message ("${SOURCE_FILES}")
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
 ####### Compiler Flags ###########
@@ -47,7 +46,6 @@ file(GLOB_RECURSE header_files
 
 add_subdirectory(proto)
 
-#get_target_property(PROTO_HEADERS sensr_proto PUBLIC_HEADER)
 set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")  
 
 write_basic_package_version_file(

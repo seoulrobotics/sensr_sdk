@@ -6,7 +6,6 @@ function make_cpp_sdk() {
     rm -rf _install
     mkdir build
     cd build
-    #cmake ..
     cmake -DCMAKE_INSTALL_PREFIX=../_install ..
     make -j6
     make install
@@ -19,7 +18,7 @@ function make_javascript_sdk() {
 # Main function
 if [ $# -ne 1 ]; then
     echo "Usage: $0 generating-language"
-    echo "Support languages: cpp, javascript, python"
+    echo "Supported languages: cpp, javascript, python"
     exit -1
 else
     if [ "$1" == "cpp" ]; then
