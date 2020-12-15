@@ -1,6 +1,6 @@
 #include "sensr.h"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #if defined(__linux__)
 #include <sys/time.h>
 #endif
