@@ -49,9 +49,8 @@ message SystemHealth {
       LOST_CONNECTION = 3;
     }
     enum SensorStatus {
-      SENSOR_INACTIVE = 0;
-      SENSOR_ERROR = 1;
-      SENSOR_GOOD = 2;
+      SENSOR_ERROR = 0;
+      SENSOR_GOOD = 1;
     }
     Status status = 1;
     map<string, SensorStatus> sensors = 3;
