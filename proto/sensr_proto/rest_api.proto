@@ -7,13 +7,13 @@ import "sensr_proto/type.proto";
 package sensr_proto;
 
 message ObjectShape {
-  google.protobuf.Timestamp time_stamp = 1;
+  google.protobuf.Timestamp timestamp = 1;
   int32 id = 2;
   bytes points = 3;
 }
 
 message ObjectHistory {
-  google.protobuf.Timestamp time_stamp = 1;
+  google.protobuf.Timestamp timestamp = 1;
   int32 id = 2;
   repeated Vector3 history = 3;
 }
