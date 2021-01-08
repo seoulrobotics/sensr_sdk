@@ -75,6 +75,32 @@ private:
   sensr::Client* client_;
 };
 
+class HealthListener : public sensr::MessageListener {
+public:
+  HealthListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+    if (message.has_stream() && message.stream().has_health()) {
+      auto system_health = message.stream().health();
+      std::cout << "System health: " << system_health.master() << std::endl;
+      for(const auto& node : system_health.nodes()) {
+        auto node_health = node.second;
+        std::cout << "Node("<< node.first <<") health: " << node_health.status() << std::endl;
+        for (const auto& sensor : node_health.sensors()) {
+          std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second << std::endl;
+        }
+      }
+    }
+  }
+private:
+  sensr::Client* client_;
+};
+
 class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
@@ -86,7 +112,7 @@ public:
   }
   void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
   #if defined(__linux__)
-    timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.time_stamp());
+    timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
     timeval tv;
     gettimeofday(&tv, nullptr);
     timeval diff;
@@ -120,6 +146,8 @@ int main(int argc, char *argv[])
         listener = std::make_shared<ObjectListener>(&client);
       } else if (strcmp(argv[i], "time") == 0) {
         listener = std::make_shared<TimeChecker>(&client);
+      } else if (strcmp(argv[i], "health") == 0) {
+        listener = std::make_shared<HealthListener>(&client);
       }
       if (listener) {
         client.SubscribeMessageListener(listener);
