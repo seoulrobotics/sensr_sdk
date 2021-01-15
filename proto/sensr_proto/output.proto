@@ -60,15 +60,10 @@ message SystemHealth {
 }
 
 message ZoneConfig {
-  enum Type {
-    NONE = 0;
-    EVENT = 1;
-    EXCLUSION = 2;
-  }
   int32 id = 1;
   string name = 2;
   PolygonBox pbox = 3;
-  Type type = 4;
+  ZoneType type = 4;
 }
 
 message StreamMessage {

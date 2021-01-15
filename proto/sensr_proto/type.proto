@@ -16,6 +16,12 @@ enum LabelType {
   LABEL_MAX = 6;
 }
 
+enum ZoneType {
+  ZONE_TYPE_NONE = 0;
+  ZONE_TYPE_EVENT = 1;
+  ZONE_TYPE_EXCLUSION = 2;
+}
+
 enum TrackingStatus {
   NONE = 0;
   VALIDATING = 1; // Checking validity in the early stage of tracking
