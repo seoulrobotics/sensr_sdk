@@ -4,38 +4,21 @@ Here are some code snippets to understand how to work with SENSR.
 
 ## Communicate with SENSR
 
-### Initialize ZMQ socket
+### Initialize websocket and 
 ```python
-import zmq
-
-context = zmq.Context()
-socket = context.socket(zmq.SUB)
-
-socket.connect(f"tcp://{address}:5050")
-socket.setsockopt(zmq.SUBSCRIBE, b'')
-```
-
-### Receive output messages from SENSR
-```python
-# assume socket has been initialized
-
-while True:
-    msg = socket.recv()
-```
-
-### Convert an output message to a protobuf object
-```python
+import asyncio
+import websockets
 import output_pb2
 
-# assume socket has been initialized
-msg = socket.recv()
-
-output = output_pb2.OutputMessage()
-output.ParseFromString(msg)
+async def output_stream():
+    uri = "ws://localhost:5050"
+    async with websockets.connect(uri) as websocket:
+        output_message = await websocket.recv() # Receive output messages from SENSR
+        output = output_pb2.OutputMessage()
+        output.ParseFromString(output_message) # Convert output message to a protobuf object
+        print(f"< {output}")
+asyncio.get_event_loop().run_until_complete(output_stream())
 ```
-
-## Parse SENSR output message
-
 ### Dump the message into a file
 ```python
 import output_pb2
