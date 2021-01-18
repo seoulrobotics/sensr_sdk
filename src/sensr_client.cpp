@@ -6,8 +6,8 @@
 namespace sensr
 {
   Client::Client(const std::string& address) : address_(address) {
-    output_endpoint_.reset(new websocket_endpoint());
-    point_endpoint_.reset(new websocket_endpoint());
+    output_endpoint_.reset(new WebSocketEndPoint());
+    point_endpoint_.reset(new WebSocketEndPoint());
   }
 
   Client::~Client()
@@ -24,8 +24,8 @@ namespace sensr
     if (std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
       return listener->IsOutputMessageListening();
     })) {
-      output_endpoint_->close(websocketpp::close::status::normal);
-      ret1 = output_endpoint_->connect("ws://" + address_ + ":5050", 
+      output_endpoint_->Close(websocketpp::close::status::normal);
+      ret1 = output_endpoint_->Connect("ws://" + address_ + ":5050", 
         std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
         std::bind(&Client::OnResultError, this, std::placeholders::_1));
     } else {
@@ -35,8 +35,8 @@ namespace sensr
     if (std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
       return listener->IsPointResultListening();
     })) {
-      point_endpoint_->close(websocketpp::close::status::normal);
-      ret2 = point_endpoint_->connect("ws://" + address_ + ":5051", 
+      point_endpoint_->Close(websocketpp::close::status::normal);
+      ret2 = point_endpoint_->Connect("ws://" + address_ + ":5051", 
         std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
         std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
     } else {
@@ -51,13 +51,13 @@ namespace sensr
     if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
       // OutputMessage Port
       if (listener->IsOutputMessageListening()) {
-        ret = output_endpoint_->connect("ws://" + address_ + ":5050", 
+        ret = output_endpoint_->Connect("ws://" + address_ + ":5050", 
         std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
         std::bind(&Client::OnResultError, this, std::placeholders::_1)); 
       } 
       // PointResult Port
       if (listener->IsPointResultListening()) {
-        ret = point_endpoint_->connect("ws://" + address_ + ":5051", 
+        ret = point_endpoint_->Connect("ws://" + address_ + ":5051", 
         std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
         std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
       }
@@ -78,13 +78,13 @@ namespace sensr
     if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
       return listener->IsOutputMessageListening();
     })) {
-      output_endpoint_->close(websocketpp::close::status::normal);
+      output_endpoint_->Close(websocketpp::close::status::normal);
     }
     // Close if no listener is listening PointResult.
     if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
       return listener->IsPointResultListening();
     })) {
-      point_endpoint_->close(websocketpp::close::status::normal);
+      point_endpoint_->Close(websocketpp::close::status::normal);
     }
   }
 

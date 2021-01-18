@@ -11,7 +11,7 @@ target_include_directories(sensr_proto
     PRIVATE
         $<BUILD_INTERFACE:${Protobuf_INCLUDE_DIR}>
 )
-
+target_compile_options(sensr_proto PRIVATE -fPIC)
 set_target_properties(sensr_proto PROPERTIES PUBLIC_HEADER "${generated_header_code}")
 
 install(

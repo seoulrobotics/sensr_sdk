@@ -19,6 +19,14 @@ namespace sensr {
         }
     }
 
+    void MessageListener::OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+        std::cout << "New OutputMessage" << std::endl;
+    }
+
+    void MessageListener::OnGetPointResult(const sensr_proto::PointResult &message) {
+        std::cout << "New PointResult" << std::endl;
+    }
+
     bool MessageListener::IsOutputMessageListening() const {
         return static_cast<uint32_t>(listening_type_) & static_cast<uint32_t>(ListeningType::kOutputMessage);
     }

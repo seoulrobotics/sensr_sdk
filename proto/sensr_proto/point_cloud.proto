@@ -2,11 +2,6 @@ syntax = "proto3";
 
 package sensr_proto;
 
-// The way to assign Field Numbers
-// 1 ~ 15 : very frequently occurring message elements
-// 101 ~ 2047 : normally occuring message elements
-// more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
-
 message PointResult {
   message PointCloud {
     enum Type {
@@ -16,7 +11,7 @@ message PointResult {
       RAW = 3;
     }
     Type type = 1;
-    string id = 2;
+    string id = 2; // In calibration : algo_uri#topic, In runtime : meaningless
     bytes points = 3;
   }
   repeated PointCloud points = 1;

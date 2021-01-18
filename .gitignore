@@ -4,6 +4,8 @@ build_console
 build_imgui
 _install
 python/sensr_proto
+javascript/test/dist
+javascript/test/js_proto
 protobuf-3.6.0
 
 __pycache__

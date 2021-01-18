@@ -6,11 +6,6 @@ import "sensr_proto/type.proto";
 
 package sensr_proto;
 
-// The way to assign Field Numbers
-// 1 ~ 15 : very frequently occurring message elements
-// 101 ~ 2047 : normally occuring message elements
-// more detail: https://developers.google.com/protocol-buffers/docs/proto3#assigning-field-numbers
-
 message ZoneEvent {
   enum Type {
     NONE = 0;
@@ -25,14 +20,14 @@ message ZoneEvent {
     float heading = 3;
     Vector3 velocity = 4;
   }
-  google.protobuf.Timestamp time_stamp = 1;
+  google.protobuf.Timestamp timestamp = 1;
   int32 id = 2;
   Type type = 3;
   Object object = 4;
 }
 
 message LosingEvent {
-  google.protobuf.Timestamp time_stamp = 1;
+  google.protobuf.Timestamp timestamp = 1;
   int32 id = 2;
   Vector3 position = 3;
   float heading = 4;
@@ -54,9 +49,8 @@ message SystemHealth {
       LOST_CONNECTION = 3;
     }
     enum SensorStatus {
-      SENSOR_INACTIVE = 0;
-      SENSOR_ERROR = 1;
-      SENSOR_GOOD = 2;
+      SENSOR_DEAD = 0;
+      SENSOR_ALIVE = 1;
     }
     Status status = 1;
     map<string, SensorStatus> sensors = 3;
@@ -66,15 +60,10 @@ message SystemHealth {
 }
 
 message ZoneConfig {
-  enum Type {
-    NONE = 0;
-    EVENT = 1;
-    EXCLUSION = 2;
-  }
   int32 id = 1;
   string name = 2;
   PolygonBox pbox = 3;
-  Type type = 4;
+  ZoneType type = 4;
 }
 
 message StreamMessage {
@@ -91,7 +80,7 @@ message EventMessage {
 
 // Actual message using in SENSR SDK
 message OutputMessage {
-  google.protobuf.Timestamp time_stamp = 1;
+  google.protobuf.Timestamp timestamp = 1;
   reserved 2, 101, 102, 103; // framework 1.0 used these.
   StreamMessage stream = 3;
   EventMessage event = 201;

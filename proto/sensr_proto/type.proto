@@ -16,6 +16,20 @@ enum LabelType {
   LABEL_MAX = 6;
 }
 
+enum ZoneType {
+  ZONE_TYPE_NONE = 0;
+  ZONE_TYPE_EVENT = 1;
+  ZONE_TYPE_EXCLUSION = 2;
+}
+
+enum TrackingStatus {
+  NONE = 0;
+  VALIDATING = 1; // Checking validity in the early stage of tracking
+  INVALIDATING = 2; // Short term prediction when tracking is lost in VALIDATING status
+  TRACKING = 3; // Stable tracking
+  DRIFTING = 4; // Short term prediction when tracking is lost in TRACKING status
+  EXPIRED = 5; // Expired tracking
+};
 
 
 message BoundingBox {
@@ -36,6 +50,7 @@ message Object {
   float confidence = 3;
   BoundingBox bbox = 4;
   Vector3 velocity = 5;
+  TrackingStatus tracking_status = 6;
   bytes points = 101;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
   repeated Vector3 history = 102;
 }

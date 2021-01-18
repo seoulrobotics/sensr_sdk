@@ -4,7 +4,7 @@
 
 ### Dependencies
 
-SENSR SDK depends on [Websocket](https://en.wikipedia.org/wiki/WebSocket) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.12.0).
+SENSR SDK depends on [Websocket](https://tools.ietf.org/html/rfc6455) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.12.0).
 
 ImGui sample code also depends on [GLFW](https://www.glfw.org/) (optional).
 
@@ -67,7 +67,14 @@ make
 ```
 
 Or you can simply run build_console_output.sh from the root source folder.
-
+#### How to run
+console_output_sample takes below arguments.
+arg[1]     : ip address of SENSR program running machine
+arg[2]-[5] : sample types. (zone object point time)
+```
+e.g.)
+$ ./build_console/console_output_sample localhost zone
+```
 ### ImGui
 
 ```bash
@@ -78,3 +85,10 @@ make
 ```
 
 Or you can simply run build_imgui_sample.sh from the root source folder.
+#### How to run
+imgui_display_sample takes below arguments.
+arg[1]     : ip address of SENSR program running machine
+```
+e.g.)
+$ ./build_imgui/imgui_display_sample localhost
+```
