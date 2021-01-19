@@ -2,17 +2,24 @@ import os
 import sys
 import websockets
 import asyncio
+from enum import Enum
 
 from sensr_proto.output_pb2 import OutputMessage
 from sensr_proto.point_cloud_pb2 import PointResult
 
+class ListenerType(Enum):
+    NONE = 0
+    OUTPUT_MESSAGE = 1
+    POINT_RESULT = 2
+    BOTH = 3
 
 class MessageListener:
-    def __init__(self, output_dir, address, max_message=10):
+    def __init__(self, address, output_dir, listener_type=ListenerType.BOTH, max_message=10):
         self._output_dir = output_dir
         self._address = address
         self._max_message = max_message
         self._num_received = 0
+        self._listener_type = listener_type
 
     def __del__(self):
         print('Finished dumping {} messages from SENSR.'.format(self._num_received))
@@ -32,6 +39,14 @@ class MessageListener:
         
         asyncio.get_event_loop().run_until_complete(self._output_stream())
 
+    def on_get_output_message(self):
+        # TODO
+        pass
+
+    def on_get_point_result(self):
+        # TODO
+        pass
+
 
 
 def main():
@@ -42,7 +57,7 @@ def main():
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
 
-    listener = MessageListener(output_dir, address)
+    listener = MessageListener(address, output_dir)
     listener.connect()
     
 
