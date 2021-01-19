@@ -3,8 +3,12 @@ import sys
 import websockets
 import asyncio
 
+from sensr_proto.output_pb2 import OutputMessage
+from sensr_proto.point_cloud_pb2 import PointResult
+
+
 class MessageListener:
-    def __init__(self, output_dir, address, max_message=100):
+    def __init__(self, output_dir, address, max_message=10):
         self._output_dir = output_dir
         self._address = address
         self._max_message = max_message
