@@ -1,3 +1,4 @@
 tqdm
 protobuf>=3.6
 pyzmq
+websockets>=8.1
