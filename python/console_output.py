@@ -78,16 +78,16 @@ class HealthListener(MessageListener):
             if len(system_health.nodes) > 0:
                 for node_key in system_health.nodes:
                     node_health = system_health.nodes[node_key]
-                    print('Node ({0}) health: {1}'.format(node_key, node_health.status))
+                    print('  Node ({0}) health: {1}'.format(node_key, node_health.status))
 
                     if len(node_health.sensors) > 0:
                         for sensor_key in node_health.sensors:
                             sensor_health = node_health.sensors[sensor_key]
-                            print('Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
+                            print('    Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
                     else:
-                        print('No sensors are connected')
+                        print('    No sensors are connected')
             else:
-                print('No nodes are connected')
+                print('  No nodes are connected')
 
 
 class TimeChecker(MessageListener):
