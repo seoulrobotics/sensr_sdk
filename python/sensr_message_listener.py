@@ -17,7 +17,7 @@ class ListenerType(Enum):
 class MessageListener(metaclass=ABCMeta):
     
     @abstractmethod
-    def __init__(self, address, listener_type=ListenerType.BOTH, output_port = "5050", point_port = "5051", max_message=5):
+    def __init__(self, address, listener_type=ListenerType.BOTH, output_port = "5050", point_port = "5051", max_message=5000):
         self._address = "ws://" + address
         self._output_address = self._address + ':' + output_port
         self._point_address = self._address + ':' + point_port
@@ -35,7 +35,7 @@ class MessageListener(metaclass=ABCMeta):
             while self._num_received < self._max_message:
                 message = await websocket.recv() # Receive output messages from SENSR
                 self._num_received += 1
-                print('Received {} output messages from SENSR.'.format(self._num_received))
+                # print('Received {} output messages from SENSR.'.format(self._num_received))
 
                 output = OutputMessage()
                 output.ParseFromString(message)
@@ -47,7 +47,7 @@ class MessageListener(metaclass=ABCMeta):
             while self._num_received < self._max_message:
                 message = await websocket.recv() # Receive output messages from SENSR
                 self._num_received += 1
-                print('Received {} point messages from SENSR.'.format(self._num_received))
+                # print('Received {} point messages from SENSR.'.format(self._num_received))
 
                 points = PointResult()
                 points.ParseFromString(message)
