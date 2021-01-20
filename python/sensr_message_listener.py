@@ -66,10 +66,8 @@ class MessageListener(metaclass=ABCMeta):
     
 
     def _on_get_output_message(self, message):
-        if self.is_output_message_listening():
-            raise Exception('on_get_output_message() needs to be implemented in the derived class')
+        raise Exception('on_get_output_message() needs to be implemented in the derived class')
 
     def _on_get_point_result(self, message):
-        if self.is_point_result_listening():
-            raise Exception('on_get_point_result() needs to be implemented in the derived class')
+        raise Exception('on_get_point_result() needs to be implemented in the derived class')
 
