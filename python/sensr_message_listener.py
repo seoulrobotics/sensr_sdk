@@ -17,17 +17,15 @@ class ListenerType(Enum):
 class MessageListener(metaclass=ABCMeta):
     
     @abstractmethod
-    def __init__(self, address, listener_type=ListenerType.BOTH, output_port = "5050", point_port = "5051", max_message=float('inf')):
+    def __init__(self, 
+                 address="localhost", 
+                 listener_type=ListenerType.BOTH, 
+                 output_port = "5050", 
+                 point_port = "5051"):
         self._address = "ws://" + address
         self._output_address = self._address + ':' + output_port
         self._point_address = self._address + ':' + point_port
         self._listener_type = listener_type
-
-        self._max_message = max_message
-        self._num_received = 0
-
-    def __del__(self):
-        print('Finished receiving {} messages from SENSR.'.format(self._num_received))
 
     def is_output_message_listening(self):
         return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
@@ -37,10 +35,9 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _output_stream(self):
         async with websockets.connect(self._output_address) as websocket:
-            while self._num_received < self._max_message:
+            while True:
                 message = await websocket.recv() # Receive output messages from SENSR
                 
-                self._num_received += 1
                 output = OutputMessage()
                 output.ParseFromString(message)
                 self._on_get_output_message(output)
@@ -48,10 +45,9 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _point_stream(self):
         async with websockets.connect(self._point_address) as websocket:
-            while self._num_received < self._max_message:
+            while True:
                 message = await websocket.recv() # Receive output messages from SENSR
 
-                self._num_received += 1
                 points = PointResult()
                 points.ParseFromString(message)
                 self._on_get_point_result(points)
