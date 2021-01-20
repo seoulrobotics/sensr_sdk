@@ -34,9 +34,8 @@ class MessageListener(metaclass=ABCMeta):
         async with websockets.connect(self._output_address) as websocket:
             while self._num_received < self._max_message:
                 message = await websocket.recv() # Receive output messages from SENSR
+                
                 self._num_received += 1
-                # print('Received {} output messages from SENSR.'.format(self._num_received))
-
                 output = OutputMessage()
                 output.ParseFromString(message)
                 self._on_get_output_message(output)
@@ -46,16 +45,15 @@ class MessageListener(metaclass=ABCMeta):
         async with websockets.connect(self._point_address) as websocket:
             while self._num_received < self._max_message:
                 message = await websocket.recv() # Receive output messages from SENSR
-                self._num_received += 1
-                # print('Received {} point messages from SENSR.'.format(self._num_received))
 
+                self._num_received += 1
                 points = PointResult()
                 points.ParseFromString(message)
                 self._on_get_point_result(points)
 
 
     def connect(self):
-        print('Receiving SENSR output from {}...'.format(self._address))    
+        print('Receiving SENSR output from {}...'.format(self._address)) 
         
         if self._listener_type == ListenerType.OUTPUT_MESSAGE:
             asyncio.get_event_loop().run_until_complete(self._output_stream())
