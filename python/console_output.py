@@ -1,8 +1,12 @@
 from sensr_message_listener import MessageListener, ListenerType
 import sensr_proto.output_pb2 as sensr_output
 import sensr_proto.point_cloud_pb2 as sensr_pcloud
+
+import google.protobuf.timestamp_pb2
 import sys
 import ctypes
+
+
 
 class ZoneEvenListener(MessageListener):
 
@@ -59,6 +63,7 @@ class ObjectListener(MessageListener):
 
 
 class HealthListener(MessageListener):
+
     def __init__(self,address):
         super().__init__(address=address,
                          listener_type=ListenerType.OUTPUT_MESSAGE)
@@ -80,7 +85,19 @@ class HealthListener(MessageListener):
                     print('Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
 
 
+class TimeChecker(MessageListener):
+    def __init__(self,address):
+        super().__init__(address=address,
+                         listener_type=ListenerType.OUTPUT_MESSAGE)
 
+    def _on_get_output_message(self, message):
+        assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
+
+        current_time = google.protobuf.timestamp_pb2.Timestamp()
+        current_time.GetCurrentTime()
+        time_diff = current_time.ToMilliseconds() - message.timestamp.ToMilliseconds()
+
+        print('Diff: {0} ms'.format(time_diff))
 
 
 if __name__ == "__main__":
@@ -96,5 +113,8 @@ if __name__ == "__main__":
     # object_listener = ObjectListener(address)
     # object_listener.connect()
 
-    health_listener = HealthListener(address)
-    health_listener.connect()
+    # health_listener = HealthListener(address)
+    # health_listener.connect()
+
+    time_checker = TimeChecker(address)
+    time_checker.connect()
