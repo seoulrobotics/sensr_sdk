@@ -1,5 +1,3 @@
-import os
-import sys
 import websockets
 import asyncio
 from enum import Enum
