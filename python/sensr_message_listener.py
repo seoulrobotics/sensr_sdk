@@ -55,11 +55,16 @@ class MessageListener(metaclass=ABCMeta):
     def connect(self):
         print('Receiving SENSR output from {}...'.format(self._address)) 
         
-        if self._listener_type == ListenerType.OUTPUT_MESSAGE:
-            asyncio.get_event_loop().run_until_complete(self._output_stream())
+        loop = asyncio.get_event_loop()
 
-        if self._listener_type == ListenerType.POINT_RESULT:
-            asyncio.get_event_loop().run_until_complete(self._point_stream())
+        if self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH:
+            loop.create_task(self._output_stream())
+
+        if self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH:
+            loop.create_task(self._point_stream())
+
+        loop.run_forever()
+    
 
 
     def _on_get_output_message(self, message):
