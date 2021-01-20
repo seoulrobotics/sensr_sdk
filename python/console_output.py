@@ -5,6 +5,7 @@ import sensr_proto.point_cloud_pb2 as sensr_pcloud
 import google.protobuf.timestamp_pb2
 import sys
 import ctypes
+import argparse
 
 
 
@@ -108,8 +109,14 @@ class TimeChecker(MessageListener):
 
 if __name__ == "__main__":
     
-    address = "localhost"
-    example_type = "zone"
+    parser = argparse.ArgumentParser(description='Sample code for the SENSR Python SDK.')
+    parser.add_argument('--address', type=str, default='localhost')
+    parser.add_argument('--example_type', type=str, default="zone", 
+                help='Has to be set to one of the following: \"zone\", \"point\", \"object\", \"health\", \"time\".')
+    args = parser.parse_args()
+
+    address = args.address
+    example_type = args.example_type
     
     if example_type == "zone":
         zone_listener = ZoneEvenListener(address)
