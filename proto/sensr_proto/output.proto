@@ -68,8 +68,8 @@ message ZoneConfig {
 
 message StreamMessage {
   repeated Object objects = 1;
-  repeated ZoneConfig zones = 2;
-  SystemHealth health = 3;
+  repeated ZoneConfig zones = 101;
+  SystemHealth health = 102;
 }
 
 message EventMessage {
