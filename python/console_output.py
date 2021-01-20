@@ -58,6 +58,30 @@ class ObjectListener(MessageListener):
                 print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
 
 
+class HealthListener(MessageListener):
+    def __init__(self,address):
+        super().__init__(address=address,
+                         listener_type=ListenerType.OUTPUT_MESSAGE)
+
+    def _on_get_output_message(self, message):
+        assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
+
+        if message.HasField('stream') and message.stream.HasField('health'):
+            
+            system_health = message.stream.health
+            print('System health: {0}'.format(system_health.master))
+
+            for node_key in system_health.nodes:
+                node_health = system_health.nodes[node_key]
+                print('Node ({0}) health: {1}'.format(node_key, node_health))
+
+                for sensor_key in node_health.sensors:
+                    sensor_health = node_health.sensors[sensor_key]
+                    print('Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
+
+
+
+
 
 if __name__ == "__main__":
     
@@ -69,5 +93,8 @@ if __name__ == "__main__":
     # point_listener = PointResultListener(address)
     # point_listener.connect()
 
-    object_listener = ObjectListener(address)
-    object_listener.connect()
+    # object_listener = ObjectListener(address)
+    # object_listener.connect()
+
+    health_listener = HealthListener(address)
+    health_listener.connect()
