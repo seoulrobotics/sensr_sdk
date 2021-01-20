@@ -29,6 +29,11 @@ class MessageListener(metaclass=ABCMeta):
     def __del__(self):
         print('Finished receiving {} messages from SENSR.'.format(self._num_received))
 
+    def is_output_message_listening(self):
+        return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
+
+    def is_point_result_listening(self):
+        return self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH
 
     async def _output_stream(self):
         async with websockets.connect(self._output_address) as websocket:
@@ -57,21 +62,20 @@ class MessageListener(metaclass=ABCMeta):
         
         loop = asyncio.get_event_loop()
 
-        if self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH:
+        if self.is_output_message_listening():
             loop.create_task(self._output_stream())
 
-        if self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH:
+        if self.is_point_result_listening():
             loop.create_task(self._point_stream())
 
         loop.run_forever()
     
 
-
     def _on_get_output_message(self, message):
-        if (self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH):
+        if self.is_output_message_listening():
             raise Exception('on_get_output_message() needs to be implemented in the derived class')
 
     def _on_get_point_result(self, message):
-        if (self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH):
+        if self.is_point_result_listening():
             raise Exception('on_get_point_result() needs to be implemented in the derived class')
 
