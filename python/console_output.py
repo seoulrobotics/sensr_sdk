@@ -109,8 +109,7 @@ class TimeChecker(MessageListener):
 if __name__ == "__main__":
     
     address = "localhost"
-
-    example_type = "health"
+    example_type = "zone"
     
     if example_type == "zone":
         zone_listener = ZoneEvenListener(address)

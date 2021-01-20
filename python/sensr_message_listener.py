@@ -17,7 +17,7 @@ class ListenerType(Enum):
 class MessageListener(metaclass=ABCMeta):
     
     @abstractmethod
-    def __init__(self, address, listener_type=ListenerType.BOTH, output_port = "5050", point_port = "5051", max_message=5000):
+    def __init__(self, address, listener_type=ListenerType.BOTH, output_port = "5050", point_port = "5051", max_message=float('inf')):
         self._address = "ws://" + address
         self._output_address = self._address + ':' + output_port
         self._point_address = self._address + ':' + point_port
