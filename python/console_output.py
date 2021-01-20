@@ -76,13 +76,19 @@ class HealthListener(MessageListener):
             system_health = message.stream.health
             print('System health: {0}'.format(system_health.master))
 
-            for node_key in system_health.nodes:
-                node_health = system_health.nodes[node_key]
-                print('Node ({0}) health: {1}'.format(node_key, node_health))
+            if len(system_health.nodes) > 0:
+                for node_key in system_health.nodes:
+                    node_health = system_health.nodes[node_key]
+                    print('Node ({0}) health: {1}'.format(node_key, node_health.status))
 
-                for sensor_key in node_health.sensors:
-                    sensor_health = node_health.sensors[sensor_key]
-                    print('Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
+                    if len(node_health.sensors) > 0:
+                        for sensor_key in node_health.sensors:
+                            sensor_health = node_health.sensors[sensor_key]
+                            print('Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
+                    else:
+                        print('No sensors are connected')
+            else:
+                print('No nodes are connected')
 
 
 class TimeChecker(MessageListener):
@@ -104,17 +110,22 @@ if __name__ == "__main__":
     
     address = "localhost"
 
-    # zone_listener = ZoneEvenListener(address)
-    # zone_listener.connect()
-
-    # point_listener = PointResultListener(address)
-    # point_listener.connect()
-
-    # object_listener = ObjectListener(address)
-    # object_listener.connect()
-
-    # health_listener = HealthListener(address)
-    # health_listener.connect()
-
-    time_checker = TimeChecker(address)
-    time_checker.connect()
+    example_type = "health"
+    
+    if example_type == "zone":
+        zone_listener = ZoneEvenListener(address)
+        zone_listener.connect()
+    elif example_type == "point":
+        point_listener = PointResultListener(address)
+        point_listener.connect()
+    elif example_type == "object":
+        object_listener = ObjectListener(address)
+        object_listener.connect()
+    elif example_type == "health":
+        health_listener = HealthListener(address)
+        health_listener.connect()
+    elif example_type == "time":
+        time_checker = TimeChecker(address)
+        time_checker.connect()
+    else:
+        print("Unrecognized example type")
