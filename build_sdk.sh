@@ -15,6 +15,10 @@ function make_javascript_sdk() {
     javascript/javascript_sdk/gen_proto.sh
 }
 
+function make_python_sdk() {
+    python/configure.sh
+}
+
 # Main function
 if [ $# -ne 1 ]; then
     echo "Usage: $0 generating-language"
@@ -26,7 +30,7 @@ else
     elif [ "$1" == "javascript" ]; then
         make_javascript_sdk
     elif [ "$1" == "python" ]; then
-        echo "Not supported yet."
+        make_python_sdk
     else
         echo "$1 is not supported language."
         exit -1
