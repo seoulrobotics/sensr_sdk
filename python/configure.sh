@@ -27,4 +27,4 @@ if [ ! -d $OUT_DIR ]; then
 fi
 
 echo Found protobuf-compiler at $PROTOC
-$PROTOC -I=$PROTO_DIR --python_out=$OUT_DIR $PROTO_DIR/*.proto
+$PROTOC -I=$PROTO_DIR --python_out=$OUT_DIR $PROTO_DIR/*/*.proto
