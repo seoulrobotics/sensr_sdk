@@ -92,7 +92,9 @@ textarea {
 }
 
 input[type="text"] {
-    height: auto; /* 높이 초기화 */ line-height: normal; /* line-height 초기화 */ padding: .8em .5em; /* 여백 설정 */
+    height: auto;
+    line-height: normal;
+    padding: .8em .5em; 
     border: 1px solid #999;
 
 }
