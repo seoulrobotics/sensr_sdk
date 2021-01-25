@@ -11,15 +11,15 @@ const outputSelector = (type, client) => {
         break;
       case "object":
         get_data.get_object_data(client);
-        break
+        break;
       case "health":
         get_data.get_health_data(client);
-        break
+        break;
       case "time":
         get_data.get_time_data(client);
-        break
+        break;
       default:
-        console.log("no corresponding type detected!")
+        console.log("no corresponding type detected!");
     }
 }
   
