@@ -9,10 +9,15 @@ function run() {
         .command('show',
             'Spcifify Type you want to visualize.', {
               typename: {
-                description: 'show proto msg received from master node',
-                alias: 's',
+                description: 'type of data',
+                alias: 't',
                 type: 'string',
               },
+              ipaddress: {
+                description: 'specify server',
+                alias: 's',
+                type: 'string',
+              }
             })
         .check(function(argv) {
             return true;
@@ -26,7 +31,7 @@ function run() {
     const argv = fetchArgs();
   
     if (argv._.includes('show')) {
-        output_sel.outputSelector(argv.typename, 'localhost');      
+        output_sel.outputSelector(argv.typename, argv.ipaddress);      
     }
 }
 
