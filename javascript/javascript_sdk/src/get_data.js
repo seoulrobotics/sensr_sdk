@@ -25,7 +25,7 @@ const get_point_data = (client) => {
             
             let num_points = Math.floor((pointcloud_info[2].length)/(3.0));
             if(pointcloud_info[0] == pointMsg.PointResult.PointCloud.Type.RAW){
-            console.log("Topic {%f} no. of points - {%f}", pointcloud_info[1], num_points);
+            console.log("Topic {%s} no. of points - {%f}", pointcloud_info[1], num_points);
             }
             else if(pointcloud_info[0] == pointMsg.PointResult.PointCloud.Type.GROUND){ 
             console.log("Ground points no. of points - {%f}", num_points);
