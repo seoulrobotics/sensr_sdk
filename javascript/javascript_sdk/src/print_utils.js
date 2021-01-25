@@ -38,8 +38,8 @@ function printBbox(bbox) {
 }
 
 function printObject(obj) {
-  const id = obj.getId();
-  const label = labelUtils.labelToString(obj.getLabel());
-  console.log(`Object #${id}: ${label}`);
-  printBbox(obj.getBbox());
+  // const id = obj.getId();
+  // const label = labelUtils.labelToString(obj.getLabel());
+  // console.log(`Object #${id}: ${label}`);
+  // printBbox(obj.getBbox());
 }

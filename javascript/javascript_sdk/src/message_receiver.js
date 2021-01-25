@@ -1,69 +1,124 @@
 'use strict';
-
-const {OutputServiceClient} = require('./../js_proto/output_grpc_web_pb.js');
+const {OutputProto} = require('./../js_proto/sensr_proto/output_pb.js');
+const {PointCloudProto} = require('./../js_proto/sensr_proto/point_cloud_pb.js');
 const parsing = require('./parse_output');
-
+const WebSocket = require('websocket').w3cwebsocket;
 
 class MessageReceiver {
   constructor() {
-    //this._socket = new zmq.Subscriber;
-    this._currentConnectedAddress = null;
+    this._currentConnectedAddressObject = null;
+    this._currentConnectedAddressPoints = null;
+    this._objectUpdateListener = null;
+    this._pointCloudUpdateListener = null;
+    
+  }
+ 
+  connect(address = 'localhost') {
+    this._currentConnectedAddressObject = new WebSocket(`ws://${address}:5050`);
+    this._currentConnectedAddressPoints = new WebSocket(`ws://${address}:5051`);
+    this._currentConnectedAddressObject.binaryType = 'arraybuffer';
+    this._currentConnectedAddressPoints.binaryType = 'arraybuffer';
+    console.log(`Connecting to ${this._currentConnectedAddressObject}, 
+                 and ${this._currentConnectedAddressPoints}`);
   }
 
-  connect(address = 'localhost') {
-    this._currentConnectedAddress = `http://${address}:8080`;
-    console.log(`Connecting to ${this._currentConnectedAddress}`);
-    this._outputService = new OutputServiceClient(_currentConnectedAddress);
-    var request = new OutputRequest();
-    request.setMessage('Hello World!');
-    this._outputService.UpdateOutput(request, {}, function(err, response) {
-      console.log(`heellllo`);
-    });
-    //this._socket.connect(this._currentConnectedAddress);
-    //this._socket.subscribe();
+  listenToObjectUpdate(streamCallback, eventCallback) {
+    if (this._objectUpdateListener) {
+      this._currentConnectedAddressObject.removeEventListener('message', this._objectUpdateListener);
+      this._objectUpdateListener = undefined;
+    }
+    if (!streamCallback && !eventCallback) return;
+
+    this._objectUpdateListener = event => {
+      const response = OutputProto.OutputMessage.deserializeBinary(event.data);
+      if (response.hasStream() && streamCallback) {
+        streamCallback(response.getStream());
+      } else if (response.hasEvent() && eventCallback) {
+        eventCallback(response.getEvent());
+      }
+    };
+    this._currentConnectedAddressObject.addEventListener('message', this._objectUpdateListener);
+  }
+  
+  listenToPointCloudUpdate(callback) {
+    if (this._pointCloudUpdateListener) {
+      this._currentConnectedAddressPoints.removeEventListener('message', this._pointCloudUpdateListener);
+      this._pointCloudUpdateListener = undefined;
+    }
+    if (!callback) return;
+
+    this._pointCloudUpdateListener = event => {
+      callback(PointCloudProto.PointResult.deserializeBinary(event.data));
+    };
+
+    this._currentConnectedAddressPoints.addEventListener('message', this._pointCloudUpdateListener);
   }
 
   disconnect() {
-    console.log(`Disconnecting from ${this._currentConnectedAddress}`);
-    //this._socket.unsubscribe();
-    //this._socket.disconnect(this._currentConnectedAddress);
+    console.log(`Disconnecting from ${this._currentConnectedAddressObject},
+                 and ${this._currentConnectedAddressPoints}`);
+    this._currentConnectedAddressObject.close()
+    this._currentConnectedAddressPoints.close()
   }
-
-  resetTimeout() {
-    //this._socket.receiveTimeout = -1;
-    //this._socket.linger = -1;
-  }
-
-  setTimeout(timeout) {
-    //this._socket.receiveTimeout = timeout;
-   // this._socket.linger = 0;
-  }
-
-  async receive(err, response) {
-    //const [msg] = await this._socket.receive();
-    //return msg;
-  }
-
-  async dumpAllReceived(outputDir, timeout=1000) {
-    this.connect();
-    //this.resetTimeout();
+  
+  async parseOutput(outputDir, timeout) {
+    let start = new Date();
 
     let numExported = 0;
-    while (true) {
-      try {
-        //this.setTimeout(timeout);
+    while(true){
+      let istimeout = new Date() - start;
+      if(istimeout > timeout) break;
+      try{
+        const msg = await this.receive();
+      
+        const outFilename = parsing.formatFilename(outputDir, numExported);
+        parsing.exportToBinary(msg, outFilename);
         ++numExported;
       } catch (err) {
+        console.log(err);
         console.log(`No message received for ${timeout} ms, ` +
                             'stopping collection of messages.');
         break;
       }
     }
-
     this.disconnect();
+    return numExported;
+
+  }
+
+
+  async receive() {
+    
+    this.listenToPointCloudUpdate((response)=>{
+      const [msg] = response;
+      console.log(msg);
+      if(response == undefined) console.log("none");
+      console.log("Hello")
+      this.getpoint(response);
+      return response;
+
+      this.getpoint(response);
+    });
+   
+  }
+
+
+  async getpoint(message){
+    console.log(message.points);
+
+  }
+
+  async dumpAllReceived(outputDir, timeout=1000) {
+    this.connect();
+    let msg = await this.receive();
+    if(msg == undefined) console.log("none");
+    
+    let numExported = 1;
+    // const numExported = this.parseOutput(outputDir, timeout);
     return numExported;
   }
 }
+
 
 
 module.exports = {

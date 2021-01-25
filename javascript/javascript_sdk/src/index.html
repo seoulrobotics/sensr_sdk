@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>Sensr SDK</title>
+        <link rel="stylesheet" href="/stylesheets/style.css"/>
+        
+    </head>
+    <body>
+        <textarea row = "20" cols="30" id="chat"></textarea><br>
+        <input type="text" id="user">
+        <input type="button" value="msg submit" onclick="myOnClick">
+        <!-- <script src="print_output.js"></script> -->
+    </body>
+    <script type="module">
+        import SensrClient from "./print_output.js";
+        // var ws = new WebSocket('ws://localhost:5051');
+        temp = new SensrClient(localhost);
+        temp.listenToObjectUpdate(response=>{
+            print(response);
+        })
+        // ws.onmessage = (event) => {
+        //     console.log(event);
+        //     let recData = JSON.parse(event);
+        //     $('#chat').val($('#chat').val() + recData.data + '\n');
+
+        // }
+
+        function myOnClick(){
+            let sendData 
+        }
+    </script>
+</html>

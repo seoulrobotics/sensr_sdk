@@ -5,8 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 // Proto
-const datatypeMsg = require('./../js_proto/data_type_pb.js');
-const outputMsg = require('./../js_proto/output_pb.js');
+const datatypeMsg = require('./../js_proto/sensr_proto/type_pb.js');
+const outputMsg = require('./../js_proto/sensr_proto/output_pb.js');
 
 // Formatting
 const printUtils = require('./print_utils');
@@ -45,14 +45,14 @@ function getOutput(filename) {
 }
 
 function parseOutputFile(filename) {
-  const output = getOutput(filename);
+  // const output = getOutput(filename);
+ 
+  // const objects = output;
 
-  const objects = output.getObjectsList();
-
-  objects.forEach(function(obj) {
-    console.log('------------------------------');
-    printUtils.printObject(obj);
-  });
+  // [2,3,4,1].forEach((obj) => {
+  //   console.log('------------------------------');
+  //   printUtils.printObject(obj);
+  // });
 }
 
 

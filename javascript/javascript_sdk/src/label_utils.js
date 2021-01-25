@@ -1,6 +1,6 @@
 'use strict';
 
-const datatypeMsg = require('./../js_proto/data_type_pb.js');
+const datatypeMsg = require('./../js_proto/sensr_proto/type_pb');
 
 module.exports = {
   labelToString,

@@ -19,12 +19,13 @@ run();
 async function run() {
   // Receive messages from SENSR
   const messageReceiver = new receiver.MessageReceiver();
+  
   messageReceiver.connect();
   try {
     while (true) {
       const msg = await messageReceiver.receive();
-      messageReceiver.setTimeout(TIMEOUT);
-
+      // messageReceiver.setTimeout(TIMEOUT);
+     
       processMessage(msg);
     }
   } catch (err) {
@@ -38,10 +39,10 @@ async function processMessage(msg) {
   // Convert to protobuf object
   try {
     const output = outputMsg.OutputMessage.deserializeBinary(msg);
-
+    
     // You can process the SENSR output inside the doStuff function.
     // For example, here we print information about the objects.
-    doStuff(output);
+    // doStuff(output);
   } catch (err) {
     console.log(err);
     return;
@@ -50,7 +51,7 @@ async function processMessage(msg) {
 
 async function doStuff(output) {
   const objects = output.getObjectsList();
-  objects.forEach(function(obj) {
+  objects.forEach((obj) => {
     console.log('------------------------------');
     printObject(obj);
   });
