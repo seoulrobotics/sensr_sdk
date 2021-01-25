@@ -12,11 +12,12 @@ const SensrClient = endpoint => {
   
     return {
       listenToObjectUpdate: (streamCallback, eventCallback, timestampCallback) => {
+        if (!streamCallback && !eventCallback && !timestampCallback) return;
+        
         if (objectUpdateListener) {
           socket_result.removeEventListener('message', objectUpdateListener);
           objectUpdateListener = undefined;
         }
-        if (!streamCallback && !eventCallback && !timestampCallback) return;
   
         objectUpdateListener = event => {
           const response = outputMsg.OutputMessage.deserializeBinary(event.data);
@@ -31,11 +32,12 @@ const SensrClient = endpoint => {
         socket_result.addEventListener('message', objectUpdateListener);
       },
       listenToPointCloudUpdate: callback => {
+        if (!callback) return;
+
         if (pointCloudUpdateListener) {
           socket_point.removeEventListener('message', pointCloudUpdateListener);
           pointCloudUpdateListener = undefined;
         }
-        if (!callback) return;
   
         pointCloudUpdateListener = event =>
           callback(pointMsg.PointResult.deserializeBinary(event.data));
