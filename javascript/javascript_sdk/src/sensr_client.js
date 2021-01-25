@@ -42,6 +42,8 @@ const SensrClient = endpoint => {
         socket_point.addEventListener('message', pointCloudUpdateListener);
       },
       disconnect: () => {
+        socket_result.removeEventListener('message', objectUpdateListener);
+        socket_point.removeEventListener('message', pointCloudUpdateListener);
         socket_result.close();
         socket_point.close();
       }
