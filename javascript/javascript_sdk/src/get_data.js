@@ -44,8 +44,8 @@ const get_object_data = (client) => {
   
       objects.forEach(object => {
         let object_info = object.array;
-        if(object_info[100] !== undefined){
-          let object_point_num = Math.floor((object_info[100].length)/3);
+        if(object.getPoints().length !== 0){
+          let object_point_num = Math.floor((object.getPoints().length)/3);
           console.log('Obj (%d): point no. %f',object_info[0], object_point_num);
         }
       });
