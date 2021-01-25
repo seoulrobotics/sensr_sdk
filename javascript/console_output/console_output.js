@@ -13,7 +13,7 @@ function run() {
         .command('show',
             'Specify type you want to visualize.', {
               typename: {
-                description: 'type of data',
+                description: 'type of data(ex. zone, object, health, time, point)',
                 alias: 't',
                 type: 'string',
               },

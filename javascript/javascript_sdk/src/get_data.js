@@ -1,4 +1,5 @@
 const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+const pointMsg = require('./../js_proto/sensr_proto/point_cloud_pb');
 
 const get_zone_data = (client) => {
     client.listenToObjectUpdate(response => {
@@ -55,14 +56,17 @@ const get_health_data = (client) => {
     client.listenToObjectUpdate(response => {
       const healths = response.getHealth();
       if (healths !== undefined) {
-        console.log('AlgoNode(%s) health: %d', healths.wrappers_['2'].arr_[0][0], healths.wrappers_['2'].arr_[0][1][0]);
-        if (healths.wrappers_['2'].arr_[0][1][2].length !== 0){
-          for(index=0; index < healths.wrappers_['2'].arr_[0][1][2].length; index++){
-            console.log(' Sensors(%s) health: %d',healths.wrappers_['2'].arr_[0][1][2][index][0], 
-                                                  healths.wrappers_['2'].arr_[0][1][2][index][1]);
-          }
-        } else {
-          console.log(' No Sensors are connected');
+        console.log('System health: %d', healths.array[0]);
+        for(i=0; index < i.wrappers_['2'].arr_.length; i ++){
+          console.log(' AlgoNode(%s) health: %d', healths.wrappers_['2'].arr_[i][0], healths.wrappers_['2'].arr_[i][1][0]);
+            if (healths.wrappers_['2'].arr_[0][1][2] !== undefined){
+              for(index=0; index < healths.wrappers_['2'].arr_[0][1][2].length; index++){
+                console.log('   Sensors(%s) health: %d',healths.wrappers_['2'].arr_[0][1][2][index][0], 
+                                                      healths.wrappers_['2'].arr_[0][1][2][index][1]);
+              }
+            } else {
+              console.log(' No Sensors are connected');
+            }
         }
       }
     });
