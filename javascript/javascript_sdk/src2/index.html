@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <title>Sensr SDK</title>
+        <link rel="stylesheet" href="./style.css"/>
+        
+    </head>
+    <body>
+     
+
+        <div class=content>
+
+            <div class=title>
+                <p> SEOUL ROBOTICS <br> SENSR SDK OUTPUT WEB VISUALIZER</p>
+            </div>
+            
+
+            <div class=setting>
+                <div id=server>
+                    <label for="server"><b>SERVER IP: </b></label>
+                    <input type="text" placeholder="Enter SERVER IP Address" name="server" required>
+                </div>
+
+                <div id=buttons>
+                    <label for="server"><b>TYPE:</b></label>
+                    <button id="zone">Zone</button>
+                    <button id="point">Point</button>
+                    <button id="object">Object</button>
+                    <button id="health">Health</button>
+                    <button id="time">Time</button>
+                </div>
+
+                <button id="apply">APPLY</button>
+                    
+               
+              
+            </div>
+
+            <textarea row = "20" cols="30" id="chat"></textarea><br>
+            <button id="download">DOWNLOAD</button>
+        </div>
+    </body>
+
+    <script type="module">
+        // console.log("Hello")
+
+        (function () {
+            var old = console.log;
+            var logger = document.getElementById('chat');
+            console.log = function (message) {
+                if (typeof message == 'object') {
+                    logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+                } else {
+                    logger.innerHTML += message + '<br />';
+                }
+            }
+        })();
+        console.log('How', true, new Date());
+
+        console.log("HELLO")
+
+
+
+
+        // import SensrClient from "./print_output.js";
+        // // var ws = new WebSocket('ws://localhost:5051');
+        // temp = new SensrClient(localhost);
+        // temp.listenToObjectUpdate(response=>{
+        //     print(response);
+        // })
+        // // ws.onmessage = (event) => {
+        // //     console.log(event);
+        // //     let recData = JSON.parse(event);
+        // //     $('#chat').val($('#chat').val() + recData.data + '\n');
+
+        // // }
+
+        // function myOnClick(){
+        //     let sendData 
+        // }
+    </script>
+</html>
