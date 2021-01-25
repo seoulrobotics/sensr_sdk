@@ -1,5 +1,7 @@
 const yargs = require('yargs');
 const output_sel = require('./output_selector.js')
+const sensr_client = require('./sensr_client');
+
 function run() {
     parseCmdArgs();
   }
@@ -31,9 +33,10 @@ function run() {
     const argv = fetchArgs();
   
     if (argv._.includes('show')) {
-        output_sel.outputSelector(argv.typename, argv.ipaddress);      
+        var client = sensr_client.SensrClient(argv.ipaddress);
+        output_sel.outputSelector(argv.typename, client);    
     }
 }
 
-
-run()
+process.on('exit',  ()=>{client.disconnect()});
+run();

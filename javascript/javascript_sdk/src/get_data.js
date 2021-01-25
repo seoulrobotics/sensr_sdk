@@ -1,8 +1,6 @@
 const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
-const sensr_client = require('./sensr_client');
 
-const get_zone_data = (network) => {
-    let client = sensr_client.SensrClient(network);
+const get_zone_data = (client) => {
     client.listenToObjectUpdate(response => {
       let zone_lists = response.getZonesList();
       // console.log(zone_lists)
@@ -19,8 +17,7 @@ const get_zone_data = (network) => {
     });
   }
   
-const get_point_data = (network) => {
-    let client = sensr_client.SensrClient(network);
+const get_point_data = (client) => {
     client.listenToPointCloudUpdate(response => {
         const pointClouds = response.getPointsList();
         
@@ -41,9 +38,7 @@ const get_point_data = (network) => {
     });
 }
   
-const get_object_data = (network) => {
-    let client = sensr_client.SensrClient(network);
-
+const get_object_data = (client) => {
     client.listenToObjectUpdate(response => {
       const objects = response.getObjectsList();
   
@@ -57,9 +52,7 @@ const get_object_data = (network) => {
     });
 }
   
-const get_health_data = (network) => {
-    let client = sensr_client.SensrClient(network);
-
+const get_health_data = (client) => {
     client.listenToObjectUpdate(response => {
       const healths = response.getHealth();
       if (healths !== undefined) {
@@ -76,9 +69,7 @@ const get_health_data = (network) => {
     });
   }
   
-const get_time_data = (network) => {
-    let client = sensr_client.SensrClient(network);
-  
+const get_time_data = (client) => {
     client.listenToObjectUpdate(response => { 
       const curtime = new google_protobuf_timestamp_pb.Timestamp(response);
       curtime.fromDate(new Date());
