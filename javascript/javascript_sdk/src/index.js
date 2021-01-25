@@ -9,7 +9,7 @@ function run() {
   function fetchArgs() {
     return yargs
         .command('show',
-            'Spcifify Type you want to visualize.', {
+            'Specify type you want to visualize.', {
               typename: {
                 description: 'type of data',
                 alias: 't',
