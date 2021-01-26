@@ -21,7 +21,7 @@ const get_point_data = (client) => {
         pointClouds.forEach(pointCloud =>{
             let pointcloud_info = pointCloud.array;
             
-            let num_points = Math.floor((pointcloud_info[2].length)/(3.0));
+            let num_points = Math.floor((pointcloud_info[2].length)/(3.0*4));// 4-indicate sizeof(float)
             if(pointcloud_info[0] == pointMsg.PointResult.PointCloud.Type.RAW){
             console.log("Topic {%s} no. of points - {%f}", pointcloud_info[1], num_points);
             }
