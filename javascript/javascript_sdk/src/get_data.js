@@ -5,8 +5,6 @@ const get_zone_data = (client) => {
     client.listenToObjectUpdate(null, response => {
       let zone_lists = response.array;
       if(zone_lists[0][0] !== undefined){
-        // console.log(zone_lists[0][0][3])
-        // console.log(zone_lists[0][0])
         if(zone_lists[0][0][2] == 1){
           console.log("Entering zone (%d) : %d", zone_lists[0][0][1], zone_lists[0][0][3][0]);
         } else {
