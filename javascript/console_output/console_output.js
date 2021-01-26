@@ -11,7 +11,7 @@ function run() {
   function fetchArgs() {
     return yargs
         .command('show',
-            'Specify type you want to visualize.', {
+            'specify type and ip address', {
               typename: {
                 description: 'type of data(ex. zone, object, health, time, point)',
                 alias: 't',
@@ -40,5 +40,5 @@ function run() {
     }
 }
 
-process.on('exit',  ()=>{client.disconnect()});
 run();
+process.on('exit',  ()=>{client.disconnect()});

@@ -34,7 +34,7 @@ After installation if complete, you can run the example.
 - Open the terminal then navigate to src javascript_sdk/src folder
 - Run following command
 ```bash
-node index.js show -s localhost -t object
+node console_output.js show -s localhost -t object
 # put server ip address after -s.
 # you can replace "object" with "point", "zone", "health", or "time" to run the other examples
 ```
