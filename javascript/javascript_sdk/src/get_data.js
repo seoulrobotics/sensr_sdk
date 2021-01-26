@@ -1,4 +1,3 @@
-const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 const pointMsg = require('./../js_proto/sensr_proto/point_cloud_pb');
 
 const get_zone_data = (client) => {

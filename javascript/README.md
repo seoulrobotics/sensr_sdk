@@ -31,7 +31,8 @@ You should now have a main file (called `index.js` by default) that you can run 
 After installation if complete, you can run the example.
 
 - Launch SENSR
-- Open the terminal then navigate to src javascript_sdk/src folder
+- Open the terminal then navigate to src javascript/console_output folder
+- install dependencies by npm install
 - Run following command
 ```bash
 node console_output.js show -s localhost -t object

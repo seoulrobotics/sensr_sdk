@@ -9,6 +9,7 @@
   "author": "seoulrobotics",
   "license": "ISC",
   "dependencies": {
-    "sensr_js_sdk": "file:../javascript_sdk"
+    "sensr_js_sdk": "file:../javascript_sdk",
+    "yargs": "16.2.0"
   }
 }

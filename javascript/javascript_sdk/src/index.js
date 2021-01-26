@@ -1,9 +1,7 @@
-const yargs = require('yargs');
-const output_sel = require('./output_selector.js')
 const sensr_client = require('./sensr_client');
+const get_data = require("./get_data.js")
 
 module.exports ={
-  output_sel,
   sensr_client,
-  yargs
+  get_data
 };

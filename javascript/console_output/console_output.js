@@ -1,7 +1,9 @@
+const yargs = require('yargs');
 const sensr = require('sensr_js_sdk');
-const output_sel = sensr.output_sel;
+const output_sel = require('./output_selector.js');
 const sensr_client = sensr.sensr_client;
-const yargs = sensr.yargs
+
+
 
 
 function run() {

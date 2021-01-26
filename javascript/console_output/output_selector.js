@@ -1,5 +1,5 @@
-const get_data = require("./get_data.js")
-
+const sensr = require('sensr_js_sdk');
+const get_data = sensr.get_data;
 
 const outputSelector = (type, client) => {
     switch(type){ 
