@@ -2,18 +2,17 @@ const google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/ti
 const pointMsg = require('./../js_proto/sensr_proto/point_cloud_pb');
 
 const get_zone_data = (client) => {
-    client.listenToObjectUpdate(response => {
-      let zone_lists = response.getZonesList();
-      
-      zone_lists.forEach(zone_list => {
-          let obj = zone_list.getObject();
-          if (zone_list.getType() == 1) {
-              console.log("Enter zone(", zone_list.getId() ,") : ", obj.getId());
-          }
-          else if (zone_list.getType() == 2) {
-              console.log("Exit zone(", zone_list.getId() ,") : ", obj.getId());
-          }
-      });
+    client.listenToObjectUpdate(null, response => {
+      let zone_lists = response.array;
+      if(zone_lists[0][0] !== undefined){
+        // console.log(zone_lists[0][0][3])
+        // console.log(zone_lists[0][0])
+        if(zone_lists[0][0][2] == 1){
+          console.log("Entering zone (%d) : %d", zone_lists[0][0][1], zone_lists[0][0][3][0]);
+        } else {
+          console.log("Exiting zone (%d) : %d", zone_lists[0][0][1], zone_lists[0][0][3][0]);
+        }
+      }
     });
   }
   
