@@ -22,7 +22,7 @@ npm init # Follow the instructions, the defaults should be fine.
 # Add sensr_js_sdk as dependency. This is added as a local module,
 # hence you need to specify the relative (or absolute) path to 
 # sensr_js_sdk
-npm install ../relative/path/to/sensr_sdk/javascript/sensr_js_sdk 
+npm install ../relative/path/to/sensr_sdk/javascript/javascript_sdk 
 ```
 You should now have a main file (called `index.js` by default) that you can run using `npm start` or `node index.js`. This file is the entry-point into your project.
 
