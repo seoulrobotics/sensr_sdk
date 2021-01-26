@@ -70,10 +70,9 @@ const get_health_data = (client) => {
   }
   
 const get_time_data = (client) => {
-    client.listenToObjectUpdate(response => { 
-      const curtime = new google_protobuf_timestamp_pb.Timestamp(response);
-      curtime.fromDate(new Date());
-      console.log('Diff: %f ms',(curtime.array["0"]-curtime.array["1"])/1000000);
+    client.listenToObjectUpdate(null, null, response => { 
+      let cur_time = new Date();
+      console.log('Diff: %f ms', cur_time.getTime()- (response.array[0]*1000));
     });
 }
 
