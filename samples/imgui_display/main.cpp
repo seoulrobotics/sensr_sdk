@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
       ImGui::Begin("Message Explorer");
 
       ImGui::BulletText("Timestamp %ld (s) %d (ns)",
-                        output_msg.time_stamp().seconds(),
-                        output_msg.time_stamp().nanos());
+                        output_msg.timestamp().seconds(),
+                        output_msg.timestamp().nanos());
       
       //ImGui::BulletText("Ground Points: %d.", latest_message.ground_points().length() / size_of_vec3);
       ImGui::BulletText("Object Points: %d.", object_points_size);
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
             ImGui::NextColumn();
             ImGui::Text("(%.3f, %.3f, %.3f )", velocity.x(), velocity.y(), velocity.z());
             ImGui::NextColumn();
-            ImGui::Text("%d points", object.history().size());
+            ImGui::Text("%d points", object.history().positions().size());
             ImGui::NextColumn();
             ImGui::Text("none");
             ImGui::NextColumn();

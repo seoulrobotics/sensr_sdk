@@ -44,6 +44,14 @@ message PolygonBox {
   float max_z = 3;
 }
 
+message History {
+  repeated Vector3 positions = 1;
+}
+
+message Prediction {
+  repeated Vector3 positions = 1;
+}
+
 message Object {
   int32 id = 1;
   LabelType label = 2;
@@ -52,5 +60,6 @@ message Object {
   Vector3 velocity = 5;
   TrackingStatus tracking_status = 6;
   bytes points = 101;                    // Data type of points is Vector3f(12bytes). When you parsing this data, please be aware of this.
-  repeated Vector3 history = 102;
+  History history = 102;
+  Prediction prediction = 103;
 }
