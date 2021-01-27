@@ -53,18 +53,20 @@ const get_health_data = (client) => {
   client.listenToObjectUpdate(response => {
     const healths = response.getHealth();
     if (healths !== undefined) {
-      console.log('System health: %d', healths.array[0]);
-      for(i=0; i < healths.wrappers_['2'].arr_.length; i ++){
-        console.log(' AlgoNode(%s) health: %d', healths.wrappers_['2'].arr_[i][0], healths.wrappers_['2'].arr_[i][1][0]);
-          if (healths.wrappers_['2'].arr_[0][1][2] !== undefined){
-            for(index=0; index < healths.wrappers_['2'].arr_[0][1][2].length; index++){
-              console.log('   Sensors(%s) health: %d',healths.wrappers_['2'].arr_[0][1][2][index][0], 
-                                                    healths.wrappers_['2'].arr_[0][1][2][index][1]);
-            }
-          } else {
-            console.log(' No Sensors are connected');
-          }
-      }
+      let health = healths.getNodesMap();
+      console.log('System health: %d', healths.getMaster());
+      health.forEach((v, k) =>{
+        console.log(' AlgoNode(%s) health: %d', k, v.getStatus());
+        let sensor_info = v.getSensorsMap();
+        if (sensor_info.arr_ !== undefined){
+          sensor_info.forEach((v1, k1) => {
+            console.log('   Sensors(%s) health: %d', k1, v1);
+          });
+        } else {
+          console.log('No Sensors are connected');
+        }
+      });
+       
     }
   });
 }
