@@ -56,10 +56,10 @@ yaw | radians | float | Bounding box rotation angle along the Z axis.
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-positions | meters | Vector3 (list) | List of bounding box’s XYZ position values.
+positions | meters | Vector3 (list) | List of object’s XYZ position.
 
 ### Prediction
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-positions | meters | Vector3 (list) | List of bounding box’s XYZ position values.
+positions | meters | Vector3 (list) | List of object’s XYZ position.
