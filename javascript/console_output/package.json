@@ -1,0 +1,15 @@
+{
+  "name": "console_output",
+  "version": "1.0.0",
+  "description": "",
+  "main": "console_output.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "seoulrobotics",
+  "license": "ISC",
+  "dependencies": {
+    "sensr_js_sdk": "file:../javascript_sdk",
+    "yargs": "16.2.0"
+  }
+}
