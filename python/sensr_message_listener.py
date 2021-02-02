@@ -67,7 +67,8 @@ class MessageListener(metaclass=ABCMeta):
     
     def disconnect(self):
         self._is_running = False
-        self._loop.stop()
+        if self._loop is not None:
+            self._loop.stop()
 
     def _on_get_output_message(self, message):
         raise Exception('on_get_output_message() needs to be implemented in the derived class')
