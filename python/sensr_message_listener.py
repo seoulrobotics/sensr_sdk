@@ -33,7 +33,7 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _output_stream(self):
         async with websockets.connect(self._output_address) as websocket:
-            while True:
+            while self._is_running:
                 message = await websocket.recv() # Receive output messages from SENSR
                 
                 output = OutputMessage()
@@ -43,7 +43,7 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _point_stream(self):
         async with websockets.connect(self._point_address) as websocket:
-            while True:
+            while self._is_running:
                 message = await websocket.recv() # Receive output messages from SENSR
 
                 points = PointResult()
@@ -54,16 +54,21 @@ class MessageListener(metaclass=ABCMeta):
     def connect(self):
         print('Receiving SENSR output from {}...'.format(self._address)) 
         
-        loop = asyncio.get_event_loop()
+        self._loop = asyncio.get_event_loop()
+        self._is_running = True
 
         if self.is_output_message_listening():
-            loop.create_task(self._output_stream())
+            self._loop.create_task(self._output_stream())
 
         if self.is_point_result_listening():
-            loop.create_task(self._point_stream())
+            self._loop.create_task(self._point_stream())
 
-        loop.run_forever()
+        self._loop.run_forever()
     
+    def disconnect(self):
+        self._is_running = False
+        if self._loop is not None:
+            self._loop.stop()
 
     def _on_get_output_message(self, message):
         raise Exception('on_get_output_message() needs to be implemented in the derived class')
