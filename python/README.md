@@ -29,7 +29,7 @@ After installation, you can run the example.
 - Launch SENSR 
 - Open another terminal and type the following to save output
   ```bash
-  python3 save_load_output.py --mode save --address localhost --dir <full_folder_path_to_save>
+  python3 save_load_output.py --mode save --address localhost --dir <folder_path_to_save>
   # You need to put the correct IP address instead of localhost if SENSR is running on a different machine.
   ```
 
@@ -37,5 +37,5 @@ After installation, you can run the example.
 
 - Open terminal and type the following to load output
   ```bash
-  python3 save_load_output.py --mode load --dir <full_folder_path_to_save>
+  python3 save_load_output.py --mode load --dir <folder_path_to_load>
   ```
