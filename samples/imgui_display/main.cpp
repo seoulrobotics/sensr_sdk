@@ -17,7 +17,7 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     std::lock_guard<std::mutex> lock(mutex_);
     latest_message_ = message;
   }
