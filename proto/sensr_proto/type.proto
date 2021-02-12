@@ -63,3 +63,12 @@ message Object {
   History history = 102;
   Prediction prediction = 103;
 }
+
+message PredictedReachableSet {
+  message PredictionPolygon {
+    float t_offset = 1;
+    PolygonBox space = 2; 
+  }
+  int32 id = 1;
+  repeated PredictionPolygon polygons = 2;
+}

@@ -7,11 +7,11 @@ message PointResult {
     enum Type {
       NONE = 0;
       GROUND = 1;
-      ENVIRONMENT = 2;
+      BACKGROUND = 2;
       RAW = 3;
     }
     Type type = 1;
-    string id = 2; // In calibration : algo_uri#topic, In runtime : meaningless
+    string id = 2;
     bytes points = 3;
   }
   repeated PointCloud points = 1;

@@ -78,10 +78,16 @@ message EventMessage {
   SystemHealth health = 3;
 }
 
+message CustomMessage {
+  repeated PolygonBox field_of_regard = 1;
+  repeated PredictedReachableSet predicted_reachable_set = 2;
+}
+
 // Actual message using in SENSR SDK
 message OutputMessage {
   google.protobuf.Timestamp timestamp = 1;
   reserved 2, 101, 102, 103; // framework 1.0 used these.
   StreamMessage stream = 3;
   EventMessage event = 201;
+  CustomMessage custom = 301;
 }

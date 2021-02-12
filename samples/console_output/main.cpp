@@ -15,7 +15,7 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_event()) {
       for(const auto& zone_event : message.event().zone()) {
         if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
@@ -45,8 +45,8 @@ public:
         std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
         std::cout << "Gound points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
-      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_ENVIRONMENT) {
-        std::cout << "Environment points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_BACKGROUND) {
+        std::cout << "Background points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       }
     }
   }
@@ -63,7 +63,7 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
       for(const auto& object : message.stream().objects()) {
         int object_points_size = (object.points().length() / (sizeof(float) * 3));
@@ -84,7 +84,7 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream() && message.stream().has_health()) {
       auto system_health = message.stream().health();
       std::cout << "System health: " << system_health.master() << std::endl;
@@ -110,7 +110,7 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
   #if defined(__linux__)
     timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
     timeval tv;
