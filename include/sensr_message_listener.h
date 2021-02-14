@@ -23,6 +23,7 @@ namespace sensr {
     MessageListener(ListeningType listening_type = ListeningType::kOutputMessage);
     virtual ~MessageListener() = default;
     virtual void OnError(Error error, const std::string& reason);
+    virtual void OnGetOutpuMessage(const sensr_proto::OutputMessage &message); // Deprecated!!!!
     virtual void OnGetOutputMessage(const sensr_proto::OutputMessage &message);
     virtual void OnGetPointResult(const sensr_proto::PointResult &message);
     bool IsOutputMessageListening() const;

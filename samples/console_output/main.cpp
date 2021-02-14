@@ -10,6 +10,7 @@ class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
@@ -34,6 +35,7 @@ class PointResultListener : public sensr::MessageListener {
 public:
   PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
@@ -58,6 +60,7 @@ class ObjectListener : public sensr::MessageListener {
 public:
   ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
@@ -79,6 +82,7 @@ class HealthListener : public sensr::MessageListener {
 public:
   HealthListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
@@ -105,6 +109,7 @@ class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();

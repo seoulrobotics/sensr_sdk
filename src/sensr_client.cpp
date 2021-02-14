@@ -97,6 +97,7 @@ namespace sensr
     for (const auto& listener : listeners_) {
       if (listener->IsOutputMessageListening()) {
         listener->OnGetOutputMessage(output);
+        listener->OnGetOutpuMessage(output); //TODO: Remove this in next release.
       }
     }
   }

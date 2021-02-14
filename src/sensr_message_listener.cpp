@@ -19,6 +19,10 @@ namespace sensr {
         }
     }
 
+    void MessageListener::OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+        std::cout << "Deprecated Message" << std::endl;
+    }
+
     void MessageListener::OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
         std::cout << "New OutputMessage" << std::endl;
     }
