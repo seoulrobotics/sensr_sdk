@@ -1,0 +1,12 @@
+
+syntax = "proto3";
+
+import "sensr_proto/type.proto";
+
+option cc_enable_arenas = true;
+
+package sensr_proto;
+
+message CustomMessage {
+  repeated PolygonBox field_of_regard = 1;
+}

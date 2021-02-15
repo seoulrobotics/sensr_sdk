@@ -3,6 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "sensr_proto/global_type.proto";
 import "sensr_proto/type.proto";
+import "sensr_proto/custom.proto";
 
 package sensr_proto;
 
@@ -76,11 +77,6 @@ message EventMessage {
   repeated ZoneEvent zone = 1;
   repeated LosingEvent losing = 2;
   SystemHealth health = 3;
-}
-
-message CustomMessage {
-  repeated PolygonBox field_of_regard = 1;
-  repeated PredictedReachableSet predicted_reachable_set = 2;
 }
 
 // Actual message using in SENSR SDK

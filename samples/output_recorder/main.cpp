@@ -29,7 +29,7 @@ public:
     }
   }
 
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
       output_messages_.add_output_messages()->CopyFrom(message);
       std::cout << "Message received from SENSR!" << std::endl
