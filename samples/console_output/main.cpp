@@ -10,12 +10,13 @@ class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_event()) {
       for(const auto& zone_event : message.event().zone()) {
         if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
@@ -34,6 +35,7 @@ class PointResultListener : public sensr::MessageListener {
 public:
   PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
@@ -58,12 +60,13 @@ class ObjectListener : public sensr::MessageListener {
 public:
   ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
       for(const auto& object : message.stream().objects()) {
         int object_points_size = (object.points().length() / (sizeof(float) * 3));
@@ -79,12 +82,13 @@ class HealthListener : public sensr::MessageListener {
 public:
   HealthListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream() && message.stream().has_health()) {
       auto system_health = message.stream().health();
       std::cout << "System health: " << system_health.master() << std::endl;
@@ -105,12 +109,13 @@ class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) {
+    (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
   #if defined(__linux__)
     timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
     timeval tv;
