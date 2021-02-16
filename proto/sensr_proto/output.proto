@@ -3,6 +3,7 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "sensr_proto/global_type.proto";
 import "sensr_proto/type.proto";
+import "sensr_proto/custom.proto";
 
 package sensr_proto;
 
@@ -84,4 +85,5 @@ message OutputMessage {
   reserved 2, 101, 102, 103; // framework 1.0 used these.
   StreamMessage stream = 3;
   EventMessage event = 201;
+  CustomMessage custom = 301;
 }

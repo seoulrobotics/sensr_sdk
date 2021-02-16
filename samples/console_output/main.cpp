@@ -47,8 +47,8 @@ public:
         std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
         std::cout << "Gound points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
-      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_ENVIRONMENT) {
-        std::cout << "Environment points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
+      } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_BACKGROUND) {
+        std::cout << "Background points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       }
     }
   }

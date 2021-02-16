@@ -7,7 +7,7 @@ message PointResult {
     enum Type {
       NONE = 0;
       GROUND = 1;
-      ENVIRONMENT = 2;
+      BACKGROUND = 2;
       RAW = 3;
     }
     Type type = 1;

@@ -49,7 +49,12 @@ message History {
 }
 
 message Prediction {
+  message ReachableSet {
+    float t_offset = 1;
+    PolygonBox space = 2;
+  }
   repeated Vector3 positions = 1;
+  repeated ReachableSet reachable_set = 2;
 }
 
 message Object {
