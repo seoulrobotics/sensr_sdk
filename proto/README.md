@@ -5,14 +5,15 @@
 Field | Unit | Type | Description
 --- | --- | --- | ---
 timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | time stampe of the event was occurred.
-stream | - | [StreamMessage](sensr_proto/output.proto) | SENSR perception result stream message.(Freq.: appx. 100ms)
-event | - | [EventMessage](sensr_proto/output.proto) | SENSR event message (Zone, Losing, SystemHealth)
+stream | - | [StreamMessage](#streammessage) | SENSR perception result stream message.(Freq.: appx. 100ms)
+event | - | [EventMessage](#eventmessage) | SENSR event message (Zone, Losing, SystemHealth)
+custom | - | [CustomMessage](#custommessage) | SENSR additional result message (Field of Regard)
 
 ## StreamMessage
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-objects | - | [Object](sensr_proto/type.proto) | object list in the latest frame.
+objects | - | [Object](#object) | object list in the latest frame.
 zones | - | [ZoneConfig](sensr_proto/output.proto) | general zone configuration. (Freq. appx. 10s) 
 health | - | [SystemHealth](sensr_proto/output.proto) | system health in the latest frame. (Freq. appx. 10s) 
 
@@ -23,6 +24,12 @@ Field | Unit | Type | Description
 zone | - | [ZoneEvent](sensr_proto/output.proto) | event list related to zone.
 losing | - | [LosingEvent](sensr_proto/output.proto) | event when SENSR lose tracking.
 health | - | [SystemHealth](sensr_proto/output.proto) | event when SENSR has trouble inside.
+
+## CustomMessage
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+field_of_regard | - | [PolygonBox](sensr_proto/type.proto) | list of field of Regard.
 
 ## PointResult
 
@@ -63,3 +70,4 @@ positions | meters | Vector3 (list) | List of object’s XYZ position.
 Field | Unit | Type | Description
 --- | --- | --- | ---
 positions | meters | Vector3 (list) | List of object’s XYZ position.
+reachable_set | meters | [ReachableSet](sensr_proto/type.proto) | List of object’s reachable set.
