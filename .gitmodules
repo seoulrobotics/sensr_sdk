@@ -4,3 +4,6 @@
 [submodule "external/websocketpp"]
 	path = external/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "proto/sensr_proto"]
+	path = proto/sensr_proto
+	url = https://github.com/seoulrobotics/sensr_proto.git
