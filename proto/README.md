@@ -14,28 +14,28 @@ custom | - | [CustomMessage](#custommessage) | SENSR additional result message (
 Field | Unit | Type | Description
 --- | --- | --- | ---
 objects | - | [Object](#object) | object list in the latest frame.
-zones | - | [ZoneConfig](sensr_proto/output.proto) | general zone configuration. (Freq. appx. 10s) 
-health | - | [SystemHealth](sensr_proto/output.proto) | system health in the latest frame. (Freq. appx. 10s) 
+zones | - | [ZoneConfig](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | general zone configuration. (Freq. appx. 10s) 
+health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | system health in the latest frame. (Freq. appx. 10s) 
 
 ## EventMessage
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-zone | - | [ZoneEvent](sensr_proto/output.proto) | event list related to zone.
-losing | - | [LosingEvent](sensr_proto/output.proto) | event when SENSR lose tracking.
-health | - | [SystemHealth](sensr_proto/output.proto) | event when SENSR has trouble inside.
+zone | - | [ZoneEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event list related to zone.
+losing | - | [LosingEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event when SENSR lose tracking.
+health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event when SENSR has trouble inside.
 
 ## CustomMessage
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-field_of_regard | - | [PolygonBox](sensr_proto/type.proto) | List of negative field of regard which represent occlusion areas.
+field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of negative field of regard which represent occlusion areas.
 
 ## PointResult
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-points | - | [PointCloud](sensr_proto/point_cloud.proto) | point cloud stream data.
+points | - | [PointCloud](https://github.com/seoulrobotics/sensr_proto/blob/master/point_cloud.proto) | point cloud stream data.
 uri | - | string | address of point cloud.
 
 ## Object
@@ -43,7 +43,7 @@ uri | - | string | address of point cloud.
 Field | Unit | Type | Description
 --- | --- | --- | ---
 id | - | int32 | ID of the object.
-label | - | [LabelType](sensr_proto/type.proto) | Classification of the object.
+label | - | [LabelType](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | Classification of the object.
 confidnece | - | float | 0 to 1 probability of the object classification.
 bbox | - | [BoundingBox](#boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
@@ -70,4 +70,4 @@ positions | meters | Vector3 (list) | List of object’s tracked XYZ position.
 Field | Unit | Type | Description
 --- | --- | --- | ---
 positions | meters | Vector3 (list) | List of object’s predicted XYZ position.
-reachable_set | meters | [ReachableSet](sensr_proto/type.proto) | List of object's predicted range which includes uncertainty sorted by time-lapse.
+reachable_set | meters | [ReachableSet](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object's predicted range which includes uncertainty sorted by time-lapse.
