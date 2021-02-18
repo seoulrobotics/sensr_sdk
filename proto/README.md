@@ -29,7 +29,7 @@ health | - | [SystemHealth](sensr_proto/output.proto) | event when SENSR has tro
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-field_of_regard | - | [PolygonBox](sensr_proto/type.proto) | list of field of Regard.
+field_of_regard | - | [PolygonBox](sensr_proto/type.proto) | List of negative field of regard which represent occlusion areas.
 
 ## PointResult
 
@@ -63,11 +63,11 @@ yaw | radians | float | Bounding box rotation angle along the Z axis.
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-positions | meters | Vector3 (list) | List of object’s XYZ position.
+positions | meters | Vector3 (list) | List of object’s tracked XYZ position.
 
 ### Prediction
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-positions | meters | Vector3 (list) | List of object’s XYZ position.
-reachable_set | meters | [ReachableSet](sensr_proto/type.proto) | List of object’s reachable set.
+positions | meters | Vector3 (list) | List of object’s predicted XYZ position.
+reachable_set | meters | [ReachableSet](sensr_proto/type.proto) | List of object's predicted range which includes uncertainty sorted by time-lapse.
