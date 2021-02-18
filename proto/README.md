@@ -29,7 +29,7 @@ health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/ma
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of negative field of regard which represent occlusion areas.
+field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object-occupied and blind area.
 
 ## PointResult
 
@@ -70,4 +70,4 @@ positions | meters | Vector3 (list) | List of object’s tracked XYZ position.
 Field | Unit | Type | Description
 --- | --- | --- | ---
 positions | meters | Vector3 (list) | List of object’s predicted XYZ position.
-reachable_set | meters | [ReachableSet](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object's predicted range which includes uncertainty sorted by time-lapse.
+reachable_set | meters | [ReachableSet](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object's predicted position including uncertainty sorted by elapsed time.
