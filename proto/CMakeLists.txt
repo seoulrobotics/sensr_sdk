@@ -1,3 +1,5 @@
+set(Protobuf_USE_STATIC_LIBS ON)
+
 find_package(Protobuf REQUIRED)
 
 set(PROTOBUF_GENERATE_CPP_APPEND_PATH OFF)
