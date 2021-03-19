@@ -15,7 +15,7 @@ You can install prebuilt binaries or build from source as following.
 Make sure you have the listed dependencies installed:
 
 ```bash
-sudo apt-get install autoconf automake libtool curl make g++ unzip
+sudo apt-get install autoconf automake libtool curl make g++ unzip git cmake
 ```
 
 Protobuf (3.11.4) from source:
@@ -76,6 +76,20 @@ e.g.)
 $ ./build_console/console_output_sample localhost zone
 ```
 ### ImGui
+
+```bash
+git clone https://github.com/zeromq/libzmq
+cd libzmq
+git checkout v4.3.1
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+cd ../../
+rm -rf libzmq
+```
 
 ```bash
 mkdir build_imgui
