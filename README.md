@@ -78,20 +78,6 @@ $ ./build_console/console_output_sample localhost zone
 ### ImGui
 
 ```bash
-git clone https://github.com/zeromq/libzmq
-cd libzmq
-git checkout v4.3.1
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-sudo ldconfig
-cd ../../
-rm -rf libzmq
-```
-
-```bash
 mkdir build_imgui
 cd build_imgui
 cmake ../samples/imgui_display
