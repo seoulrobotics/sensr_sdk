@@ -41,7 +41,7 @@ Update submodule:
 git submodule update --init
 ```
 
-if you have SENSR:
+if you don't have SENSR:
 ```bash
 sudo apt-get install libboost-all-dev
 ```
