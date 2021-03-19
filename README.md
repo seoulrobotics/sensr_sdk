@@ -41,6 +41,11 @@ Update submodule:
 git submodule update --init
 ```
 
+if you have SENSR:
+```bash
+sudo apt-get install libboost-all-dev
+```
+
 Build SENSR SDK:
 
 ```bash
