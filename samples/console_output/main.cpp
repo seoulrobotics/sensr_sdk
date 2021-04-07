@@ -68,10 +68,11 @@ public:
   }
   void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
-      for(const auto& object : message.stream().objects()) {
+      std::cout << "Obj No(" << message.stream().objects_size() << ")" << std::endl;
+      /*for(const auto& object : message.stream().objects()) {
         int object_points_size = (object.points().length() / (sizeof(float) * 3));
         std::cout << "Obj(" << object.id() << ") : point no. " << object_points_size << std::endl;
-      }
+      }*/
     }
   }
 private:
@@ -99,12 +100,14 @@ public:
           std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second << std::endl;
         }
       }
+    } else if (message.has_custom()) {
+      std::cout << "BG Learn : " << message.custom().bg_learning_progress() << std::endl;
     }
   }
 private:
   sensr::Client* client_;
 };
-
+google::protobuf::Timestamp prev_t; 
 class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
@@ -117,12 +120,19 @@ public:
   }
   void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
   #if defined(__linux__)
+    // timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
+    // timeval tv;
+    // gettimeofday(&tv, nullptr);
+    // timeval diff;
+    // timersub(&tv, &msg_tv, &diff);
+    // std::cout << "Diff:" << diff.tv_usec / (float)1000 << "ms" << std::endl;
+    auto tv = google::protobuf::util::TimeUtil::TimestampToTimeval(prev_t);
     timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
-    timeval tv;
-    gettimeofday(&tv, nullptr);
     timeval diff;
-    timersub(&tv, &msg_tv, &diff);
-    std::cout << "Diff:" << diff.tv_usec / (float)1000 << "ms" << std::endl;
+    timersub(&msg_tv, &tv, &diff);
+    //std::cout << "Diff:" << diff.tv_sec << "s " <<  diff.tv_usec / (float)1000 << "ms" << std::endl;
+    std::cout << google::protobuf::util::TimeUtil::ToString(message.timestamp()) << std::endl;
+    prev_t = message.timestamp();
   #endif
               
   }

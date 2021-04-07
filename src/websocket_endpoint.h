@@ -1,13 +1,14 @@
 #pragma once
 
 #include "websocketpp/client.hpp"
-#include "websocketpp/config/asio_no_tls_client.hpp"
+#include "websocketpp/config/asio_client.hpp"
 #include "websocketpp/extensions/permessage_deflate/enabled.hpp"
 #include <functional>
 #include <thread>
 #include <memory>
 namespace sensr {
-  using websocketpp_client = websocketpp::client<websocketpp::config::asio_client>;
+  using websocketpp_client = websocketpp::client<websocketpp::config::asio_tls_client>;
+  using context_ptr = websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context>;
   class WebSocketEndPoint {
   public:
     using MsgReceiver = std::function<void(const std::string& msg)>;
@@ -19,6 +20,7 @@ namespace sensr {
     void Close(websocketpp::close::status::value code);
 
   private:
+    context_ptr OnTSLInit(const char * hostname, websocketpp::connection_hdl hdl);
     void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
