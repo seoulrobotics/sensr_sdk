@@ -25,6 +25,9 @@ namespace sensr {
     void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
+    bool OnVerifyCertificate(const char * hostname, bool preverified, boost::asio::ssl::verify_context& ctx);
+    bool VerifySubjectAlternativeName(const char * hostname, X509 * cert);
+    bool VerifyCommonName(char const * hostname, X509 * cert);
     enum struct Status {
       kConnecting,
       kOpen,
