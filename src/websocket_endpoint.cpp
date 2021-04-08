@@ -3,7 +3,8 @@
 namespace sensr
 {   
   WebSocketEndPoint::WebSocketEndPoint() : 
-    status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0)
+    status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0),
+    certified_names_({"server"})
   {
     endpoint_.set_access_channels(websocketpp::log::alevel::all);
     endpoint_.clear_access_channels(websocketpp::log::alevel::frame_payload);
@@ -35,7 +36,6 @@ namespace sensr
     endpoint_.set_tls_init_handler(std::bind(
       &WebSocketEndPoint::OnTSLInit,
       this,
-      "server",
       std::placeholders::_1));
     websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
     if (ec) {
@@ -84,7 +84,7 @@ namespace sensr
     err_receiver_ = 0;
   }
 
-  context_ptr WebSocketEndPoint::OnTSLInit(const char * hostname, websocketpp::connection_hdl hdl) {
+  context_ptr WebSocketEndPoint::OnTSLInit(websocketpp::connection_hdl hdl) {
     context_ptr ctx = websocketpp::lib::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
 
     try {
@@ -97,12 +97,11 @@ namespace sensr
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
         ctx->set_verify_callback(std::bind(&WebSocketEndPoint::OnVerifyCertificate, 
           this,
-          hostname, 
           std::placeholders::_1, 
           std::placeholders::_2));
 
         // Here we load the CA certificates of all CA's that this client trusts.
-        ctx->load_verify_file("/home/seoulrobotics/keys/user.crt");
+        ctx->load_verify_file("user.crt");
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
@@ -140,8 +139,6 @@ namespace sensr
       }
     }     
   }
-
-
 
   /// Verify that one of the subject alternative names matches the given hostname
   bool WebSocketEndPoint::VerifySubjectAlternativeName(const char * hostname, X509 * cert) {
@@ -201,7 +198,7 @@ namespace sensr
    * and
    * https://github.com/iSECPartners/ssl-conservatory
    */
-  bool WebSocketEndPoint::OnVerifyCertificate(const char * hostname, bool preverified, 
+  bool WebSocketEndPoint::OnVerifyCertificate(bool preverified, 
                                               boost::asio::ssl::verify_context& ctx) {
     // The verify callback can be used to check whether the certificate that is
     // being presented is valid for the peer. For example, RFC 2818 describes
@@ -221,22 +218,27 @@ namespace sensr
     // the hostname is present on the list of SANs or the common name (CN).
     if (depth == 0 && preverified) {
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-        if (VerifySubjectAlternativeName(hostname, cert)) {
+        for (const auto& name : certified_names_) {
+          if (VerifySubjectAlternativeName(name.c_str(), cert)) {
             return true;
-        } else if (VerifyCommonName(hostname, cert)) {
+          } else if (VerifyCommonName(name.c_str(), cert)) {
             return true;
-        } else {
-          std::string errstr(
-            X509_verify_cert_error_string(
-            X509_STORE_CTX_get_error(ctx.native_handle())));
+          } else {
+            std::string errstr(
+              X509_verify_cert_error_string(
+              X509_STORE_CTX_get_error(ctx.native_handle())));
             std::cerr << errstr << std::endl;
             return false;
+          }
         }
+        
     } else {
       if (X509_STORE_CTX_get_error(ctx.native_handle()) == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-        if (VerifyCommonName(hostname, cert)) {
+        for (const auto& name : certified_names_) {
+          if (VerifyCommonName(name.c_str(), cert)) {         
             return true;
+          }
         }
       }
     }
