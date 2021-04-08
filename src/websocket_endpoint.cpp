@@ -32,38 +32,19 @@ namespace sensr
     std::error_code ec;
 
     // Register our message handler
-    endpoint_.set_message_handler(std::bind(
-      &WebSocketEndPoint::OnMessage,
-      this,
-      std::placeholders::_1,
-      std::placeholders::_2));
-      //std::string hostname = uri.substr(6, uri.size() - 11); // temporal extracting
-      endpoint_.set_tls_init_handler(std::bind(
-      &WebSocketEndPoint::OnTSLInit,
-      this,
-      "Luke",
-      std::placeholders::_1));
-      websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
-      if (ec) {
-        std::cerr << "> Connect initialization error: " << ec.message() << std::endl;
-        return false;
-      }
-      endpoint_.connect(con);
-      endpoint_.get_alog().write(websocketpp::log::alevel::app, "Connecting to " + uri);
-
-    // websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
-    // if (ec) {
-    //   std::cerr << "> Connect initialization error: " << ec.message() << std::endl;
-    //   return false;
-    //}
+    endpoint_.set_tls_init_handler(std::bind(
+    &WebSocketEndPoint::OnTSLInit,
+    this,
+    "server",
+    std::placeholders::_1));
+    websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
+    if (ec) {
+      std::cerr << "> Connect initialization error: " << ec.message() << std::endl;
+      return false;
+    }
     msg_receiver_ = func;
     err_receiver_ = err_func; 
-    // connection_hdl_ = con->get_handle();
-    // con->set_tls_init_handler(std::bind(
-    //   &WebSocketEndPoint::OnTSLInit,
-    //   this,
-    //   "localhost",
-    //   std::placeholders::_1));
+    connection_hdl_ = con->get_handle();
     con->set_open_handler(std::bind(
       &WebSocketEndPoint::OnOpen,
       this,
@@ -80,7 +61,8 @@ namespace sensr
       std::placeholders::_1,
       std::placeholders::_2));
 
-    // endpoint_.connect(con);
+    endpoint_.connect(con);
+    endpoint_.get_alog().write(websocketpp::log::alevel::app, "Connecting to " + uri);
     return true;
   };
 
@@ -129,7 +111,6 @@ namespace sensr
               break;
           }
           // Compare expected hostname with the CN
-          std::cout << "dns_name:" << dns_name << std::endl;
           result = (strcasecmp(hostname, dns_name) == 0);
       }
       sk_GENERAL_NAME_pop_free(san_names, GENERAL_NAME_free);
@@ -163,7 +144,6 @@ namespace sensr
       if (ASN1_STRING_length(common_name_asn1) != static_cast<int>(strlen(common_name_str))) {
           return false;
       }
-      std::cout << "common_name_str:" << common_name_str << std::endl;
       // Compare expected hostname with the CN
       return (strcasecmp(hostname, common_name_str) == 0);
   }
@@ -189,23 +169,28 @@ namespace sensr
       // non-implementation specific OpenSSL checking, such as the formatting of
       // certs and the trusted status based on the CA certs we imported earlier.
       int depth = X509_STORE_CTX_get_error_depth(ctx.native_handle());
-
       // if we are on the final cert and everything else checks out, ensure that
       // the hostname is present on the list of SANs or the common name (CN).
       if (depth == 0 && preverified) {
           X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-          
           if (verify_subject_alternative_name(hostname, cert)) {
               return true;
           } else if (verify_common_name(hostname, cert)) {
               return true;
           } else {
-      std::string errstr(
-    X509_verify_cert_error_string(
-        X509_STORE_CTX_get_error(ctx.native_handle())));
-        std::cerr << errstr << std::endl;
+            std::string errstr(
+              X509_verify_cert_error_string(
+              X509_STORE_CTX_get_error(ctx.native_handle())));
+              std::cerr << errstr << std::endl;
               return false;
           }
+      } else {
+        if (X509_STORE_CTX_get_error(ctx.native_handle()) == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
+          X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+          if (verify_common_name(hostname, cert)) {
+              return true;
+          }
+        }
       }
       return preverified;
   }
@@ -227,7 +212,7 @@ namespace sensr
         std::placeholders::_2));
 
         // Here we load the CA certificates of all CA's that this client trusts.
-        ctx->load_verify_file("/home/seoulrobotics/keys/cert.pem");
+        ctx->load_verify_file("/home/seoulrobotics/keys/user.crt");
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }
