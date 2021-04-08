@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
 
-  sensr::Client client(client_address);
+  sensr::Client client(client_address, "../keys/sensr-sdk-ca.crt");
 
   if (!glfwInit())
     return 1;

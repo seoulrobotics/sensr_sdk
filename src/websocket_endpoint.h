@@ -13,7 +13,7 @@ namespace sensr {
   public:
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
-    WebSocketEndPoint();
+    WebSocketEndPoint(const std::string& cert_path);
     ~WebSocketEndPoint();
 
     bool Connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func);
@@ -40,6 +40,7 @@ namespace sensr {
     Status status_;
     MsgReceiver msg_receiver_;
     ErrorReceiver err_receiver_;
+    const std::string cert_path_;
     std::array<const std::string, 1> certified_names_;
   };
 } // namespace sensr

@@ -2,9 +2,9 @@
 
 namespace sensr
 {   
-  WebSocketEndPoint::WebSocketEndPoint() : 
+  WebSocketEndPoint::WebSocketEndPoint(const std::string& cert_path) : 
     status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0),
-    certified_names_({"server"})
+    cert_path_(cert_path), certified_names_({"argos"})
   {
     endpoint_.set_access_channels(websocketpp::log::alevel::all);
     endpoint_.clear_access_channels(websocketpp::log::alevel::frame_payload);
@@ -101,7 +101,7 @@ namespace sensr
           std::placeholders::_2));
 
         // Here we load the CA certificates of all CA's that this client trusts.
-        ctx->load_verify_file("user.crt");
+        ctx->load_verify_file(cert_path_);
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     }

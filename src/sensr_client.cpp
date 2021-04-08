@@ -5,9 +5,9 @@
 
 namespace sensr
 {
-  Client::Client(const std::string& address) : address_(address) {
-    output_endpoint_.reset(new WebSocketEndPoint());
-    point_endpoint_.reset(new WebSocketEndPoint());
+  Client::Client(const std::string& address, const std::string& cert_path) : address_(address) {
+    output_endpoint_.reset(new WebSocketEndPoint(cert_path));
+    point_endpoint_.reset(new WebSocketEndPoint(cert_path));
   }
 
   Client::~Client()

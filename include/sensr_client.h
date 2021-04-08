@@ -13,7 +13,7 @@ namespace sensr
   class Client
   {
   public:
-    Client(const std::string &address);
+    Client(const std::string &address, const std::string& cert_path);
     ~Client();
     bool Reconnect(); // Call when Error occur
     bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
