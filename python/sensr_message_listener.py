@@ -21,13 +21,14 @@ class MessageListener(metaclass=ABCMeta):
                  address="localhost", 
                  listener_type=ListenerType.BOTH, 
                  output_port = "5050", 
-                 point_port = "5051"):
+                 point_port = "5051",
+                 crt_file_path=""):
         self._address = "wss://" + address
         self._output_address = self._address + ':' + output_port
         self._point_address = self._address + ':' + point_port
         self._listener_type = listener_type
         self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        self._ssl_context.load_verify_locations("../keys/sensr-sdk-ca.crt")
+        self._ssl_context.load_verify_locations(crt_file_path)
 
     def is_output_message_listening(self):
         return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
