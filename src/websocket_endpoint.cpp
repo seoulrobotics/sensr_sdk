@@ -6,9 +6,8 @@ namespace sensr
     status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0),
     cert_path_(cert_path), certified_names_({"argos"})
   {
-    endpoint_.set_access_channels(websocketpp::log::alevel::all);
-    endpoint_.clear_access_channels(websocketpp::log::alevel::frame_payload);
-    endpoint_.set_error_channels(websocketpp::log::elevel::all);
+    endpoint_.clear_access_channels(websocketpp::log::alevel::all);
+    endpoint_.clear_error_channels(websocketpp::log::elevel::all);
 
     endpoint_.init_asio();
     endpoint_.start_perpetual();
@@ -62,7 +61,6 @@ namespace sensr
       std::placeholders::_2));
 
     endpoint_.connect(con);
-    endpoint_.get_alog().write(websocketpp::log::alevel::app, "Connecting to " + uri);
     return true;
   };
 
