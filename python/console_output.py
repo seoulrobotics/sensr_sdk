@@ -43,7 +43,7 @@ class PointResultListener(MessageListener):
                 print('Topic ({0}) no. of points - {1}'.format(point_cloud.id, num_points))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.GROUND:
                 print('Ground points no. of points - {0}'.format(num_points))
-            elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.ENVIRONMENT:
+            elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.BACKGROUND:
                 print('Environment points no. of points - {0}'.format(num_points))
 
 
