@@ -1,7 +1,7 @@
 import websockets
 import asyncio
 import ssl
-import pathlib
+import os
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
 
@@ -28,6 +28,7 @@ class MessageListener(metaclass=ABCMeta):
         self._point_address = self._address + ':' + point_port
         self._listener_type = listener_type
         self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        assert os.path.exists(crt_file_path), "Please indicate a valid certificate file."
         self._ssl_context.load_verify_locations(crt_file_path)
 
     def is_output_message_listening(self):

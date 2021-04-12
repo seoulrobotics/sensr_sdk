@@ -40,7 +40,7 @@ class PointResultListener(MessageListener):
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
 
             if point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.RAW:
-                print('Topic ({0}) no. of points - {1}'.format(point_cloud.id(), num_points))
+                print('Topic ({0}) no. of points - {1}'.format(point_cloud.id, num_points))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.GROUND:
                 print('Ground points no. of points - {0}'.format(num_points))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.ENVIRONMENT:
