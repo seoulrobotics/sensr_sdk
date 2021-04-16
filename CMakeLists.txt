@@ -5,6 +5,7 @@ project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 find_package(
   Boost REQUIRED
   COMPONENTS system)
+find_package(OpenSSL REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
 set(SOURCE_FILES src/sensr_client.cpp src/sensr_message_listener.cpp src/websocket_endpoint.cpp)
@@ -26,6 +27,7 @@ target_include_directories(sensr_sdk
 
 target_link_libraries(sensr_sdk PUBLIC  sensr_proto
                                         ${Boost_LIBRARIES}
+                                        ${OPENSSL_LIBRARIES}
                                 PRIVATE pthread)
 
 ######## Installation script ##########

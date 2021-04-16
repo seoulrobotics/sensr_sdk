@@ -1,5 +1,7 @@
 import websockets
 import asyncio
+import ssl
+import os
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
 
@@ -19,11 +21,15 @@ class MessageListener(metaclass=ABCMeta):
                  address="localhost", 
                  listener_type=ListenerType.BOTH, 
                  output_port = "5050", 
-                 point_port = "5051"):
-        self._address = "ws://" + address
+                 point_port = "5051",
+                 crt_file_path=""):
+        self._address = "wss://" + address
         self._output_address = self._address + ':' + output_port
         self._point_address = self._address + ':' + point_port
         self._listener_type = listener_type
+        self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+        assert os.path.exists(crt_file_path), "Please indicate a valid certificate file."
+        self._ssl_context.load_verify_locations(crt_file_path)
 
     def is_output_message_listening(self):
         return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
@@ -32,7 +38,7 @@ class MessageListener(metaclass=ABCMeta):
         return self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH
 
     async def _output_stream(self):
-        async with websockets.connect(self._output_address, max_size=None) as websocket:
+        async with websockets.connect(self._output_address, ssl=self._ssl_context, max_size=None) as websocket:
             while self._is_running:
                 message = await websocket.recv() # Receive output messages from SENSR
                 
@@ -42,7 +48,7 @@ class MessageListener(metaclass=ABCMeta):
     
 
     async def _point_stream(self):
-        async with websockets.connect(self._point_address, max_size=None) as websocket:
+        async with websockets.connect(self._point_address, ssl=self._ssl_context, max_size=None) as websocket:
             while self._is_running:
                 message = await websocket.recv() # Receive output messages from SENSR
 

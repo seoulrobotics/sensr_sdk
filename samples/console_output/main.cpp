@@ -99,12 +99,13 @@ public:
           std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second << std::endl;
         }
       }
+    } else if (message.has_custom()) {
+      std::cout << "BG Learn : " << message.custom().bg_learning_progress() << std::endl;
     }
   }
 private:
   sensr::Client* client_;
 };
-
 class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
   std::string address = std::string(client_address);
-  sensr::Client client(address);
+  sensr::Client client(address, "keys/sensr-sdk-ca.crt");
   // Add sample listeners
   if (argc > 2) {
     for (int i = 2; i < argc; ++i) {

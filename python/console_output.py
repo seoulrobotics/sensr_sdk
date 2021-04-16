@@ -11,7 +11,8 @@ class ZoneEvenListener(MessageListener):
 
     def __init__(self, address):
         super().__init__(address=address, 
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -28,7 +29,8 @@ class PointResultListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.POINT_RESULT)
+                         listener_type=ListenerType.POINT_RESULT,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
     
     def _on_get_point_result(self, message):
         assert isinstance(message, sensr_pcloud.PointResult), "message should be of type PointResult"
@@ -38,10 +40,10 @@ class PointResultListener(MessageListener):
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
 
             if point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.RAW:
-                print('Topic ({0}) no. of points - {1}'.format(point_cloud.id(), num_points))
+                print('Topic ({0}) no. of points - {1}'.format(point_cloud.id, num_points))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.GROUND:
                 print('Ground points no. of points - {0}'.format(num_points))
-            elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.ENVIRONMENT:
+            elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.BACKGROUND:
                 print('Environment points no. of points - {0}'.format(num_points))
 
 
@@ -49,7 +51,8 @@ class ObjectListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -65,7 +68,8 @@ class HealthListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -93,7 +97,8 @@ class HealthListener(MessageListener):
 class TimeChecker(MessageListener):
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"

@@ -5,9 +5,9 @@
 
 namespace sensr
 {
-  Client::Client(const std::string& address) : address_(address) {
-    output_endpoint_.reset(new WebSocketEndPoint());
-    point_endpoint_.reset(new WebSocketEndPoint());
+  Client::Client(const std::string& address, const std::string& cert_path) : address_(address) {
+    output_endpoint_.reset(new WebSocketEndPoint(cert_path));
+    point_endpoint_.reset(new WebSocketEndPoint(cert_path));
   }
 
   Client::~Client()
@@ -25,7 +25,7 @@ namespace sensr
       return listener->IsOutputMessageListening();
     })) {
       output_endpoint_->Close(websocketpp::close::status::normal);
-      ret1 = output_endpoint_->Connect("ws://" + address_ + ":5050", 
+      ret1 = output_endpoint_->Connect("wss://" + address_ + ":5050", 
         std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
         std::bind(&Client::OnResultError, this, std::placeholders::_1));
     } else {
@@ -36,7 +36,7 @@ namespace sensr
       return listener->IsPointResultListening();
     })) {
       point_endpoint_->Close(websocketpp::close::status::normal);
-      ret2 = point_endpoint_->Connect("ws://" + address_ + ":5051", 
+      ret2 = point_endpoint_->Connect("wss://" + address_ + ":5051", 
         std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
         std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
     } else {
@@ -51,13 +51,13 @@ namespace sensr
     if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
       // OutputMessage Port
       if (listener->IsOutputMessageListening()) {
-        ret = output_endpoint_->Connect("ws://" + address_ + ":5050", 
+        ret = output_endpoint_->Connect("wss://" + address_ + ":5050", 
         std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
         std::bind(&Client::OnResultError, this, std::placeholders::_1)); 
       } 
       // PointResult Port
       if (listener->IsPointResultListening()) {
-        ret = point_endpoint_->Connect("ws://" + address_ + ":5051", 
+        ret = point_endpoint_->Connect("wss://" + address_ + ":5051", 
         std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
         std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
       }

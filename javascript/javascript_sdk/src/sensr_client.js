@@ -1,11 +1,21 @@
 const WebSocket = require('ws');
 const outputMsg = require('./../js_proto/sensr_proto/output_pb.js');
 const pointMsg = require('./../js_proto/sensr_proto/point_cloud_pb');
+const fs = require('fs');
+
+const cert_location = __dirname + '/../../../' + 'keys/sensr-sdk-ca.crt'
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+
 
 const SensrClient = endpoint => {
-    const result_socket = new WebSocket(`ws://${endpoint}:5050`);
+    const result_socket = new WebSocket(`wss://${endpoint}:5050`, {
+      cert: fs.readFileSync(cert_location)
+    });
     result_socket.binaryType = 'arraybuffer';
-    const point_socket = new WebSocket(`ws://${endpoint}:5051`);
+    const point_socket = new WebSocket(`wss://${endpoint}:5051`, {
+      cert: fs.readFileSync(cert_location)
+    });
     point_socket.binaryType = 'arraybuffer';
   
     let objectUpdateListener, pointCloudUpdateListener;

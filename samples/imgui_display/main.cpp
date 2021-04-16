@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "sensr.h"
 #include <mutex>
+#include <google/protobuf/util/time_util.h>
 
 
 class OutputMessageListener : public sensr::MessageListener {
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
 
-  sensr::Client client(client_address);
+  sensr::Client client(client_address, "keys/sensr-sdk-ca.crt");
 
   if (!glfwInit())
     return 1;
@@ -126,12 +127,11 @@ int main(int argc, char *argv[])
 
       ImGui::Begin("Message Explorer");
 
-      ImGui::BulletText("Timestamp %ld (s) %d (ns)",
-                        output_msg.timestamp().seconds(),
-                        output_msg.timestamp().nanos());
+      ImGui::BulletText("Timestamp %s", 
+        google::protobuf::util::TimeUtil::ToString(output_msg.timestamp()).c_str());
       
       //ImGui::BulletText("Ground Points: %d.", latest_message.ground_points().length() / size_of_vec3);
-      ImGui::BulletText("Object Points: %d.", object_points_size);
+      ImGui::BulletText("Object Points: %lu.", object_points_size);
       ImGui::BulletText("Tracked Objects: %d.", tracked_objects_size);
       ImGui::BulletText("Non Tracked Objects: %d.", non_tracked_objects_size);
 
