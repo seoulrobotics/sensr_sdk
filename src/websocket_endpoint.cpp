@@ -98,10 +98,11 @@ namespace sensr
           std::placeholders::_1, 
           std::placeholders::_2));
 
-        // Here we load the CA certificates of all CA's that this client trusts.
+        // Here we load the CA certificates.
         ctx->load_verify_file(cert_path_);
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
+        ctx = nullptr;
     }
     return ctx;
   }
@@ -140,9 +141,9 @@ namespace sensr
 
   /// Verify that one of the subject alternative names matches the given hostname
   bool WebSocketEndPoint::VerifySubjectAlternativeName(const char * hostname, X509 * cert) {
-    STACK_OF(GENERAL_NAME) * san_names = NULL;    
-    san_names = (STACK_OF(GENERAL_NAME) *) X509_get_ext_d2i(cert, NID_subject_alt_name, NULL, NULL);
-    if (san_names == NULL) {
+    STACK_OF(GENERAL_NAME) * san_names = nullptr;    
+    san_names = static_cast<STACK_OF(GENERAL_NAME) *>(X509_get_ext_d2i(cert, NID_subject_alt_name, nullptr, nullptr));
+    if (san_names == nullptr) {
         return false;
     }    
     int san_names_count = sk_GENERAL_NAME_num(san_names);    
@@ -152,7 +153,7 @@ namespace sensr
         if (current_name->type != GEN_DNS) {
             continue;
         }        
-        char const * dns_name = (char const *) ASN1_STRING_get0_data(current_name->d.dNSName);        
+        char const * dns_name = reinterpret_cast<char const *>(ASN1_STRING_get0_data(current_name->d.dNSName));        
         // Make sure there isn't an embedded NUL character in the DNS name
         if (ASN1_STRING_length(current_name->d.dNSName) != static_cast<int>(strlen(dns_name))) {
             break;
@@ -173,15 +174,15 @@ namespace sensr
     }    
     // Extract the CN field
     X509_NAME_ENTRY * common_name_entry = X509_NAME_get_entry(X509_get_subject_name(cert), common_name_loc);
-    if (common_name_entry == NULL) {
+    if (common_name_entry == nullptr) {
         return false;
     }    
     // Convert the CN field to a C string
     ASN1_STRING * common_name_asn1 = X509_NAME_ENTRY_get_data(common_name_entry);
-    if (common_name_asn1 == NULL) {
+    if (common_name_asn1 == nullptr) {
         return false;
     }    
-    char const * common_name_str = (char const *) ASN1_STRING_get0_data(common_name_asn1);    
+    char const * common_name_str = reinterpret_cast<char const *>(ASN1_STRING_get0_data(common_name_asn1));    
     // Make sure there isn't an embedded NUL character in the CN
     if (ASN1_STRING_length(common_name_asn1) != static_cast<int>(strlen(common_name_str))) {
         return false;
@@ -215,26 +216,25 @@ namespace sensr
     // if we are on the final cert and everything else checks out, ensure that
     // the hostname is present on the list of SANs or the common name (CN).
     if (depth == 0 && preverified) {
-        X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
-        for (const auto& name : certified_names_) {
-          if (VerifySubjectAlternativeName(name.c_str(), cert)) {
-            return true;
-          } else if (VerifyCommonName(name.c_str(), cert)) {
-            return true;
-          } else {
-            std::string errstr(
-              X509_verify_cert_error_string(
-              X509_STORE_CTX_get_error(ctx.native_handle())));
-            std::cerr << errstr << std::endl;
-            return false;
-          }
+      X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+      for (const auto& name : certified_names_) {
+        if (VerifySubjectAlternativeName(name.c_str(), cert)) {
+          return true;
+        } else if (VerifyCommonName(name.c_str(), cert)) {
+          return true;
+        } else {
+          std::string errstr(
+            X509_verify_cert_error_string(
+            X509_STORE_CTX_get_error(ctx.native_handle())));
+          std::cerr << errstr << std::endl;
+          return false;
         }
-        
+      }
     } else {
       if (X509_STORE_CTX_get_error(ctx.native_handle()) == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
         X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
         for (const auto& name : certified_names_) {
-          if (VerifyCommonName(name.c_str(), cert)) {         
+          if (VerifyCommonName(name.c_str(), cert)) {    
             return true;
           }
         }
