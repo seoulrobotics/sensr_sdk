@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   }
   const char* client_address = argv[2];
   std::string address = std::string(client_address);
-  sensr::Client client(address, "keys/sensr-sdk-ca.crt");
+  sensr::Client client(address);
 
   std::shared_ptr<sensr::MessageListener> listener = std::make_shared<MessageRecorder>(&client, std::string(argv[3]));
   client.SubscribeMessageListener(listener);
