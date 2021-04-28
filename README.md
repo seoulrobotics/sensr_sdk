@@ -12,6 +12,12 @@ You can install prebuilt binaries or build from source as following.
 
 #### Build Dependencies from Source
 
+Make sure you have the listed dependencies installed:
+
+```bash
+sudo apt-get install autoconf automake libtool curl make g++ unzip git cmake
+```
+
 Protobuf (3.11.4) from source:
 
 ```bash
@@ -35,10 +41,9 @@ Update submodule:
 git submodule update --init
 ```
 
-Make sure you have the listed dependencies installed:
-
+if you don't have SENSR:
 ```bash
-sudo apt-get install autoconf automake libtool curl make g++ unzip
+sudo apt-get install libboost-all-dev
 ```
 
 Build SENSR SDK:
