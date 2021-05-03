@@ -8,7 +8,7 @@ find_package(
 find_package(OpenSSL REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
-option(ENABLE_LOG_MESSAGE "Enable log messages" ON)
+option(ENABLE_LOG_MESSAGE "Enable log messages" OFF)
 
 if (${ENABLE_LOG_MESSAGE})
     add_definitions(-DLOG_ENABLE=1)
