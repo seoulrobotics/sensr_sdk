@@ -1,6 +1,11 @@
 #include "sensr_message_listener.h"
 #include <iostream>
 
+#if LOG_ENABLE
+#define LOG(x) std::cout << x << std::endl
+#else
+#define LOG(x)
+#endif
 namespace sensr {
     MessageListener::MessageListener(ListeningType listening_type) 
     : listening_type_(listening_type) {
@@ -20,15 +25,15 @@ namespace sensr {
     }
 
     void MessageListener::OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
-        //std::cout << "Deprecated Message" << std::endl;
+        //LOG("Deprecated Message");
     }
 
     void MessageListener::OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
-        std::cout << "New OutputMessage" << std::endl;
+        LOG("New OutputMessage");
     }
 
     void MessageListener::OnGetPointResult(const sensr_proto::PointResult &message) {
-        std::cout << "New PointResult" << std::endl;
+        LOG("New PointResult");
     }
 
     bool MessageListener::IsOutputMessageListening() const {

@@ -8,6 +8,14 @@ find_package(
 find_package(OpenSSL REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
+option(ENABLE_LOG_MESSAGE "Enable log messages" OFF)
+
+if (${ENABLE_LOG_MESSAGE})
+    add_definitions(-DLOG_ENABLE=1)
+else ()
+    add_definitions(-DLOG_ENABLE=0)
+endif ()
+
 set(SOURCE_FILES src/sensr_client.cpp src/sensr_message_listener.cpp src/websocket_endpoint.cpp)
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
