@@ -1,7 +1,7 @@
 #include "sensr_message_listener.h"
 #include <iostream>
 
-#ifdef LOG_ENABLE
+#if LOG_ENABLE
 #define LOG(x) std::cout << x << std::endl
 #else
 #define LOG(x)
