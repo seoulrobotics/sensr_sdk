@@ -1,11 +1,7 @@
 #include "sensr_message_listener.h"
+#include "logging.h"
 #include <iostream>
 
-#if LOG_ENABLE
-#define LOG(x) std::cout << x << std::endl
-#else
-#define LOG(x)
-#endif
 namespace sensr {
     MessageListener::MessageListener(ListeningType listening_type) 
     : listening_type_(listening_type) {
@@ -16,7 +12,7 @@ namespace sensr {
         switch (error) {
             case Error::kOutputMessageConnection: 
             case Error::kPointResultConnection: {
-                std::cerr << "Lost SENSR Connection fail(Reason: " << reason << "). Please reconnect." << std::endl; 
+                ERROR_LOG("Lost SENSR Connection fail(Reason: " + reason + "). Please reconnect."); 
                 break;
             }
             default:
@@ -25,15 +21,15 @@ namespace sensr {
     }
 
     void MessageListener::OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
-        //LOG("Deprecated Message");
+        //INFO_LOG("Deprecated Message");
     }
 
     void MessageListener::OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
-        LOG("New OutputMessage");
+        INFO_LOG("New OutputMessage");
     }
 
     void MessageListener::OnGetPointResult(const sensr_proto::PointResult &message) {
-        LOG("New PointResult");
+        INFO_LOG("New PointResult");
     }
 
     bool MessageListener::IsOutputMessageListening() const {

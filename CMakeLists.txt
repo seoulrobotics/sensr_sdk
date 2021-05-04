@@ -8,12 +8,17 @@ find_package(
 find_package(OpenSSL REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
-option(ENABLE_LOG_MESSAGE "Enable log messages" OFF)
+option(LOG_MESSAGE_LEVEL "set log message level[0: ALL 1: ERROR ONLY 2: NONE]"  1)
 
-if (${ENABLE_LOG_MESSAGE})
-    add_definitions(-DLOG_ENABLE=1)
+if (${LOG_MESSAGE_LEVEL} EQUAL 0)
+    add_definitions(-DINFO_LOG_ENABLE=1)
+    add_definitions(-DERROR_LOG_ENABLE=1)
+elseif (${LOG_MESSAGE_LEVEL} EQUAL 1)
+    add_definitions(-DINFO_LOG_ENABLE=0)
+    add_definitions(-DERROR_LOG_ENABLE=1)
 else ()
-    add_definitions(-DLOG_ENABLE=0)
+    add_definitions(-DINFO_LOG_ENABLE=0)
+    add_definitions(-DERROR_LOG_ENABLE=0)
 endif ()
 
 set(SOURCE_FILES src/sensr_client.cpp src/sensr_message_listener.cpp src/websocket_endpoint.cpp)
