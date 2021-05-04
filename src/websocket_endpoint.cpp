@@ -68,7 +68,7 @@ namespace sensr
         // Only close open connections
         endpoint_.close(connection_hdl_, code, "", ec);
         if (ec) {
-          std::cerr << "> Error closing connection : " << ec.message() << std::endl;
+          ERROR_LOG("> Error closing connection : " + ec.message());
         }
       }
     }    
@@ -103,7 +103,7 @@ namespace sensr
 
   void WebSocketEndPoint::OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
     if (status_ == Status::kOpen && msg->get_opcode() == websocketpp::frame::opcode::BINARY) {
-      if (msg_receiver_ != 0) {   
+      if (msg_receiver_ != 0) {
         msg_receiver_(msg->get_payload());
       }
     }     

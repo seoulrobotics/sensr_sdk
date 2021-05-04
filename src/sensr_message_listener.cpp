@@ -12,7 +12,7 @@ namespace sensr {
         switch (error) {
             case Error::kOutputMessageConnection: 
             case Error::kPointResultConnection: {
-                std::cerr << "Lost SENSR Connection fail(Reason: " << reason << "). Please reconnect." << std::endl; 
+                ERROR_LOG("Lost SENSR Connection fail(Reason: " + reason + "). Please reconnect."); 
                 break;
             }
             default:
