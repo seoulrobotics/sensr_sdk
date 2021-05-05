@@ -75,20 +75,3 @@ arg[2]-[5] : sample types. (zone object point time)
 e.g.)
 $ ./build_console/console_output_sample localhost zone
 ```
-### ImGui
-
-```bash
-mkdir build_imgui
-cd build_imgui
-cmake ../samples/imgui_display
-make
-```
-
-Or you can simply run build_imgui_sample.sh from the root source folder.
-#### How to run
-imgui_display_sample takes below arguments.
-arg[1]     : ip address of SENSR program running machine
-```
-e.g.)
-$ ./build_imgui/imgui_display_sample localhost
-```
