@@ -50,6 +50,7 @@ velocity | m/s | Vector3 | XYZ velocity of the object.
 points | meters | bytes | List of sequential 3 float value set (XYZ).
 history | - | [History](#history) | History of the object.
 prediction | - | [Prediction](#prediction) | Prediction of the object.
+zone_ids | - | int32 | List of zone occurpied by the object.
 
 ### BoundingBox
 
