@@ -4,9 +4,7 @@
 
 ### Dependencies
 
-SENSR SDK depends on [Websocket](https://tools.ietf.org/html/rfc6455) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.12.0).
-
-ImGui sample code also depends on [GLFW](https://www.glfw.org/) (optional).
+SENSR SDK depends on [Websocket](https://tools.ietf.org/html/rfc6455) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.11.4).
 
 You can install prebuilt binaries or build from source as following.
 
@@ -15,6 +13,7 @@ You can install prebuilt binaries or build from source as following.
 Protobuf (3.11.4) from source:
 
 ```bash
+sudo apt-get install autoconf automake libtool curl make g++ unzip
 curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-cpp-3.11.4.zip
 unzip protobuf-cpp-3.11.4.zip
 rm protobuf-cpp-3.11.4.zip
