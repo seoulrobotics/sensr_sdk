@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #endif
 #include <google/protobuf/util/time_util.h>
+#include "replay.pb.h"
 
 class MessageRecorder : public sensr::MessageListener {
 public:
@@ -31,10 +32,13 @@ public:
 
   void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
+      if (output_messages_.output_messages().empty()) {
+        output_messages_.mutable_timestamp()->CopyFrom(message.timestamp());
+      }
       output_messages_.add_output_messages()->CopyFrom(message);
       std::cout << "Message received from SENSR!" << std::endl
-                << "Timestamp: " << message.time_stamp().seconds() << " (s) "
-                                << message.time_stamp().nanos() << " (ns)" << std::endl
+                << "Timestamp: " << message.timestamp().seconds() << " (s) "
+                                << message.timestamp().nanos() << " (ns)" << std::endl
                 << "Object Points: " << message.stream().objects_size() << std::endl
                 << "frame count: " << output_messages_.output_messages_size() << std::endl;
       
@@ -44,7 +48,7 @@ public:
 private:
   std::string file_name_;
   sensr::Client* client_;
-  sensr_proto::ReplayMessage output_messages_;
+  ReplayMessage output_messages_;
 };
 
 int main(int argc, char *argv[])

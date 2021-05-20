@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "sensr_proto/output.proto";
+
+// Actual message using in SENSR SDK
+message ReplayMessage {
+  repeated sensr_proto.OutputMessage output_messages = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
