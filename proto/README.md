@@ -64,7 +64,7 @@ yaw | radians | float | Bounding box rotation angle along the Z axis.
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-states | - | [History.State](#history.state) (list) | List of object’s tracked state.
+states | - | [History.State](#historystate) (list) | List of object’s tracked state.
 
 ### History.State
 
