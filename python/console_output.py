@@ -119,7 +119,6 @@ current_listner = None
 def signal_handler(sig, frame):
     if current_listner is not None:
         current_listner.disconnect()
-    sys.exit(0)
 
 if __name__ == "__main__":
     
