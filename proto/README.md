@@ -64,7 +64,14 @@ yaw | radians | float | Bounding box rotation angle along the Z axis.
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-positions | meters | Vector3 (list) | List of object’s tracked XYZ position.
+states | - | [History.State](#history.state) (list) | List of object’s tracked state.
+
+### History.State
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+position | meters | Vector3 | List of object’s tracked XYZ position.
+timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | time stampe of the tracked XYZ position.
 
 ### Prediction
 
