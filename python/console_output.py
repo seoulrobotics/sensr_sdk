@@ -5,6 +5,8 @@ import sensr_proto.point_cloud_pb2 as sensr_pcloud
 import google.protobuf.timestamp_pb2
 import ctypes
 import argparse
+import signal
+import sys
 
 
 class ZoneEvenListener(MessageListener):
@@ -112,6 +114,12 @@ def parse_arguments():
                 help='Has to be set to one of the following: \"zone\", \"point\", \"object\", \"health\", \"time\".')
     return parser.parse_args()
 
+current_listner = None
+
+def signal_handler(sig, frame):
+    if current_listner is not None:
+        current_listner.disconnect()
+    sys.exit(0)
 
 if __name__ == "__main__":
     
@@ -121,19 +129,17 @@ if __name__ == "__main__":
     example_type = args.example_type
     
     if example_type == "zone":
-        zone_listener = ZoneEvenListener(address)
-        zone_listener.connect()
+        current_listner = ZoneEvenListener(address)
     elif example_type == "point":
-        point_listener = PointResultListener(address)
-        point_listener.connect()
+        current_listner = PointResultListener(address)
     elif example_type == "object":
-        object_listener = ObjectListener(address)
-        object_listener.connect()
+        current_listner = ObjectListener(address)
     elif example_type == "health":
-        health_listener = HealthListener(address)
-        health_listener.connect()
+        current_listner = HealthListener(address)
     elif example_type == "time":
-        time_checker = TimeChecker(address)
-        time_checker.connect()
+        current_listner = TimeChecker(address)
     else:
         print("Unrecognized example type")
+    if current_listner is not None:
+        signal.signal(signal.SIGINT, signal_handler)
+        current_listner.connect()
