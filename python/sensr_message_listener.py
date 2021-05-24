@@ -46,7 +46,7 @@ class MessageListener(metaclass=ABCMeta):
                 output = OutputMessage()
                 output.ParseFromString(message)
                 self._on_get_output_message(output)
-            await self._output_ws.close()  
+            await self._output_ws.close()
 
     async def _point_stream(self):
         async with websockets.connect(self._point_address, compression=None, max_size=None, ping_interval=None) as websocket:
@@ -57,7 +57,7 @@ class MessageListener(metaclass=ABCMeta):
                 points = PointResult()
                 points.ParseFromString(message)
                 self._on_get_point_result(points)
-            await self._point_ws.close() 
+            await self._point_ws.close()
 
     def connect(self):
         print('Receiving SENSR output from {}...'.format(self._address)) 
@@ -73,21 +73,22 @@ class MessageListener(metaclass=ABCMeta):
 
         self._thread = Thread(target=self._loop.run_forever)
         self._thread.start()
-        self._thread.join()
-    
-    def disconnect(self):
-        self._is_running = False
+        # calm down
         if self._loop is not None:
             if self.is_output_message_listening():
-                while self._output_ws.closed == False:
+                while self._output_ws == None or self._output_ws.closed == False:
                     sleep(0.1)
             if self.is_point_result_listening():
-                while self._point_ws.closed == False:
+                while self._point_ws == None or self._point_ws.closed == False:
                     sleep(0.1)
             self._loop.call_soon_threadsafe(self._loop.stop)
             while self._loop.is_running():
                 sleep(0.1)
             self._loop.call_soon_threadsafe(self._loop.close)
+        self._thread.join()
+    
+    def disconnect(self):
+        self._is_running = False        
 
     def _on_get_output_message(self, message):
         raise Exception('on_get_output_message() needs to be implemented in the derived class')
