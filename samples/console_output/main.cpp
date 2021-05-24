@@ -69,9 +69,15 @@ public:
   void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_stream()) {
       for(const auto& object : message.stream().objects()) {
-        int object_points_size = (object.points().length() / (sizeof(float) * 3));
-        std::cout << "Obj(" << object.id() << ") : point no. " << object_points_size << std::endl;
-      }
+        if (object.has_history()) {
+          std::cout << "Obj(" << object.id() << "):";
+          for (auto state : object.history().states()) {
+            std::cout << "(" << state.position().x() << ", " << state.position().y() << ", " << state.position().z() << ") :  "
+             << google::protobuf::util::TimeUtil::ToString(state.timestamp()) << std::endl;
+          }
+          std::cout << std::endl;
+        }	
+     }
     }
   }
 private:
