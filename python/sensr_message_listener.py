@@ -76,8 +76,11 @@ class MessageListener(metaclass=ABCMeta):
 
     def connect(self):
         print('Receiving SENSR output from {}...'.format(self._address))
-        
-        self._loop = asyncio.get_event_loop()
+        try:
+            self._loop = asyncio.get_event_loop()
+        except asyncio.RuntimeError:
+            print('Fail to create event loop')
+            return False
         self._is_running = True
 
         if self.is_output_message_listening():
@@ -86,9 +89,8 @@ class MessageListener(metaclass=ABCMeta):
         if self.is_point_result_listening():
             self._loop.create_task(self._point_stream())
 
-        self._thread = Thread(target=self._loop.run_forever)
-        self._thread.start()
-        self._thread.join()
+        self._loop.run_forever()
+        return True
     
     def disconnect(self):
         self._is_running = False
