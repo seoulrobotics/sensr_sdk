@@ -1,8 +1,5 @@
 import websockets
 import asyncio
-from asyncio.tasks import sleep
-import ssl
-import os
 from threading import Thread
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
@@ -41,26 +38,44 @@ class MessageListener(metaclass=ABCMeta):
         async with websockets.connect(self._output_address, compression=None, max_size=None, ping_interval=None) as websocket:
             self._output_ws = websocket
             while self._is_running:
-                message = await websocket.recv() # Receive output messages from SENSR
-                
-                output = OutputMessage()
-                output.ParseFromString(message)
-                self._on_get_output_message(output)
+                try:
+                    message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR                    
+                    output = OutputMessage()
+                    output.ParseFromString(message)
+                    self._on_get_output_message(output)
+                except asyncio.TimeoutError:
+                    pass
+            # Clean up websocket connection
             await self._output_ws.close()
+            # if point websocket is already closed, then call loop.stop()
+            # loop.stop should be called to exit `loop.run_forever`
+            if ((self._point_ws == None) or 
+                (self._point_ws != None and self._point_ws.closed == True)):
+                if self._loop.is_running():
+                    self._loop.stop()
 
     async def _point_stream(self):
         async with websockets.connect(self._point_address, compression=None, max_size=None, ping_interval=None) as websocket:
             self._point_ws = websocket
             while self._is_running:
-                message = await websocket.recv() # Receive output messages from SENSR
-
-                points = PointResult()
-                points.ParseFromString(message)
-                self._on_get_point_result(points)
+                try:
+                    message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR
+                    points = PointResult()
+                    points.ParseFromString(message)
+                    self._on_get_point_result(points)
+                except asyncio.TimeoutError:
+                    pass
+            # Clean up websocket connection
             await self._point_ws.close()
+            # if object websocket is already closed, then call loop.stop()
+            # loop.stop should be called to exit `loop.run_forever`
+            if ((self._output_ws == None) or 
+                (self._output_ws != None and self._output_ws.closed == True)):
+                if self._loop.is_running():
+                    self._loop.stop()
 
     def connect(self):
-        print('Receiving SENSR output from {}...'.format(self._address)) 
+        print('Receiving SENSR output from {}...'.format(self._address))
         
         self._loop = asyncio.get_event_loop()
         self._is_running = True
@@ -73,22 +88,10 @@ class MessageListener(metaclass=ABCMeta):
 
         self._thread = Thread(target=self._loop.run_forever)
         self._thread.start()
-        # calm down
-        if self._loop is not None:
-            if self.is_output_message_listening():
-                while self._output_ws == None or self._output_ws.closed == False:
-                    sleep(0.1)
-            if self.is_point_result_listening():
-                while self._point_ws == None or self._point_ws.closed == False:
-                    sleep(0.1)
-            self._loop.call_soon_threadsafe(self._loop.stop)
-            while self._loop.is_running():
-                sleep(0.1)
-            self._loop.call_soon_threadsafe(self._loop.close)
         self._thread.join()
     
     def disconnect(self):
-        self._is_running = False        
+        self._is_running = False
 
     def _on_get_output_message(self, message):
         raise Exception('on_get_output_message() needs to be implemented in the derived class')
