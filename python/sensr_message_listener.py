@@ -1,6 +1,5 @@
 import websockets
 import asyncio
-from threading import Thread
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
 
