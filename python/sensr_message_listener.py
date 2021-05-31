@@ -89,6 +89,7 @@ class MessageListener(metaclass=ABCMeta):
             self._loop.create_task(self._point_stream())
 
         self._loop.run_forever()
+        self._loop = None
         return True
     
     def disconnect(self):
