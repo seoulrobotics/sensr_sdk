@@ -77,6 +77,42 @@ public:
           }
           std::cout << std::endl;
         }	
+
+        //box size
+        if(object.has_bbox())
+        {
+          std::cout << "Obj(" << object.id() << "): ";
+          std::cout << "bbox Position: ["<< object.bbox().position().x() << "," << object.bbox().position().y() << "," 
+            << object.bbox().position().z() << "], ";
+
+          //box yaw
+          std::cout << "bbox yaw: " << object.bbox().yaw() << std::endl;
+          
+        }
+
+        //velocity
+        if(object.has_velocity()) 
+        {
+          std::cout << "Obj(" << object.id() << "): ";
+          std::cout << "velocity: [" << object.velocity().x() << "," << object.velocity().y() << "," 
+            << object.velocity().z() << "]" << std::endl;
+        }
+        
+        //tracking status
+        std::cout << "Obj(" << object.id() << "): ";
+        std::cout << "tracking status: " << TrackingStatus_Name(object.tracking_status()) << std::endl;;
+
+        //classification result
+        std::cout << "Obj(" << object.id() << "): ";
+        std::cout << "classification result: " << LabelType_Name(object.label()) << std::endl;
+        
+        //probability
+        std::cout << "Obj(" << object.id() << "): ";
+        for(auto pred : object.prediction().positions())
+        {
+          std::cout << "prediction: [" << pred.x() << "," << pred.y() << "," << pred.z() << "]";
+        }
+        std::cout << std::endl;
      }
     }
   }
