@@ -1,3 +1,6 @@
+[submodule "external/imgui"]
+	path = samples/imgui_display/imgui
+	url = https://github.com/ocornut/imgui.git
 [submodule "external/websocketpp"]
 	path = external/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
