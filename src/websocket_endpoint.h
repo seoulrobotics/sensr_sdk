@@ -7,18 +7,20 @@
 #include <thread>
 #include <memory>
 namespace sensr {
-  using websocketpp_client = websocketpp::client<websocketpp::config::asio_client>;
+  using websocketpp_client = websocketpp::client<websocketpp::config::asio_tls_client>;
+  using context_ptr = websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context>;
   class WebSocketEndPoint {
   public:
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
-    WebSocketEndPoint();
+    WebSocketEndPoint(const std::string& cert_path);
     ~WebSocketEndPoint();
 
     bool Connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func);
     void Close(websocketpp::close::status::value code);
 
   private:
+    context_ptr OnTSLInit(websocketpp::connection_hdl hdl);
     void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
@@ -38,5 +40,7 @@ namespace sensr {
     Status status_;
     MsgReceiver msg_receiver_;
     ErrorReceiver err_receiver_;
+    const std::string cert_path_;
+    std::array<const std::string, 1> certified_names_;
   };
 } // namespace sensr

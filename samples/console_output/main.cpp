@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
   std::string address = std::string(client_address);
-  sensr::Client client(address);
+  sensr::Client client(address, "keys/server.crt");
   // Add sample listeners
   if (argc > 2) {
     for (int i = 2; i < argc; ++i) {
