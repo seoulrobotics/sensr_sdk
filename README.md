@@ -72,5 +72,5 @@ arg[1]     : ip address of SENSR program running machine
 arg[2]-[5] : sample types. (zone object point time)
 ```
 e.g.)
-$ ./build_console/console_output_sample localhost zone
+$ ./build_console/console_output_sample --address localhost --example_type zone
 ```
