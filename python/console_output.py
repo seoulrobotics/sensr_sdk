@@ -112,13 +112,21 @@ class TimeChecker(MessageListener):
                          listener_type=ListenerType.OUTPUT_MESSAGE)
 
     def _on_get_output_message(self, message):
-        assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
+        if message.HasField('custom'):
+            if message.custom.HasField('profiling'):
+                # Get all processing time in algo node stage
+                # Keys : FrameOverall, Classifier-Process, Clusterer-Process
+                #        PointDownsampler-Process, GroundDetector-Process, BackgroundDetector-Update
+                #        Tracker-Process, BoxFitting-Process, Classifier-Process, ZoneAssociator-Process
+                for key in message.custom.profiling.algo_nodes['algo_0000'].processing_times:
+                    print(key + ": " + str(message.custom.profiling.algo_nodes['algo_0000'].processing_times[key]))
+                # Get all memory usage in algo node 
+                # Keys: Current_RSS, Num-Points, Num-Tracked_Objs, Num-Clusters
+                for key in message.custom.profiling.algo_nodes['algo_0000'].mem_usages:
+                    print(key + ": " + str(message.custom.profiling.algo_nodes['algo_0000'].mem_usages[key]))
+                # Get object size
+                print ("Obj size: " + str(len(message.stream.objects)))
 
-        current_time = google.protobuf.timestamp_pb2.Timestamp()
-        current_time.GetCurrentTime()
-        time_diff = current_time.ToMilliseconds() - message.timestamp.ToMilliseconds()
-
-        print('Diff: {0} ms'.format(time_diff))
 
 
 def parse_arguments():
