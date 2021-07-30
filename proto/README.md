@@ -30,6 +30,10 @@ health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/ma
 Field | Unit | Type | Description
 --- | --- | --- | ---
 field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object-occupied and blind area.
+bg_learning_progress | - | float | background learning progress (0.0 - 1.0).
+replay | - | [ReplayInfo](#replayinfo) | replay detail information.
+record | - | [RecordingInfo](#recordinginfo) | recording detail information.
+profiling | - | [ProfilingResultSet](#profilingresultset) | profiling information.
 
 ## PointResult
 
@@ -47,6 +51,7 @@ label | - | [LabelType](https://github.com/seoulrobotics/sensr_proto/blob/master
 confidnece | - | float | 0 to 1 probability of the object classification.
 bbox | - | [BoundingBox](#boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
+tracking_status | - | [TrackingStatus](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | tracking status.
 points | meters | bytes | List of sequential 3 float value set (XYZ).
 history | - | [History](#history) | History of the object.
 prediction | - | [Prediction](#prediction) | Prediction of the object.
@@ -79,3 +84,22 @@ Field | Unit | Type | Description
 --- | --- | --- | ---
 positions | meters | Vector3 (list) | List of object’s predicted XYZ position.
 reachable_set | meters | [ReachableSet](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object's predicted position including uncertainty sorted by elapsed time.
+
+### ReplayInfo
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+current_index | - | int32 | Current frame index of the playing replay file.
+
+### RecordingInfo
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+saving_progress | - | float | Progress of saving recorded file into disk.
+
+### ProfilingResultSet
+
+Field | Unit | Type | Description
+--- | --- | --- | ---
+master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | profiling result of master node.
+master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | list of profiling result of connected algo nodes.
