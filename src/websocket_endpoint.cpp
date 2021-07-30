@@ -5,7 +5,7 @@ namespace sensr
 {   
   WebSocketEndPoint::WebSocketEndPoint(const std::string& cert_path) : 
     status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0),
-    
+    cert_path_(cert_path), certified_names_({"argos"})
   {
     endpoint_.clear_access_channels(websocketpp::log::alevel::all);
     endpoint_.clear_error_channels(websocketpp::log::elevel::all);
@@ -31,12 +31,12 @@ namespace sensr
       return true;
     }
     std::error_code ec;
+    
     // Register our message handler
     endpoint_.set_tls_init_handler(std::bind(
       &WebSocketEndPoint::OnTSLInit,
       this,
       std::placeholders::_1));
-    
     websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
     if (ec) {
       ERROR_LOG("> Connect initialization error: " + ec.message());

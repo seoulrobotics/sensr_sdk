@@ -11,7 +11,8 @@ class FileSaver(MessageListener):
 
     def __init__(self, address, dir):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
         self._dir = dir
         self._frame_count = 0
         if not os.path.exists(self._dir):

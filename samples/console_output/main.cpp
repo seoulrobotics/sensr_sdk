@@ -173,6 +173,27 @@ private:
   sensr::Client* client_;
 };
 
+class ProfilingChecker : public sensr::MessageListener {
+public:
+  ProfilingChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  void OnError(Error error, const std::string& reason) {
+    (void)reason;
+    if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
+      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      client_->Reconnect();
+    }
+  }
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  if (message.has_custom() && message.custom().has_profiling()) {
+    auto message.custom().profiling().master_node();
+    std::cout << "BG Learn : " << message.custom().bg_learning_progress() << std::endl;
+  }
+              
+  }
+private:
+  sensr::Client* client_;
+};
+
 int main(int argc, char *argv[])
 {
   const char *client_address = "localhost";
@@ -181,7 +202,7 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
   std::string address = std::string(client_address);
-  sensr::Client client(address, "keys/server.crt");
+  sensr::Client client(address, "keys/sensr-sdk-ca.crt");
   // Add sample listeners
   if (argc > 2) {
     for (int i = 2; i < argc; ++i) {

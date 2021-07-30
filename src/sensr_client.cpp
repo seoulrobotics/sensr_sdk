@@ -53,7 +53,7 @@ namespace sensr
       if (listener->IsOutputMessageListening()) {
         ret = output_endpoint_->Connect("wss://" + address_ + ":5050", 
         std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
-        std::bind(&Client::OnResultError, this, std::placeholders::_1)); \
+        std::bind(&Client::OnResultError, this, std::placeholders::_1));
       } 
       // PointResult Port
       if (listener->IsPointResultListening()) {
