@@ -102,4 +102,4 @@ saving_progress | - | float | Progress of saving recorded file into disk.
 Field | Unit | Type | Description
 --- | --- | --- | ---
 master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | profiling result of master node.
-master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | list of profiling result of connected algo nodes.
+algo_nodes | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | list of profiling result of connected algo nodes.
