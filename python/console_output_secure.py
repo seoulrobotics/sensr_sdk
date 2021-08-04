@@ -14,7 +14,9 @@ class ZoneEvenListener(MessageListener):
 
     def __init__(self, address):
         super().__init__(address=address, 
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         use_ssl=True,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -31,7 +33,9 @@ class PointResultListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.POINT_RESULT)
+                         listener_type=ListenerType.POINT_RESULT,
+                         use_ssl=True,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
     
     def _on_get_point_result(self, message):
         assert isinstance(message, sensr_pcloud.PointResult), "message should be of type PointResult"
@@ -52,7 +56,9 @@ class ObjectListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         use_ssl=True,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -81,7 +87,9 @@ class HealthListener(MessageListener):
 
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         use_ssl=True,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -109,7 +117,9 @@ class HealthListener(MessageListener):
 class TimeChecker(MessageListener):
     def __init__(self,address):
         super().__init__(address=address,
-                         listener_type=ListenerType.OUTPUT_MESSAGE)
+                         listener_type=ListenerType.OUTPUT_MESSAGE,
+                         use_ssl=True,
+                         crt_file_path="../keys/sensr-sdk-ca.crt")
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
