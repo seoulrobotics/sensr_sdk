@@ -1,6 +1,6 @@
 #include "sensr_client.h"
-#include "./websocket/websocket_endpoint.h"
-#include "./websocket/websocket_secure_endpoint.h"
+#include "websocket/websocket_endpoint.h"
+#include "websocket/websocket_secure_endpoint.h"
 #include "sensr_message_listener.h"
 #include <algorithm>
 
