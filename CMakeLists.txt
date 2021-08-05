@@ -26,6 +26,7 @@ endif()
 set(SOURCE_FILES 
     src/sensr_client.cpp 
     src/sensr_message_listener.cpp 
+    src/websocket/websocket_endpoint_base.cpp 
     src/websocket/websocket_endpoint.cpp 
     src/websocket/websocket_secure_endpoint.cpp)
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})

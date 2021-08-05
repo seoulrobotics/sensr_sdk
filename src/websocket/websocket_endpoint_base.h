@@ -11,7 +11,7 @@ namespace sensr {
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
     WebSocketEndPointBase();
-    virtual ~WebSocketEndPointBase();
+    virtual ~WebSocketEndPointBase() = default;
 
     virtual bool Connect(const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) = 0;
     virtual void Close(websocketpp::close::status::value code) = 0;
