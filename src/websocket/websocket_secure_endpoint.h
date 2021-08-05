@@ -16,18 +16,14 @@ namespace sensr {
 
     bool Connect(const std::string &uri,
                  const WebSocketEndPointBase::MsgReceiver& func,
-                 const ErrorReceiver& err_func) override;
+                 const WebSocketEndPointBase::ErrorReceiver& err_func) override;
     void Close(websocketpp::close::status::value code) override;
 
   private:
     context_ptr OnTLSInit(websocketpp::connection_hdl hdl);
     void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
-    bool OnVerifyCertificate(bool preverified, boost::asio::ssl::verify_context& ctx);
-    static bool VerifySubjectAlternativeName(const char * hostname, X509 * cert);
-    static bool VerifyCommonName(char const * hostname, X509 * cert);
     websocketpp_client endpoint_;
     const std::string cert_path_;
-    std::array<const std::string, 1> certified_names_;
   };
 } // namespace sensr
