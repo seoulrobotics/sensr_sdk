@@ -30,5 +30,6 @@ namespace sensr
     void OnPointMessage(const std::string &msg);
     void OnResultError(const std::string &err);
     void OnPointError(const std::string &err);
+    std::string GetProtocol() const { return use_ssl_ ? "wss" : "ws"; }
   };
 } // namespace sensr

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "websocketpp/client.hpp"
+#include "../logging.h"
 #include <functional>
 #include <thread>
 #include <memory>
@@ -9,7 +10,7 @@ namespace sensr {
   public:
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
-    WebSocketEndPointBase() : status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0) {};
+    WebSocketEndPointBase();
     virtual ~WebSocketEndPointBase();
 
     virtual bool Connect(const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) = 0;
@@ -27,5 +28,111 @@ namespace sensr {
     Status status_;
     MsgReceiver msg_receiver_;
     ErrorReceiver err_receiver_;
+  protected:
+    template <typename T>
+    void Init(websocketpp::client<T>& endpoint);
+    template <typename T>
+    void Fin(websocketpp::client<T>& endpoint);
+    template <typename T>
+    bool Bind(websocketpp::client<T>& endpoint, const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func);
+    template <typename T>
+    void Disconnect(websocketpp::client<T>& endpoint, websocketpp::close::status::value code);
+    void OnOpen(websocketpp::connection_hdl hdl);
+    void OnClose(websocketpp::connection_hdl hdl);
+
+    // template <typename T>
+    // void OnOpen(websocketpp::client<T> *c, websocketpp::connection_hdl hdl);
+    // template <typename T>
+    // void OnFail(websocketpp::client<T> *c, websocketpp::connection_hdl hdl);
+    // template <typename T>
+    // void OnClose(websocketpp::client<T> *c, websocketpp::connection_hdl hdl);
   };
+
+  template <typename T>
+  void WebSocketEndPointBase::Init(websocketpp::client<T>& endpoint) {
+    endpoint.clear_access_channels(websocketpp::log::alevel::all);
+    endpoint.clear_error_channels(websocketpp::log::elevel::all);
+
+    endpoint.init_asio();
+    endpoint.start_perpetual();
+
+    thread_ = std::thread(&websocketpp::client<T>::run, &endpoint);
+  }
+
+  template <typename T>
+  void WebSocketEndPointBase::Fin(websocketpp::client<T>& endpoint) {
+    endpoint.stop_perpetual();
+    Close(websocketpp::close::status::going_away);
+    if (thread_.joinable()) {
+      thread_.join();
+    }
+  }
+
+  template <typename T>
+  bool WebSocketEndPointBase::Bind(websocketpp::client<T>& endpoint, const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) {
+    try {
+      std::error_code ec;
+      // Register our message handler
+      auto con = endpoint.get_connection(uri, ec);
+      if (ec) {
+        ERROR_LOG("> Connect initialization error: " + ec.message());
+        return false;
+      }
+      msg_receiver_ = func;
+      err_receiver_ = err_func;
+      endpoint.set_open_handler(std::bind(
+        &WebSocketEndPointBase::OnOpen,
+        this));
+      endpoint.set_close_handler(std::bind(
+        &WebSocketEndPointBase::OnClose,
+        this));
+      // endpoint.set_fail_handler(std::bind(
+      //   &WebSocketEndPointBase::OnFail,
+      //   this,
+      //   &endpoint,
+      //   std::placeholders::_1));
+      // con->set_message_handler(std::bind(
+      //   &WebSocketEndPointBase::OnMessage,
+      //   this,
+      //   std::placeholders::_1,
+      //   std::placeholders::_2));
+
+      endpoint.connect(con);
+    } catch(const std::exception& e) {
+      std::string error_msg = "> Failed to connect SENSR.";
+      error_msg += e.what();
+      ERROR_LOG(error_msg);
+      return false;
+    }
+    return true;
+  }
+
+  template <typename T>
+  void WebSocketEndPointBase::Disconnect(websocketpp::client<T>& endpoint, websocketpp::close::status::value code) {
+    std::error_code ec;
+    if (connection_hdl_.expired()) {
+      //std::cout << "> No connection found" << std::endl;
+    } else {
+      if (status_ != Status::kClosed) {
+        // Only close open connections
+        endpoint.close(connection_hdl_, code, "", ec);
+        if (ec) {
+          ERROR_LOG("> Error closing connection : " + ec.message());
+        }
+      }
+    }    
+    connection_hdl_.reset();
+    msg_receiver_ = 0;
+    err_receiver_ = 0;
+  }
+
+  template <typename T>
+  void WebSocketEndPointBase::OnFail(websocketpp::client<T> *c, websocketpp::connection_hdl hdl) {
+    status_ = Status::kFailed;
+    if (err_receiver_ != 0) {
+      hdl.
+      auto con = c->get_con_from_hdl(hdl);
+      err_receiver_(con->get_ec().message());
+    }
+  }
 } // namespace sensr

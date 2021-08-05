@@ -21,9 +21,9 @@ namespace sensr {
 
   private:
     context_ptr OnTLSInit(websocketpp::connection_hdl hdl);
-    void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
     bool OnVerifyCertificate(bool preverified, boost::asio::ssl::verify_context& ctx);
     static bool VerifySubjectAlternativeName(const char * hostname, X509 * cert);

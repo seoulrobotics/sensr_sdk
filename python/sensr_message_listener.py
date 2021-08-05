@@ -28,6 +28,7 @@ class MessageListener(metaclass=ABCMeta):
         if use_ssl:
             protocol = 'wss'
             self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            self._ssl_context.verify_mode = ssl.CERT_REQUIRED
             assert os.path.exists(crt_file_path), "Please indicate a valid certificate file."
             self._ssl_context.load_verify_locations(crt_file_path)
         else:

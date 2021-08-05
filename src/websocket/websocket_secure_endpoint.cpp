@@ -7,21 +7,23 @@ namespace sensr
     WebSocketEndPointBase(),
     cert_path_(cert_path), certified_names_({"127.0.0.1"})
   {
-    endpoint_.clear_access_channels(websocketpp::log::alevel::all);
-    endpoint_.clear_error_channels(websocketpp::log::elevel::all);
+    Init(endpoint_);
+    // endpoint_.clear_access_channels(websocketpp::log::alevel::all);
+    // endpoint_.clear_error_channels(websocketpp::log::elevel::all);
 
-    endpoint_.init_asio();
-    endpoint_.start_perpetual();
+    // endpoint_.init_asio();
+    // endpoint_.start_perpetual();
 
-    thread_ = std::thread(&websocketpp_client::run, &endpoint_);
+    // thread_ = std::thread(&websocketpp_client::run, &endpoint_);
   }
 
   WebSocketSecureEndPoint::~WebSocketSecureEndPoint() {
-    endpoint_.stop_perpetual();
-    Close(websocketpp::close::status::going_away);
-    if (thread_.joinable()) {
-      thread_.join();
-    }
+    Fin(endpoint_);
+    // endpoint_.stop_perpetual();
+    // Close(websocketpp::close::status::going_away);
+    // if (thread_.joinable()) {
+    //   thread_.join();
+    // }
   }
 
   bool WebSocketSecureEndPoint::Connect(const std::string &uri,
@@ -33,6 +35,21 @@ namespace sensr
       return true;
     }
     try {
+      std::error_code ec;
+      // Register our message handler
+      auto con = endpoint_.get_connection(uri, ec);
+      if (ec) {
+        ERROR_LOG("> Connect initialization error: " + ec.message());
+        return false;
+      }
+      
+      connection_hdl_ = con->get_handle();
+
+      con->set_message_handler(std::bind(
+        &WebSocketSecureEndPoint::OnMessage,
+        this,
+        std::placeholders::_1,
+        std::placeholders::_2));
       // Register our message handler
       if (!cert_path_.empty()) { 
         endpoint_.set_tls_init_handler(std::bind(
@@ -43,57 +60,59 @@ namespace sensr
         ERROR_LOG("> Certificate file path is empty.");
         return false;
       }
-      std::error_code ec;
-      websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
-      if (ec) {
-        ERROR_LOG("> Connect initialization error: " + ec.message());
-        return false;
-      }
-      msg_receiver_ = func;
-      err_receiver_ = err_func; 
-      connection_hdl_ = con->get_handle();
-      con->set_open_handler(std::bind(
-        &WebSocketSecureEndPoint::OnOpen,
-        this,
-        &endpoint_,
-        std::placeholders::_1));
-      con->set_fail_handler(std::bind(
-        &WebSocketSecureEndPoint::OnFail,
-        this,
-        &endpoint_,
-        std::placeholders::_1));
-      con->set_message_handler(std::bind(
-        &WebSocketSecureEndPoint::OnMessage,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2));
+      // std::error_code ec;
+      // websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
+      // if (ec) {
+      //   ERROR_LOG("> Connect initialization error: " + ec.message());
+      //   return false;
+      // }
+      // msg_receiver_ = func;
+      // err_receiver_ = err_func; 
+      // connection_hdl_ = con->get_handle();
+      // con->set_open_handler(std::bind(
+      //   &WebSocketSecureEndPoint::OnOpen,
+      //   this,
+      //   &endpoint_,
+      //   std::placeholders::_1));
+      // con->set_fail_handler(std::bind(
+      //   &WebSocketSecureEndPoint::OnFail,
+      //   this,
+      //   &endpoint_,
+      //   std::placeholders::_1));
+      // con->set_message_handler(std::bind(
+      //   &WebSocketSecureEndPoint::OnMessage,
+      //   this,
+      //   std::placeholders::_1,
+      //   std::placeholders::_2));
 
-      endpoint_.connect(con);
+      // endpoint_.connect(con);
     } catch(const std::exception& e) {
       std::string error_msg = "> Failed to connect SENSR.";
       error_msg += e.what();
       ERROR_LOG(error_msg);
       return false;
     }
-    return true;
+
+    return Bind(endpoint_, uri, func, err_func);
   };
 
   void WebSocketSecureEndPoint::Close(websocketpp::close::status::value code) {
-    std::error_code ec;
-    if (connection_hdl_.expired()) {
-      //std::cout << "> No connection found" << std::endl;
-    } else {
-      if (status_ != Status::kClosed) {
-        // Only close open connections
-        endpoint_.close(connection_hdl_, code, "", ec);
-        if (ec) {
-          ERROR_LOG("> Error closing connection : " + ec.message());
-        }
-      }
-    }    
-    connection_hdl_.reset();
-    msg_receiver_ = 0;
-    err_receiver_ = 0;
+    Disconnect(endpoint_, code);
+    // std::error_code ec;
+    // if (connection_hdl_.expired()) {
+    //   //std::cout << "> No connection found" << std::endl;
+    // } else {
+    //   if (status_ != Status::kClosed) {
+    //     // Only close open connections
+    //     endpoint_.close(connection_hdl_, code, "", ec);
+    //     if (ec) {
+    //       ERROR_LOG("> Error closing connection : " + ec.message());
+    //     }
+    //   }
+    // }    
+    // connection_hdl_.reset();
+    // msg_receiver_ = 0;
+    // err_receiver_ = 0;
   }  
 
   WebSocketSecureEndPoint::context_ptr WebSocketSecureEndPoint::OnTLSInit(websocketpp::connection_hdl hdl) {
@@ -225,21 +244,21 @@ namespace sensr
     return preverified;
   }
 
-  void WebSocketSecureEndPoint::OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl) {
-    status_ = Status::kOpen;
-  }
+  // void WebSocketSecureEndPoint::OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  //   status_ = Status::kOpen;
+  // }
 
-  void WebSocketSecureEndPoint::OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl) {
-    status_ = Status::kFailed;
-    if (err_receiver_ != 0) {
-      websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
-      err_receiver_(con->get_ec().message());
-    }
-  }
+  // void WebSocketSecureEndPoint::OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  //   status_ = Status::kFailed;
+  //   if (err_receiver_ != 0) {
+  //     websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
+  //     err_receiver_(con->get_ec().message());
+  //   }
+  // }
 
-  void WebSocketSecureEndPoint::OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl) {
-    status_ = Status::kClosed;
-  }
+  // void WebSocketSecureEndPoint::OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  //   status_ = Status::kClosed;
+  // }
 
   void WebSocketSecureEndPoint::OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
     if (status_ == Status::kOpen && msg->get_opcode() == websocketpp::frame::opcode::BINARY) {

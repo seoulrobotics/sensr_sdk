@@ -19,9 +19,9 @@ namespace sensr {
     void Close(websocketpp::close::status::value code) override;
 
   private:
-    void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
+    // void OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl);
     void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
     websocketpp_client endpoint_;
   };
