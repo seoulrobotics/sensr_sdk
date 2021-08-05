@@ -34,7 +34,7 @@ namespace sensr {
     template <typename T>
     void Fin(websocketpp::client<T>& endpoint);
     template <typename T>
-    bool Bind(websocketpp::client<T>& endpoint, const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func);
+    bool Bind(const std::shared_ptr<websocketpp::connection<T>>& con, const MsgReceiver& func, const ErrorReceiver& err_func);
     template <typename T>
     void Unbind(websocketpp::client<T>& endpoint, websocketpp::close::status::value code);
     void OnOpen(websocketpp::connection_hdl hdl);
@@ -62,26 +62,18 @@ namespace sensr {
   }
 
   template <typename T>
-  bool WebSocketEndPointBase::Bind(websocketpp::client<T>& endpoint, const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) {
+  bool WebSocketEndPointBase::Bind(const std::shared_ptr<websocketpp::connection<T>>& con, const MsgReceiver& func, const ErrorReceiver& err_func) {
     try {
-      std::error_code ec;
-      // Register our message handler
-      auto con = endpoint.get_connection(uri, ec);
-      if (ec) {
-        ERROR_LOG("> Connect initialization error: " + ec.message());
-        return false;
-      }
       msg_receiver_ = func;
       err_receiver_ = err_func;
-      endpoint.set_open_handler(std::bind(
+      con->set_open_handler(std::bind(
         &WebSocketEndPointBase::OnOpen,
         this,
         std::placeholders::_1));
-      endpoint.set_close_handler(std::bind(
+      con->set_close_handler(std::bind(
         &WebSocketEndPointBase::OnClose,
         this,
         std::placeholders::_1));
-      endpoint.connect(con);
     } catch(const std::exception& e) {
       std::string error_msg = "> Failed to connect SENSR.";
       error_msg += e.what();

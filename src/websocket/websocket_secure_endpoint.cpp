@@ -34,6 +34,7 @@ namespace sensr
       INFO_LOG(uri + " is already connected.");
       return true;
     }
+    bool ret = false;
     try {
       std::error_code ec;
       // Register our message handler
@@ -64,14 +65,16 @@ namespace sensr
         this,
         &endpoint_,
         std::placeholders::_1));
+      ret = Bind(con, func, err_func);
+      endpoint_.connect(con);
     } catch(const std::exception& e) {
       std::string error_msg = "> Failed to connect SENSR.";
       error_msg += e.what();
       ERROR_LOG(error_msg);
-      return false;
+      ret = false;
     }
 
-    return Bind(endpoint_, uri, func, err_func);
+    return ret;
   };
 
   void WebSocketSecureEndPoint::Close(websocketpp::close::status::value code) {
