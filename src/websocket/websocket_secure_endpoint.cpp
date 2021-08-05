@@ -1,11 +1,11 @@
-#include "websocket_endpoint.h"
-#include "logging.h"
+#include "./websocket_secure_endpoint.h"
+#include "../logging.h"
 
 namespace sensr
 {   
-  WebSocketEndPoint::WebSocketEndPoint(const std::string& cert_path) : 
-    status_(Status::kConnecting), msg_receiver_(0), err_receiver_(0),
-    cert_path_(cert_path), certified_names_({"argos"})
+  WebSocketSecureEndPoint::WebSocketSecureEndPoint(const std::string& cert_path) : 
+    WebSocketEndPointBase(),
+    cert_path_(cert_path), certified_names_({"127.0.0.1"})
   {
     endpoint_.clear_access_channels(websocketpp::log::alevel::all);
     endpoint_.clear_error_channels(websocketpp::log::elevel::all);
@@ -16,7 +16,7 @@ namespace sensr
     thread_ = std::thread(&websocketpp_client::run, &endpoint_);
   }
 
-  WebSocketEndPoint::~WebSocketEndPoint() {
+  WebSocketSecureEndPoint::~WebSocketSecureEndPoint() {
     endpoint_.stop_perpetual();
     Close(websocketpp::close::status::going_away);
     if (thread_.joinable()) {
@@ -24,48 +24,61 @@ namespace sensr
     }
   }
 
-  bool WebSocketEndPoint::Connect(const std::string &uri, MsgReceiver func, ErrorReceiver err_func) {
+  bool WebSocketSecureEndPoint::Connect(const std::string &uri,
+                 const WebSocketEndPointBase::MsgReceiver& func,
+                 const ErrorReceiver& err_func) {
     
     if (!connection_hdl_.expired()) {
       INFO_LOG(uri + " is already connected.");
       return true;
     }
-    std::error_code ec;
-    
-    // Register our message handler
-    endpoint_.set_tls_init_handler(std::bind(
-      &WebSocketEndPoint::OnTSLInit,
-      this,
-      std::placeholders::_1));
-    websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
-    if (ec) {
-      ERROR_LOG("> Connect initialization error: " + ec.message());
+    try {
+      // Register our message handler
+      if (!cert_path_.empty()) { 
+        endpoint_.set_tls_init_handler(std::bind(
+          &WebSocketSecureEndPoint::OnTLSInit,
+          this,
+          std::placeholders::_1));
+      } else {
+        ERROR_LOG("> Certificate file path is empty.");
+        return false;
+      }
+      std::error_code ec;
+      websocketpp_client::connection_ptr con = endpoint_.get_connection(uri, ec);
+      if (ec) {
+        ERROR_LOG("> Connect initialization error: " + ec.message());
+        return false;
+      }
+      msg_receiver_ = func;
+      err_receiver_ = err_func; 
+      connection_hdl_ = con->get_handle();
+      con->set_open_handler(std::bind(
+        &WebSocketSecureEndPoint::OnOpen,
+        this,
+        &endpoint_,
+        std::placeholders::_1));
+      con->set_fail_handler(std::bind(
+        &WebSocketSecureEndPoint::OnFail,
+        this,
+        &endpoint_,
+        std::placeholders::_1));
+      con->set_message_handler(std::bind(
+        &WebSocketSecureEndPoint::OnMessage,
+        this,
+        std::placeholders::_1,
+        std::placeholders::_2));
+
+      endpoint_.connect(con);
+    } catch(const std::exception& e) {
+      std::string error_msg = "> Failed to connect SENSR.";
+      error_msg += e.what();
+      ERROR_LOG(error_msg);
       return false;
     }
-    msg_receiver_ = func;
-    err_receiver_ = err_func; 
-    connection_hdl_ = con->get_handle();
-    con->set_open_handler(std::bind(
-      &WebSocketEndPoint::OnOpen,
-      this,
-      &endpoint_,
-      std::placeholders::_1));
-    con->set_fail_handler(std::bind(
-      &WebSocketEndPoint::OnFail,
-      this,
-      &endpoint_,
-      std::placeholders::_1));
-    con->set_message_handler(std::bind(
-      &WebSocketEndPoint::OnMessage,
-      this,
-      std::placeholders::_1,
-      std::placeholders::_2));
-
-    endpoint_.connect(con);
     return true;
   };
 
-  void WebSocketEndPoint::Close(websocketpp::close::status::value code) {
+  void WebSocketSecureEndPoint::Close(websocketpp::close::status::value code) {
     std::error_code ec;
     if (connection_hdl_.expired()) {
       //std::cout << "> No connection found" << std::endl;
@@ -83,7 +96,7 @@ namespace sensr
     err_receiver_ = 0;
   }  
 
-  context_ptr WebSocketEndPoint::OnTSLInit(websocketpp::connection_hdl hdl) {
+  WebSocketSecureEndPoint::context_ptr WebSocketSecureEndPoint::OnTLSInit(websocketpp::connection_hdl hdl) {
     context_ptr ctx = websocketpp::lib::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
 
     try {
@@ -94,7 +107,7 @@ namespace sensr
 
 
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
-        ctx->set_verify_callback(std::bind(&WebSocketEndPoint::OnVerifyCertificate, 
+        ctx->set_verify_callback(std::bind(&WebSocketSecureEndPoint::OnVerifyCertificate, 
           this,
           std::placeholders::_1, 
           std::placeholders::_2));
@@ -109,7 +122,7 @@ namespace sensr
   }
 
     /// Verify that one of the subject alternative names matches the given hostname
-  bool WebSocketEndPoint::VerifySubjectAlternativeName(const char * hostname, X509 * cert) {
+  bool WebSocketSecureEndPoint::VerifySubjectAlternativeName(const char * hostname, X509 * cert) {
     STACK_OF(GENERAL_NAME) * san_names = nullptr;    
     san_names = static_cast<STACK_OF(GENERAL_NAME) *>(X509_get_ext_d2i(cert, NID_subject_alt_name, nullptr, nullptr));
     if (san_names == nullptr) {
@@ -135,7 +148,7 @@ namespace sensr
   }
 
   /// Verify that the certificate common name matches the given hostname
-  bool WebSocketEndPoint::VerifyCommonName(char const * hostname, X509 * cert) {
+  bool WebSocketSecureEndPoint::VerifyCommonName(char const * hostname, X509 * cert) {
     // Find the position of the CN field in the Subject field of the certificate
     int common_name_loc = X509_NAME_get_index_by_NID(X509_get_subject_name(cert), NID_commonName, -1);
     if (common_name_loc < 0) {
@@ -166,7 +179,7 @@ namespace sensr
    * and
    * https://github.com/iSECPartners/ssl-conservatory
    */
-  bool WebSocketEndPoint::OnVerifyCertificate(bool preverified, 
+  bool WebSocketSecureEndPoint::OnVerifyCertificate(bool preverified, 
                                               boost::asio::ssl::verify_context& ctx) {
     // The verify callback can be used to check whether the certificate that is
     // being presented is valid for the peer. For example, RFC 2818 describes
@@ -212,13 +225,11 @@ namespace sensr
     return preverified;
   }
 
-  void WebSocketEndPoint::OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  void WebSocketSecureEndPoint::OnOpen(websocketpp_client *c, websocketpp::connection_hdl hdl) {
     status_ = Status::kOpen;
-    //websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
-    //std::string server = con->get_response_header("Server");
   }
 
-  void WebSocketEndPoint::OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  void WebSocketSecureEndPoint::OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl) {
     status_ = Status::kFailed;
     if (err_receiver_ != 0) {
       websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
@@ -226,17 +237,11 @@ namespace sensr
     }
   }
 
-  void WebSocketEndPoint::OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl) {
+  void WebSocketSecureEndPoint::OnClose(websocketpp_client *c, websocketpp::connection_hdl hdl) {
     status_ = Status::kClosed;
-    // websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
-    // std::stringstream s;
-    // s << "close code: " << con->get_remote_close_code() << " ("
-    //   << websocketpp::close::status::get_string(con->get_remote_close_code())
-    //   << "), close reason: " << con->get_remote_close_reason();
-    // m_error_reason = s.str();
   }
 
-  void WebSocketEndPoint::OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
+  void WebSocketSecureEndPoint::OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
     if (status_ == Status::kOpen && msg->get_opcode() == websocketpp::frame::opcode::BINARY) {
       if (msg_receiver_ != 0) {
         msg_receiver_(msg->get_payload());
