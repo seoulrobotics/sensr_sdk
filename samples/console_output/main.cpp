@@ -9,14 +9,14 @@
 class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_event()) {
       for(const auto& zone_event : message.event().zone()) {
         if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
@@ -34,14 +34,14 @@ private:
 class PointResultListener : public sensr::MessageListener {
 public:
   PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetPointResult(const sensr_proto::PointResult &message) {
+  void OnGetPointResult(const sensr_proto::PointResult &message) override {
     for(const auto& point_cloud : message.points()) {
       if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_RAW) {
         std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
@@ -59,14 +59,14 @@ private:
 class ObjectListener : public sensr::MessageListener {
 public:
   ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_stream()) {
       for(const auto& object : message.stream().objects()) {
         if (object.has_history()) {
@@ -123,14 +123,14 @@ private:
 class HealthListener : public sensr::MessageListener {
 public:
   HealthListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_stream() && message.stream().has_health()) {
       auto system_health = message.stream().health();
       std::cout << "System health: " << system_health.master() << std::endl;
@@ -151,14 +151,14 @@ private:
 class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
   #if defined(__linux__)
     timeval msg_tv = google::protobuf::util::TimeUtil::TimestampToTimeval(message.timestamp());
     timeval tv;
@@ -176,14 +176,14 @@ private:
 class ProfilingChecker : public sensr::MessageListener {
 public:
   ProfilingChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_custom() && message.custom().has_profiling()) {
       auto& master_proc_infos = message.custom().profiling().master_node().processing_times();
       std::cout << "Master node overall : " << master_proc_infos.at("UIRuntimeState-OnUpdate") << std::endl;
