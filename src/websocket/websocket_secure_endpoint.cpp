@@ -1,6 +1,7 @@
 #include "./websocket_secure_endpoint.h"
 #include "../logging.h"
-
+#include <exception>
+	
 namespace sensr
 {   
   WebSocketSecureEndPoint::WebSocketSecureEndPoint(const std::string& cert_path) : 
@@ -26,12 +27,11 @@ namespace sensr
     try {
       if (!cert_path_.empty()) { 
         endpoint_.set_tls_init_handler(std::bind(
-          &WebSocketSecureEndPoint::OnTLSInit,
+          &WebSocketSecureEndPoint::OnTlsInit,
           this,
           std::placeholders::_1));
       } else {
-        ERROR_LOG("> Certificate file path is empty.");
-        return false;
+        throw std::invalid_argument("> Certificate file path is empty.");
       }
       std::error_code ec;
       // Register our message handler
@@ -66,16 +66,17 @@ namespace sensr
     Unbind(endpoint_, code);
   }  
 
-  WebSocketSecureEndPoint::context_ptr WebSocketSecureEndPoint::OnTLSInit(websocketpp::connection_hdl hdl) {
-    context_ptr ctx = websocketpp::lib::make_shared<boost::asio::ssl::context>(boost::asio::ssl::context::sslv23);
+  WebSocketSecureEndPoint::context_ptr WebSocketSecureEndPoint::OnTlsInit(websocketpp::connection_hdl hdl) {
+    const auto ssl_method = boost::asio::ssl::context::sslv23;
+    context_ptr ctx = websocketpp::lib::make_shared<boost::asio::ssl::context>(ssl_method);
 
     try {
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
-                         boost::asio::ssl::context::sslv23);
+                         ssl_method);
         ctx->set_verify_mode(boost::asio::ssl::verify_peer);
         ctx->load_verify_file(cert_path_);
     } catch (std::exception& e) {
-        std::cout << "Error at TLS setup: " << e.what() << std::endl;
+        ERROR_LOG(std::string("Error at TLS setup: ") + e.what());
         ctx = nullptr;
     }
     return ctx;

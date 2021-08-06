@@ -37,8 +37,6 @@ namespace sensr {
     bool Bind(const std::shared_ptr<websocketpp::connection<T>>& con, const MsgReceiver& func, const ErrorReceiver& err_func);
     template <typename T>
     void Unbind(websocketpp::client<T>& endpoint, websocketpp::close::status::value code);
-    void OnOpen(websocketpp::connection_hdl hdl);
-    void OnClose(websocketpp::connection_hdl hdl);
     void OnFail(const std::string& err_msg);
     void OnMessage(const std::string& msg, websocketpp::frame::opcode::value opcode);
   };
@@ -68,14 +66,12 @@ namespace sensr {
     try {
       msg_receiver_ = func;
       err_receiver_ = err_func;
-      con->set_open_handler(std::bind(
-        &WebSocketEndPointBase::OnOpen,
-        this,
-        std::placeholders::_1));
-      con->set_close_handler(std::bind(
-        &WebSocketEndPointBase::OnClose,
-        this,
-        std::placeholders::_1));
+      con->set_open_handler([this] (websocketpp::connection_hdl hdl) {
+        status_ = Status::kOpen;
+      });
+      con->set_close_handler([this] (websocketpp::connection_hdl hdl) {
+        status_ = Status::kClosed;
+      });
     } catch(const std::exception& e) {
       std::string error_msg = "> Failed to connect SENSR.";
       error_msg += e.what();

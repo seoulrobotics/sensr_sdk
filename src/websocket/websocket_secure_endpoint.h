@@ -20,7 +20,7 @@ namespace sensr {
     void Close(websocketpp::close::status::value code) override;
 
   private:
-    context_ptr OnTLSInit(websocketpp::connection_hdl hdl);
+    context_ptr OnTlsInit(websocketpp::connection_hdl hdl);
     websocketpp_client endpoint_;
     const std::string cert_path_;
   };

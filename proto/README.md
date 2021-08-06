@@ -31,8 +31,8 @@ Field | Unit | Type | Description
 --- | --- | --- | ---
 field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object-occupied and blind area.
 bg_learning_progress | - | float | background learning progress (0.0 - 1.0).
-replay | - | [ReplayInfo](#replayinfo) | replay detail information.
-record | - | [RecordingInfo](#recordinginfo) | recording detail information.
+replay | - | [ReplayInfo](#replayinfo) | replay detailed information.
+record | - | [RecordingInfo](#recordinginfo) | recording detailed information.
 profiling | - | [ProfilingResultSet](#profilingresultset) | profiling information.
 
 ## PointResult
@@ -95,7 +95,7 @@ current_index | - | int32 | Current frame index of the playing replay file.
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-saving_progress | - | float | Progress of saving recorded file into disk.
+saving_progress | - | float | Progress of saving recorded file into disk.(0.0 to 1.0)
 
 ### ProfilingResultSet
 

@@ -184,10 +184,15 @@ public:
     }
   }
   void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
-  if (message.has_custom() && message.custom().has_profiling()) {
-    std::cout << "BG Learn : " << message.custom().bg_learning_progress() << std::endl;
-  }
-              
+    if (message.has_custom() && message.custom().has_profiling()) {
+      auto& master_proc_infos = message.custom().profiling().master_node().processing_times();
+      std::cout << "Master node overall : " << master_proc_infos.at("UIRuntimeState-OnUpdate") << std::endl;
+      for (auto& node : message.custom().profiling().algo_nodes()) {
+        auto uid = node.first;
+        auto node_proc_infos = node.second.processing_times();
+        std::cout << uid << " node overall : " << node_proc_infos.at("FrameOverall") << std::endl;      
+      }
+    }              
   }
 private:
   sensr::Client* client_;
@@ -218,6 +223,8 @@ int main(int argc, char *argv[])
         listener = std::make_shared<TimeChecker>(&client);
       } else if (strcmp(argv[i], "health") == 0) {
         listener = std::make_shared<HealthListener>(&client);
+      } else if (strcmp(argv[i], "profile") == 0) {
+        listener = std::make_shared<ProfilingChecker>(&client);
       }
       if (listener) {
         client.SubscribeMessageListener(listener);
