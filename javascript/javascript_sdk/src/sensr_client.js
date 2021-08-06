@@ -5,19 +5,20 @@ const fs = require('fs');
 
 const cert_location = require('os').homedir() + '/seoulrobotics/' + 'keys/sensr-ca.crt'
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
 const SensrClient = (endpoint, use_ssl) => {
     let result_socket, point_socket; 
     if (!use_ssl) {
-      const result_socket = new WebSocket(`ws://${endpoint}:5050`);
-      const point_socket = new WebSocket(`ws://${endpoint}:5051`);
+      result_socket = new WebSocket(`ws://${endpoint}:5050`);
+      point_socket = new WebSocket(`ws://${endpoint}:5051`);
     } else {
-      const result_socket = new WebSocket(`wss://${endpoint}:5050`, {
-        cert: fs.readFileSync(cert_location)
+      result_socket = new WebSocket(`wss://${endpoint}:5050`, {
+        cert: fs.readFileSync(cert_location),
+        rejectUnauthorized: false
       });
-      const point_socket = new WebSocket(`wss://${endpoint}:5051`, {
-        cert: fs.readFileSync(cert_location)
+      point_socket = new WebSocket(`wss://${endpoint}:5051`, {
+        cert: fs.readFileSync(cert_location),
+        rejectUnauthorized: false
       });
     }
     result_socket.binaryType = 'arraybuffer';
