@@ -23,6 +23,11 @@ After installation, you can run the example.
   # You need to put the correct IP address instead of localhost if SENSR is running on a different machine.
   # You can replace "zone" with "point", "object", "health", or "time" to run the other included examples.
   ```
+#### Print output to console (Secure communication)
+- Launch SENSR with ssl on.
+- Open another terminal and type the following
+  ```bash
+  python3 console_output_secure.py --address localhost --example_type zone
 
 ### Save output to files
 

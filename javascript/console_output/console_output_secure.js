@@ -37,7 +37,7 @@ function run() {
     const argv = fetchArgs();
   
     if (argv._.includes('show')) {
-        var client = sensr_client.SensrClient(argv.ipaddress, false);
+        var client = sensr_client.SensrClient(argv.ipaddress, true);
         output_sel.outputSelector(argv.typename, client);    
     }
 }
