@@ -1,3 +1,5 @@
+#include <iostream>
+
 #if INFO_LOG_ENABLE
 #define INFO_LOG(x) std::cout << x << std::endl
 #else

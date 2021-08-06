@@ -74,3 +74,8 @@ arg[2]-[5] : sample types. (zone object point time)
 e.g.)
 $ ./build_console/console_output_sample localhost zone
 ```
+#### How to enable WSS
+If you need secure output communication, WSS can be the option for this.
+You can enable WSS just by passing certificate key path when you create `Client` instance.
+```
+sensr::Client client(address, "$HOME/seoulrobotics/keys/sensr-ca.crt");

@@ -1,12 +1,29 @@
 const WebSocket = require('ws');
 const outputMsg = require('./../js_proto/sensr_proto/output_pb.js');
 const pointMsg = require('./../js_proto/sensr_proto/point_cloud_pb');
+const fs = require('fs');
 
-const SensrClient = endpoint => {
-    const result_socket = new WebSocket(`ws://${endpoint}:5050`);
+const cert_location = require('os').homedir() + '/seoulrobotics/' + 'keys/sensr-ca.crt'
+
+
+const SensrClient = (endpoint, use_ssl) => {
+    let result_socket, point_socket; 
+    if (!use_ssl) {
+      result_socket = new WebSocket(`ws://${endpoint}:5050`);
+      point_socket = new WebSocket(`ws://${endpoint}:5051`);
+    } else {
+      result_socket = new WebSocket(`wss://${endpoint}:5050`, {
+        cert: fs.readFileSync(cert_location),
+        rejectUnauthorized: false
+      });
+      point_socket = new WebSocket(`wss://${endpoint}:5051`, {
+        cert: fs.readFileSync(cert_location),
+        rejectUnauthorized: false
+      });
+    }
     result_socket.binaryType = 'arraybuffer';
-    const point_socket = new WebSocket(`ws://${endpoint}:5051`);
     point_socket.binaryType = 'arraybuffer';
+    
   
     let objectUpdateListener, pointCloudUpdateListener;
   

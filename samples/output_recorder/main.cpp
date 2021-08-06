@@ -22,14 +22,14 @@ public:
     std::cout << "Output is saved successfully...." << std::endl;
   }
 
-  void OnError(Error error, const std::string& reason) {
+  void OnError(Error error, const std::string& reason) override {
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
       error == sensr::MessageListener::Error::kPointResultConnection ) {
       client_->Reconnect();
     }
   }
 
-  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_stream()) {
       output_messages_.add_output_messages()->CopyFrom(message);
       std::cout << "Message received from SENSR!" << std::endl
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   }
   const char* client_address = argv[2];
   std::string address = std::string(client_address);
-  sensr::Client client(address);
+  sensr::Client client(address, "keys/sensr-sdk-ca.crt");
 
   std::shared_ptr<sensr::MessageListener> listener = std::make_shared<MessageRecorder>(&client, std::string(argv[3]));
   client.SubscribeMessageListener(listener);

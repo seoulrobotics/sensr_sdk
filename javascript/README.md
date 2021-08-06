@@ -32,6 +32,7 @@ After installation if complete, you can run the example.
 
 - Launch SENSR
 - Open the terminal then navigate to javascript/console_output folder
+  - If you want to open WSS communication, then please use `javascript/console_output_secure` folder instead of `javascript/console_output`.
 - install dependencies by npm install
 ```base
 npm install
