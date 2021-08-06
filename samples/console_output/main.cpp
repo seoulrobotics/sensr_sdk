@@ -201,7 +201,9 @@ int main(int argc, char *argv[])
     client_address = argv[1];
   }
   std::string address = std::string(client_address);
-  sensr::Client client(address, true, "/home/seoulrobotics/seoulrobotics/keys/sensr-ca.crt");
+  // If you want to use Secured output, please pass correct certificate path.
+  // e.g.)  sensr::Client client(address, "$HOME/seoulrobotics/keys/sensr-ca.crt");
+  sensr::Client client(address);
   // Add sample listeners
   if (argc > 2) {
     for (int i = 2; i < argc; ++i) {

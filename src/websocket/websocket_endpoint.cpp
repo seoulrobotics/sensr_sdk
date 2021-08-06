@@ -32,16 +32,13 @@ namespace sensr
 
       connection_hdl_ = con->get_handle();
 
-      con->set_message_handler(std::bind(
-        &WebSocketEndPoint::OnMessage,
-        this,
-        std::placeholders::_1,
-        std::placeholders::_2));
-      con->set_fail_handler(std::bind(
-          &WebSocketEndPoint::OnFail,
-          this,
-          &endpoint_,
-          std::placeholders::_1));
+      con->set_message_handler([this](websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
+        OnMessage(msg->get_payload(), msg->get_opcode());
+      });
+      con->set_fail_handler([this](websocketpp::connection_hdl hdl) {
+        websocketpp_client::connection_ptr con = endpoint_.get_con_from_hdl(hdl);
+        OnFail(con->get_ec().message());
+      });
       ret = Bind(con, func, err_func);
       endpoint_.connect(con);
     } catch(const std::exception& e) {
@@ -55,21 +52,5 @@ namespace sensr
 
   void WebSocketEndPoint::Close(websocketpp::close::status::value code) {
     Unbind(endpoint_, code);
-  }  
-
-  void WebSocketEndPoint::OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg) {
-    if (status_ == Status::kOpen && msg->get_opcode() == websocketpp::frame::opcode::BINARY) {
-      if (msg_receiver_ != 0) {
-        msg_receiver_(msg->get_payload());
-      }
-    }     
-  }
-
-  void WebSocketEndPoint::OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl) {
-    status_ = Status::kFailed;
-    if (err_receiver_ != 0) {
-      websocketpp_client::connection_ptr con = c->get_con_from_hdl(hdl);
-      err_receiver_(con->get_ec().message());
-    }
   }
 } // namespace sensr

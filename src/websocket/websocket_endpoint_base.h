@@ -39,6 +39,8 @@ namespace sensr {
     void Unbind(websocketpp::client<T>& endpoint, websocketpp::close::status::value code);
     void OnOpen(websocketpp::connection_hdl hdl);
     void OnClose(websocketpp::connection_hdl hdl);
+    void OnFail(const std::string& err_msg);
+    void OnMessage(const std::string& msg, websocketpp::frame::opcode::value opcode);
   };
 
   template <typename T>

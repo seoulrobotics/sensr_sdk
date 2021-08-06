@@ -21,8 +21,6 @@ namespace sensr {
 
   private:
     context_ptr OnTLSInit(websocketpp::connection_hdl hdl);
-    void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
     websocketpp_client endpoint_;
     const std::string cert_path_;
   };

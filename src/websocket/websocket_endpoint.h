@@ -17,10 +17,8 @@ namespace sensr {
                  const WebSocketEndPointBase::MsgReceiver& func, 
                  const WebSocketEndPointBase::ErrorReceiver& err_func) override;
     void Close(websocketpp::close::status::value code) override;
-
+  
   private:
-    void OnFail(websocketpp_client *c, websocketpp::connection_hdl hdl);
-    void OnMessage(websocketpp::connection_hdl hdl, websocketpp_client::message_ptr msg);
     websocketpp_client endpoint_;
   };
 } // namespace sensr

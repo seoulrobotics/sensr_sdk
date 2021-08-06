@@ -6,16 +6,15 @@
 
 namespace sensr
 {
-  Client::Client(const std::string& address, bool use_ssl, const std::string& cert_path) 
-      : address_(address), use_ssl_(use_ssl) {
+  Client::Client(const std::string& address, const std::string& cert_path) 
+      : address_(address), use_ssl_(!cert_path.empty()) {
     if (use_ssl_) {
       output_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
       point_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
     } else {
       output_endpoint_.reset(new WebSocketEndPoint());
       point_endpoint_.reset(new WebSocketEndPoint());
-    }
-    
+    }    
   }
 
   Client::~Client()
