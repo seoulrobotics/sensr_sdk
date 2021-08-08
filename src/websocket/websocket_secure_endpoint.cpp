@@ -67,13 +67,13 @@ namespace sensr
   }  
 
   WebSocketSecureEndPoint::context_ptr WebSocketSecureEndPoint::OnTlsInit(websocketpp::connection_hdl hdl) {
-    const auto ssl_method = boost::asio::ssl::context::sslv23;
-    context_ptr ctx = websocketpp::lib::make_shared<boost::asio::ssl::context>(ssl_method);
+    const auto ssl_method = websocketpp::lib::asio::ssl::context::sslv23;
+    context_ptr ctx = websocketpp::lib::make_shared<websocketpp::lib::asio::ssl::context>(ssl_method);
 
     try {
-        ctx->set_options(boost::asio::ssl::context::default_workarounds |
+        ctx->set_options(websocketpp::lib::asio::ssl::context::default_workarounds |
                          ssl_method);
-        ctx->set_verify_mode(boost::asio::ssl::verify_peer);
+        ctx->set_verify_mode(websocketpp::lib::asio::ssl::verify_peer);
         ctx->load_verify_file(cert_path_);
     } catch (std::exception& e) {
         ERROR_LOG(std::string("Error at TLS setup: ") + e.what());
