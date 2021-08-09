@@ -75,7 +75,7 @@ e.g.)
 $ ./build_console/console_output_sample localhost zone
 ```
 #### How to enable WSS
-If you need secure output communication, WSS can be the option for this.
-You can enable WSS just by passing certificate key path when you create `Client` instance.
+WSS can be used if you need secure output communication.
+You can enable WSS by passing the certificate key path when you create a `Client` instance.
 ```
 sensr::Client client(address, "$HOME/seoulrobotics/keys/sensr-ca.crt");

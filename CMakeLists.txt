@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 
 ######## PACKAGE Dependency Management ##########
-find_package(
-  Boost REQUIRED
-  COMPONENTS system)
 find_package(OpenSSL REQUIRED)
 ######## PACKAGE Dependency Management ##########
 
@@ -22,6 +19,8 @@ if(${ENABLE_ERROR_LOG})
 else()
     add_definitions(-DERROR_LOG_ENABLE=0)
 endif()
+
+add_definitions(-DASIO_STANDALONE)
 
 set(SOURCE_FILES 
     src/sensr_client.cpp 
@@ -42,11 +41,11 @@ target_include_directories(sensr_sdk
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/websocketpp>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
 target_link_libraries(sensr_sdk PUBLIC  sensr_proto
-                                        ${Boost_LIBRARIES}
                                         ${OPENSSL_LIBRARIES}
                                 PRIVATE pthread)
 
