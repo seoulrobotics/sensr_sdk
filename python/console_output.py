@@ -27,6 +27,50 @@ class ZoneEvenListener(MessageListener):
                     print('Exiting zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
 
 
+class ResidentTime(MessageListener):
+
+    def __init__(self, address, target_zone_id):
+        self._resident_objs = {}
+        self._target_zone_id = target_zone_id
+        self._resident_avg = 0.0
+        self._count = 0
+        super().__init__(address=address, 
+                         listener_type=ListenerType.OUTPUT_MESSAGE)
+    
+    def _cumulative_average (self, prevAvg, newNumber, listLength):
+        oldWeight = (listLength - 1) / listLength
+        newWeight = 1 / listLength
+        return (prevAvg * oldWeight) + (newNumber * newWeight)
+
+    def _on_get_output_message(self, message):
+        assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
+
+        if message.HasField('event'):
+            for zone_event in message.event.zone:
+                if zone_event.type == sensr_output.ZoneEvent.Type.ENTRY:
+                    if zone_event.id == self._target_zone_id:
+                        self._resident_objs[zone_event.object.id] = zone_event.timestamp
+                elif zone_event.type == sensr_output.ZoneEvent.Type.EXIT:
+                    start_time = self._resident_objs.get(zone_event.object.id)
+                    if start_time != None:
+                        # Calc resident time of an object in the desited zone
+                        resident_time = zone_event.timestamp.ToMilliseconds() - start_time.ToMilliseconds()
+                        self._count += 1
+                        self._resident_avg = self._cumulative_average(self._resident_avg, resident_time, self._count)
+                        del self._resident_objs[zone_event.object.id]
+                        print("avg:" + str(self._resident_avg))
+            for losing_event in message.event.losing:
+                start_time = self._resident_objs.get(losing_event.id)
+                if start_time != None:
+                    # Calc resident time of an object in the desited zone
+                    resident_time = message.event.losing.timestamp.ToMilliseconds() - start_time.ToMilliseconds()
+                    # Calc avrage resident time of the desited zone
+                    self._count += 1
+                    self._resident_avg = self._cumulative_average(self._resident_avg, resident_time, self._count)
+                    del self._resident_objs[losing_event.id]
+                    print("avg:" + str(self._resident_avg))
+
+
 class PointResultListener(MessageListener):
 
     def __init__(self,address):
@@ -83,21 +127,22 @@ class HealthListener(MessageListener):
         if message.HasField('stream') and message.stream.HasField('health'):
             
             system_health = message.stream.health
-            print('System health: {0}'.format(system_health.master))
+            #print('System health: {0}'.format(system_health.master))
 
-            if len(system_health.nodes) > 0:
-                for node_key in system_health.nodes:
-                    node_health = system_health.nodes[node_key]
-                    print('  Node ({0}) health: {1}'.format(node_key, node_health.status))
-
-                    if len(node_health.sensors) > 0:
-                        for sensor_key in node_health.sensors:
-                            sensor_health = node_health.sensors[sensor_key]
-                            print('    Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
-                    else:
-                        print('    No sensors are connected')
+            found_abnormal = False
+            if not system_health.master == sensr_output.SystemHealth.Status.OK:
+                print("Master node died.")
+                found_abnormal = True
             else:
-                print('  No nodes are connected')
+                print("Master node is alive.")
+            for key, node in system_health.nodes.items():
+                if not node.status == sensr_output.SystemHealth.Node.Status.OK:
+                    print(f"Algo node({key}) died.")
+                    found_abnormal = True
+                else:
+                    print(f"Algo node({key}) is alive.")            
+            if found_abnormal:
+                self.disconnect()
 
 
 class TimeChecker(MessageListener):
@@ -145,6 +190,8 @@ if __name__ == "__main__":
         current_listner = HealthListener(address)
     elif example_type == "time":
         current_listner = TimeChecker(address)
+    elif example_type == "resident_time":
+        current_listner = ResidentTime(address, 1001)
     else:
         print("Unrecognized example type")
     if current_listner is not None:
