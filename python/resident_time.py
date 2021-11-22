@@ -12,9 +12,10 @@ import requests
 
 
 class RESTAPI:
-    def __init__(self):
+    def __init__(self, address):
         self._server_cert_file_path = False
         self._client_cert_file_path = ""
+        self._address = address
 
     def _handle_request(self, resource, rest_cmd, **kargs):
         ssl = False if kargs.get('ssl') == None else kargs.get('ssl')
@@ -23,7 +24,7 @@ class RESTAPI:
             'check_response') == None else kargs.get('check_response')
         kargs.pop('check_response', None)
         protocol = 'https' if ssl else 'http'
-        url = f"{protocol}://{address}:9080/" + resource
+        url = f"{protocol}://{self._address}:9080/" + resource
         response = rest_cmd(url, **kargs)
         if check_response:
             self._response_checker(response)
@@ -53,7 +54,6 @@ class RESTAPI:
 
 
 class ATM:
-
     def __init__(self, target_zone_id):
         self._residents = {}
         self._target_zone_id = target_zone_id
@@ -87,6 +87,7 @@ class ATM:
 class ResidentPerson:
     def __init__(self, id, obj, timestamp):
         self._id = id
+        self._enter_zone = None
         for zone_id in obj.zone_ids:
             self._enter_zone = zone_id          # Assume the first zone is the starting zone.
             break
@@ -109,6 +110,12 @@ class ResidentPerson:
         return is_misc
 
     def starting_zone(self):
+        # Find the first existing zone
+        # if not self._enter_zone:
+        #     for obj in self._histories:
+        #         for zone_id in obj.zone_ids:
+        #             self._enter_zone = zone_id          # Assume the first zone is the starting zone.
+        #             break
         return self._enter_zone
 
     def born_timestamp(self):
@@ -116,31 +123,51 @@ class ResidentPerson:
 
     def push_history(self, obj):
         self._histories.append(obj)
+        if not self._enter_zone:
+            for zone_id in obj.zone_ids:
+                self._enter_zone = zone_id
+                break
 
 
 class Bank(MessageListener):
 
     def __init__(self, address):
-        # zone information.
+        self._residents = {}
         self._avg_resident_time = 0.0
         self._resident_time_count = 0
-        self._zone_id_main_gate = 1003
-        self._zone_id_cafe_gate = 1005
         self._ATMs = {1007: ATM(1007),
                       1008: ATM(1008),
                       1009: ATM(1009),
                       1010: ATM(1010),
                       1011: ATM(1011)}
-        self._residents = {}
-        self._REST = RESTAPI()
+        # Get zone info from SENSR 
+        self._zone_info = {}
+        self._REST = RESTAPI(address)
+        response = self._REST.get_request("settings/zone")
+        zone_id_list = response.json()
+        for id in zone_id_list:
+            response = self._REST.get_request("settings/zone", params={"zone-id": id})
+            zone_info = response.json()
+            self._zone_info[zone_info["id"]] = zone_info["name"]
+        
         super().__init__(address=address,
                          listener_type=ListenerType.OUTPUT_MESSAGE)
-
-    def _cumulative_average(self, prev_avg, new_number, list_length):
+    @staticmethod
+    def cumulative_average(prev_avg, new_number, list_length):
         old_weight = (list_length - 1) / list_length
         new_weight = 1 / list_length
         return (prev_avg * old_weight) + (new_number * new_weight)
 
+    @staticmethod
+    def time_diff_in_s(time1, time2):
+        return time1.ToSeconds() - time2.ToSeconds()
+
+    def _zone_name(self, zone_id):
+        if zone_id != None:
+            return self._zone_info[zone_id]
+        else:
+            return "No Zone"
+    
     def _on_entry_event_handler(self, zone_id, obj_id, timestamp):
         # ATM entering
         found_atm = self._ATMs.get(zone_id)
@@ -159,13 +186,14 @@ class Bank(MessageListener):
         # Calc resident time
         resident = self._residents.get(obj_id)
         if not resident.is_misc() and not resident.is_door():
-            resident_time = timestamp.ToMilliseconds(
-            ) - resident.born_timestamp().ToMilliseconds()
+            resident_time = Bank.time_diff_in_s(timestamp, resident.born_timestamp())
             self._resident_time_count += 1
-            self._avg_resident_time = self._cumulative_average(
+            self._avg_resident_time = Bank.cumulative_average(
                 self._avg_resident_time, resident_time, self._resident_time_count)
-            print("Obj(" + str(obj_id) +
-                ") reident_time: " + str(resident_time) + " Avg: " + str(self._avg_resident_time))
+            print(f"Obj({obj_id}) \
+                    reident_time: {resident_time}, \
+                    Avg: {self._avg_resident_time}, \
+                    Starting Zone: {self._zone_name(resident.starting_zone())}")
         else:
             if resident.is_misc():
                 last_word = ") is misc."
