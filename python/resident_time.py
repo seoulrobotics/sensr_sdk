@@ -122,6 +122,13 @@ class ResidentPerson:
     def starting_zone(self):
         return self._enter_zone
 
+    def visiting_zones(self):
+        ret = set()
+        for obj in self._histories:
+            for zone_id in obj.zone_ids:
+                ret.add(zone_id)
+        return ret
+
     def born_timestamp(self):
         return self._born_time
 
@@ -140,9 +147,12 @@ class Bank(MessageListener):
     def __init__(self, address):
         # Parameters
         self._too_long_resident_time = 60.0 * 60.0 # 1 hour
+        self._main_gate_id = 1003
         # Internal variables
         self._residents = {}
         self._resident_avg = CumulativeAvg()
+        self._atm_visitor_count = 0
+        self._visitor_count = 0
         self._ATMs = {1007: ATM(1007),
                       1008: ATM(1008),
                       1009: ATM(1009),
@@ -185,6 +195,20 @@ class Bank(MessageListener):
             found_atm.on_exit(obj_id, timestamp)
             print(
                 f"ATM({found_atm.id()}) avg: {found_atm.get_avg_resident_time():.2f}s.")
+        # Catch the purpose of visit.
+        else:
+            if zone_id == self._main_gate_id:
+                resident = self._residents.get(obj_id)
+                if not resident.is_misc() and not resident.is_door():
+                    is_ATM_user = False
+                    for visit_zone in resident.visiting_zones():
+                        if visit_zone in self._ATMs.keys():
+                            is_ATM_user = True
+                            break
+                    self._visitor_count += 1
+                    if is_ATM_user:
+                        self._atm_visitor_count += 1
+                
 
     def _on_losing_event_handler(self, obj_id, timestamp):
         # Calc resident time
@@ -194,8 +218,8 @@ class Bank(MessageListener):
             self._resident_avg.update(resident_time)
             print(f"Obj({obj_id}) \
                     reident_time: {resident_time}, \
-                    Avg: {self._resident_avg.get():.2f}, \
                     Starting Zone: {self._zone_name(resident.starting_zone())}")
+            print(f"ATM/Total : {self._atm_visitor_count} / {self._visitor_count}")
         else:
             if resident.is_misc():
                 last_word = ") is misc."
