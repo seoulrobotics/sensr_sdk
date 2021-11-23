@@ -21,50 +21,71 @@ def load_object_points(obj) -> np.ndarray:
 class DebugPlotter:
 
     @staticmethod
-    def plot_scene(objects):
-        if (len(objects) == 0):
+    def plot_scene(residents, event_name):
+        if (len(residents) == 0):
             return
 
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-        for obj in objects:
-            points_topview = load_object_points(obj)[:,:2]
-            num_points = points_topview.shape[0]
-            if (num_points > 2): # Sometimes there are no points, then this will fail
+        for _, resident in residents.items():
+            DebugPlotter.plot_resident(ax, resident)
 
-                obj_center = np.mean(points_topview, axis=0)
-                centered_points_topview = points_topview - obj_center
-
-                U, sigma, _ = np.linalg.svd(centered_points_topview, full_matrices=False, compute_uv=True)
-
-                svd_ratio = sigma[0] / sigma[1]
-
-                svd_points = np.dot(U, np.diag(sigma))
-                svd_obj_size = svd_points.max(axis=0) - svd_points.min(axis=0)
-
-                ax.plot(points_topview[:,0], points_topview[:,1], '.', markersize = 1)
-
-                
-                object_info_string = "{object_label}, id {obj_id}, svd {ratio:.2f}, height {height:.2f}, dims ({x_svd:.2f},{y_svd:.2f})".format(
-                    ratio = svd_ratio,
-                    obj_id = obj.id,
-                    object_label = sensr_type.LabelType.Name(int(obj.label)),
-                    height = obj.bbox.size.z,
-                    x_svd = svd_obj_size[0],
-                    y_svd = svd_obj_size[1])
-                
-                text_pos_x = obj_center[0]
-                text_pos_y = obj_center[1]
-                ax.text(text_pos_x, text_pos_y, object_info_string, fontsize=2.0, alpha=0.75)
-
-        ax.set_xlim([-2, 8])
-        ax.set_ylim([-5, 5])
+        ax.set_xlim([-10, 10])
+        ax.set_ylim([-10, 10])
         
         now = datetime.now()
         dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-        plt.savefig("temp/" + dt_string + ".png", dpi=500)
+        plt.savefig("temp/" + event_name + dt_string + ".png", dpi=500)
         plt.close()
+
+    @staticmethod
+    def plot_resident(ax, resident):
+        obj = resident._histories[-1]
+
+        points_topview = load_object_points(obj)[:,:2]
+        num_points = points_topview.shape[0]
+
+        if (num_points == 0):
+            return
+        points_center = np.mean(points_topview, axis=0)
+
+        DebugPlotter.plot_cluster(ax, points_topview)
+        DebugPlotter.plot_travel(ax, resident)
+        DebugPlotter.plot_text(ax, resident, points_center) 
+
+        
+    @staticmethod
+    def plot_cluster(ax, points):
+        ax.plot(points[:,0], points[:,1], '.', markersize = 1)
+
+    @staticmethod
+    def plot_travel(ax, resident):
+        travel_path = np.array([[obj.bbox.position.x, obj.bbox.position.y]  for obj in resident._histories])
+
+        ax.plot(travel_path[:,0], travel_path[:,1], color='k', linewidth=0.2)
+    
+    @staticmethod
+    def plot_text(ax, resident, text_position):
+        obj = resident._histories[-1]
+        obj_stats = resident.current_stats
+
+
+        travel_distance = resident.calculate_travel_distance()
+        object_info_string = "{object_label}, id {obj_id}, height {height:.2f}, dims ({x_svd:.2f},{y_svd:.2f}), dim_ratio {ratio:.2f}, travel {travel:.2f}".format(
+            obj_id = obj.id,
+            object_label = sensr_type.LabelType.Name(int(obj.label)),
+            height = obj.bbox.size.z,
+            x_svd = obj_stats.dimensions[0],
+            y_svd = obj_stats.dimensions[1],
+            ratio = obj_stats.dimensions[0] / obj_stats.dimensions[1],
+            travel = travel_distance)
+        
+        text_color = 'r' if resident.is_door() else 'k'
+        ax.text(text_position[0], text_position[1], object_info_string, fontsize=2.0, alpha=0.75, color=text_color)
+
+    
+
 
         
 
@@ -157,14 +178,14 @@ class ATM:
         return self._target_zone_id
 
 
-class HistoryInfo:
+class ObjectStatistics:
     def __init__(self, obj):
         self.height = obj.bbox.size.z
 
         points_topview = load_object_points(obj)[:,:2]
         self.num_points = points_topview.shape[0]
         if (self.num_points > 0):
-            svd_ratio, svd_dimensions = HistoryInfo.calculate_svd(points_topview)
+            svd_ratio, svd_dimensions = ObjectStatistics.calculate_svd(points_topview)
             self.svd_ratio = svd_ratio # TODO just use dimension ratio instead?
             self.dimensions = svd_dimensions
         else:
@@ -193,7 +214,7 @@ class ResidentPerson:
         self._id = id
         self._enter_zone = None
         self._histories = []
-        self._history_info = []
+        self.current_stats = None
         self._born_time = timestamp
         
         self.push_history(obj)
@@ -206,24 +227,13 @@ class ResidentPerson:
 
     def is_door(self):
         travel_distance = self.calculate_travel_distance()
-        current_height = self._history_info[-1].height
-        current_num_points = self._history_info[-1].num_points
-
-        # print("travel_distance: {:.2f}".format(travel_distance))
-        # print("current_height: {:.2f}".format(current_height))
-        # print("current_num_points: {:.2f}".format(current_num_points))
-        
-        # if current_num_points > 0:
-        #     current_dimensions = self._history_info[-1].dimensions
-        #     print("current_dimensions")
-        #     print(current_dimensions)
-        # print('----')
+        current_height = self.current_stats.height
+        current_num_points = self.current_stats.num_points
 
         check_door = (travel_distance < self.travel_threshold) and (current_height > self.height_threshold)
         if current_num_points > 2:
-            current_dimensions = self._history_info[-1].dimensions
+            current_dimensions = self.current_stats.dimensions
             check_door = check_door and current_dimensions[0] < self.length_threshold
-        print(check_door)
         return check_door
         
     def is_misc(self):
@@ -250,7 +260,7 @@ class ResidentPerson:
     def push_history(self, obj):
         self._histories.append(obj)
         self._update_starting_zone(obj)
-        self._history_info.append(HistoryInfo(obj))
+        self.current_stats = ObjectStatistics(obj)
 
     def _update_starting_zone(self, obj):
         if not self._enter_zone:
@@ -263,7 +273,6 @@ class ResidentPerson:
         for index in range(len(self._histories)-1):
             current_pos, next_pos = self._histories[index].bbox.position, self._histories[index+1].bbox.position
             travel_distance += np.sqrt((current_pos.x - next_pos.x)**2 + (current_pos.y - next_pos.y)**2)
-        # print("travel_distance {dist}".format(dist=travel_distance))
         return travel_distance
     
 
@@ -315,6 +324,8 @@ class Bank(MessageListener):
             found_atm.on_enter(obj_id, timestamp)
 
     def _on_exit_event_handler(self, zone_id, obj_id, timestamp):
+        # objs = [res._histories[-1] for id, res in self._residents.items()]
+        DebugPlotter.plot_scene(self._residents, "exit-")
         # ATM exiting
         found_atm = self._ATMs.get(zone_id)
         if found_atm != None:
@@ -337,6 +348,8 @@ class Bank(MessageListener):
                 
 
     def _on_losing_event_handler(self, obj_id, timestamp):
+        # objs = [res._histories[-1] for id, res in self._residents.items()]
+        DebugPlotter.plot_scene(self._residents, "lose-")
         # Calc resident time
         resident = self._residents.get(obj_id)
         if not resident.is_misc() and not resident.is_door():
@@ -359,8 +372,6 @@ class Bank(MessageListener):
             message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream'):
-            # DebugPlotter.plot_scene(message.stream.objects)
-
             for obj in message.stream.objects:
                 found_obj = self._residents.get(obj.id)
                 if found_obj == None:
