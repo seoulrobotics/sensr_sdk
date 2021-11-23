@@ -17,6 +17,55 @@ def load_object_points(obj) -> np.ndarray:
     object_point_num = len(obj.points) // (ctypes.sizeof(ctypes.c_float) * 3) # Each point is 3 floats (x,y,z)
     return np.frombuffer(obj.points, dtype=np.float32).reshape(object_point_num, 3)
     
+class DebugPlotter:
+
+    @staticmethod
+    def plot_scene(objects):
+        if (len(objects) == 0):
+            return
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        for obj in objects:
+            points_topview = load_object_points(obj)[:,:2]
+            num_points = points_topview.shape[0]
+            if (num_points > 2): # Sometimes there are no points, then this will fail
+
+                obj_center = np.mean(points_topview, axis=0)
+                centered_points_topview = points_topview - obj_center
+
+                U, sigma, _ = np.linalg.svd(centered_points_topview, full_matrices=False, compute_uv=True)
+
+                svd_ratio = sigma[0] / sigma[1]
+
+                svd_points = np.dot(U, np.diag(sigma))
+                svd_obj_size = svd_points.max(axis=0) - svd_points.min(axis=0)
+
+                ax.plot(points_topview[:,0], points_topview[:,1], '.', markersize = 1)
+
+                
+                object_info_string = "{object_label}, id {obj_id}, svd {ratio:.2f}, height {height:.2f}, dims ({x_svd:.2f},{y_svd:.2f})".format(
+                    ratio = svd_ratio,
+                    obj_id = obj.id,
+                    object_label = sensr_type.LabelType.Name(int(obj.label)),
+                    height = obj.bbox.size.z,
+                    x_svd = svd_obj_size[0],
+                    y_svd = svd_obj_size[1])
+                
+                text_pos_x = obj_center[0]
+                text_pos_y = obj_center[1]
+                ax.text(text_pos_x, text_pos_y, object_info_string, fontsize=2.0, alpha=0.75)
+
+        ax.set_xlim([-2, 8])
+        ax.set_ylim([-5, 5])
+        
+        now = datetime.now()
+        dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
+        plt.savefig("temp/" + dt_string + ".png", dpi=500)
+        plt.close()
+
+        
 
 
 class RESTAPI:
@@ -147,7 +196,7 @@ class ResidentPerson:
         self._histories.append(obj)
         self._update_starting_zone(obj)
 
-        self.calculate_svd(obj)
+        # self.calculate_svd(obj)
 
 
     def _update_starting_zone(self, obj):
@@ -166,29 +215,30 @@ class ResidentPerson:
             centered_points_topview = points_topview - center
 
             _, D, _ = np.linalg.svd(centered_points_topview)
-            svd_ratio = D[0] / D[1]
-            print(D)
-            print(svd_ratio)
-            print("--------------")
+            # svd_ratio = D[0] / D[1]
+            return D
+            # print(D)
+            # print(svd_ratio)
+            # print("--------------")
 
-            fig = plt.figure()
-            ax = fig.add_subplot(1, 1, 1)
+            # fig = plt.figure()
+            # ax = fig.add_subplot(1, 1, 1)
 
-            ax.plot(centered_points_topview[:,0], centered_points_topview[:,1], '.', markersize = 2)
-            axis_limit = 1.5
-            ax.set_xlim([-axis_limit, axis_limit])
-            ax.set_ylim([-axis_limit, axis_limit])
+            # ax.plot(centered_points_topview[:,0], centered_points_topview[:,1], '.', markersize = 2)
+            # axis_limit = 1.5
+            # ax.set_xlim([-axis_limit, axis_limit])
+            # ax.set_ylim([-axis_limit, axis_limit])
 
-            object_info_string = "Eigenval ratio is {ratio:.2f}\nLabel is {object_label}\nHeight is {height:.2f}".format(
-                ratio = svd_ratio, 
-                object_label = sensr_type.LabelType.Name(int(obj.label)),
-                height = obj.bbox.size.z)
-            ax.text(-1, 1, object_info_string)
+            # object_info_string = "Eigenval ratio is {ratio:.2f}\nLabel is {object_label}\nHeight is {height:.2f}".format(
+            #     ratio = svd_ratio, 
+            #     object_label = sensr_type.LabelType.Name(int(obj.label)),
+            #     height = obj.bbox.size.z)
+            # ax.text(-1, 1, object_info_string)
             
-            now = datetime.now()
-            dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-            plt.savefig("temp/" + dt_string + ".png")
-            plt.close()
+            # now = datetime.now()
+            # dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
+            # plt.savefig("temp/" + dt_string + ".png")
+            # plt.close()
 
 
 
@@ -284,6 +334,8 @@ class Bank(MessageListener):
             message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream'):
+            DebugPlotter.plot_scene(message.stream.objects)
+
             for obj in message.stream.objects:
                 found_obj = self._residents.get(obj.id)
                 if found_obj == None:
