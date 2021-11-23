@@ -50,15 +50,17 @@ class DebugPlotter:
         obj = resident._histories[-1]
 
         points_topview = load_object_points(obj)[:,:2]
-        num_points = points_topview.shape[0]
+        has_points = points_topview.shape[0] != 0
+        obj_center = np.array([obj.bbox.position.x, obj.bbox.position.y])
         
         DebugPlotter.plot_cluster(ax, points_topview)
-        DebugPlotter.plot_center(ax, obj.bbox.position.x, obj.bbox.position.y)
+        DebugPlotter.plot_center(ax, obj_center)
         DebugPlotter.plot_travel(ax, resident)
 
-        if (num_points != 0):
-            points_center = np.mean(points_topview, axis=0)
-            DebugPlotter.plot_text(ax, resident, points_center) 
+        if (has_points):
+            DebugPlotter.plot_text(ax, resident, obj_center)
+        # else:
+        #     DebugPlotter.plot_text_empty(ax, resident)
 
         
     @staticmethod
@@ -66,8 +68,8 @@ class DebugPlotter:
         ax.plot(points[:,0], points[:,1], '.', markersize = 1)
     
     @staticmethod
-    def plot_center(ax, x, y):
-        ax.plot(x, y, 'x', markersize=2, color='k')
+    def plot_center(ax, center):
+        ax.plot(center[0], center[1], 'x', markersize=2, color='k')
 
     @staticmethod
     def plot_travel(ax, resident):
