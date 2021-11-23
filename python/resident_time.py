@@ -10,6 +10,8 @@ import requests
 import ctypes
 import numpy as np
 from io import BytesIO
+import matplotlib.pyplot as plt
+from datetime import datetime
 
 def load_object_points(obj) -> np.ndarray:
     object_point_num = len(obj.points) // (ctypes.sizeof(ctypes.c_float) * 3) # Each point is 3 floats (x,y,z)
@@ -157,12 +159,37 @@ class ResidentPerson:
     @staticmethod
     def calculate_svd(obj):
         points_topview = load_object_points(obj)[:,:2]
+
         if (points_topview.shape[0] > 2): # Sometimes there are no points, then this will fail
-            _, D, _ = np.linalg.svd(points_topview)
+
+            center = np.mean(points_topview, axis=0)
+            centered_points_topview = points_topview - center
+
+            _, D, _ = np.linalg.svd(centered_points_topview)
             svd_ratio = D[0] / D[1]
             print(D)
             print(svd_ratio)
             print("--------------")
+
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1)
+
+            ax.plot(centered_points_topview[:,0], centered_points_topview[:,1], '.', markersize = 2)
+            axis_limit = 1.5
+            ax.set_xlim([-axis_limit, axis_limit])
+            ax.set_ylim([-axis_limit, axis_limit])
+
+            object_info_string = "Eigenval ratio is {ratio:.2f}\nLabel is {object_label}\nHeight is {height:.2f}".format(
+                ratio = svd_ratio, 
+                object_label = sensr_type.LabelType.Name(int(obj.label)),
+                height = obj.bbox.size.z)
+            ax.text(-1, 1, object_info_string)
+            
+            now = datetime.now()
+            dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
+            plt.savefig("temp/" + dt_string + ".png")
+            plt.close()
+
 
 
 
