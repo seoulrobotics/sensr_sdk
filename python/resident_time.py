@@ -244,7 +244,7 @@ class ResidentPerson:
         self.push_history(obj)
 
         # Parameters for checking if object is door
-        self.travel_threshold = 1.5 # meter
+        self.travel_threshold = 0.5 # meter
         self.height_threshold = 2.2 # meter
         self.length_threshold = 1.0 # meter
 
@@ -293,11 +293,17 @@ class ResidentPerson:
                 break
 
     def calculate_travel_distance(self):
-        travel_distance = 0.0
-        for index in range(len(self._histories)-1):
-            current_pos, next_pos = self._histories[index].bbox.position, self._histories[index+1].bbox.position
-            travel_distance += np.sqrt((current_pos.x - next_pos.x)**2 + (current_pos.y - next_pos.y)**2)
-        return travel_distance
+        # Cumulative
+        # travel_distance = 0.0
+        # for index in range(len(self._histories)-1):
+        #     current_pos, next_pos = self._histories[index].bbox.position, self._histories[index+1].bbox.position
+        #     travel_distance += np.sqrt((current_pos.x - next_pos.x)**2 + (current_pos.y - next_pos.y)**2)
+        # return travel_distance
+
+        # Total
+        first_pos = self._histories[0].bbox.position
+        last_pos = self._histories[-1].bbox.position
+        return np.sqrt((first_pos.x - last_pos.x)**2 + (first_pos.y - last_pos.y)**2)
     
 
 
