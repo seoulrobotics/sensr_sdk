@@ -7,6 +7,15 @@ import signal
 import sys
 import requests
 
+import ctypes
+import numpy as np
+from io import BytesIO
+
+def load_object_points(obj) -> np.ndarray:
+    object_point_num = len(obj.points) // (ctypes.sizeof(ctypes.c_float) * 3) # Each point is 3 floats (x,y,z)
+    return np.frombuffer(obj.points, dtype=np.float32).reshape(object_point_num, 3)
+    
+
 
 class RESTAPI:
     def __init__(self, address):
@@ -136,11 +145,26 @@ class ResidentPerson:
         self._histories.append(obj)
         self._update_starting_zone(obj)
 
+        self.calculate_svd(obj)
+
+
     def _update_starting_zone(self, obj):
         if not self._enter_zone:
             for zone_id in obj.zone_ids:
                 self._enter_zone = zone_id
                 break
+    
+    @staticmethod
+    def calculate_svd(obj):
+        points_topview = load_object_points(obj)[:,:2]
+        if (points_topview.shape[0] > 2): # Sometimes there are no points, then this will fail
+            _, D, _ = np.linalg.svd(points_topview)
+            svd_ratio = D[0] / D[1]
+            print(D)
+            print(svd_ratio)
+            print("--------------")
+
+
 
 class Bank(MessageListener):
 
