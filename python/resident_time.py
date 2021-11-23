@@ -12,6 +12,7 @@ import numpy as np
 from io import BytesIO
 import matplotlib.pyplot as plt
 from datetime import datetime
+from operator import attrgetter
 
 def load_object_points(obj) -> np.ndarray:
     object_point_num = len(obj.points) // (ctypes.sizeof(ctypes.c_float) * 3) # Each point is 3 floats (x,y,z)
@@ -156,21 +157,75 @@ class ATM:
         return self._target_zone_id
 
 
+class HistoryInfo:
+    def __init__(self, obj):
+        self.height = obj.bbox.size.z
+
+        points_topview = load_object_points(obj)[:,:2]
+        self.num_points = points_topview.shape[0]
+        if (self.num_points > 0):
+            svd_ratio, svd_dimensions = HistoryInfo.calculate_svd(points_topview)
+            self.svd_ratio = svd_ratio # TODO just use dimension ratio instead?
+            self.dimensions = svd_dimensions
+        else:
+            self.svd_ratio = None
+            self.dimensions = None
+            
+        
+    
+    @staticmethod
+    def calculate_svd(points_topview):
+        obj_center = np.mean(points_topview, axis=0)
+        centered_points_topview = points_topview - obj_center
+
+        U, sigma, _ = np.linalg.svd(centered_points_topview, full_matrices=False, compute_uv=True)
+
+        svd_ratio = sigma[0] / sigma[1]
+
+        svd_points = np.dot(U, np.diag(sigma))
+        svd_dimensions = svd_points.max(axis=0) - svd_points.min(axis=0)
+
+        return svd_ratio, svd_dimensions
+
+
 class ResidentPerson:
     def __init__(self, id, obj, timestamp):
         self._id = id
         self._enter_zone = None
-        self._update_starting_zone(obj)
-        self._histories = [obj]
+        self._histories = []
+        self._history_info = []
         self._born_time = timestamp
+        
+        self.push_history(obj)
+
+        # Parameters for checking if object is door
+        self.travel_threshold = 1.5 # meter
+        self.height_threshold = 2.2 # meter
+        self.length_threshold = 1.0 # meter
+
 
     def is_door(self):
-        min_height = 999.0
-        for obj in self._histories:
-            if min_height > obj.bbox.size.z:
-                min_height = obj.bbox.size.z
-        return min_height > 2.5
+        travel_distance = self.calculate_travel_distance()
+        current_height = self._history_info[-1].height
+        current_num_points = self._history_info[-1].num_points
 
+        # print("travel_distance: {:.2f}".format(travel_distance))
+        # print("current_height: {:.2f}".format(current_height))
+        # print("current_num_points: {:.2f}".format(current_num_points))
+        
+        # if current_num_points > 0:
+        #     current_dimensions = self._history_info[-1].dimensions
+        #     print("current_dimensions")
+        #     print(current_dimensions)
+        # print('----')
+
+        check_door = (travel_distance < self.travel_threshold) and (current_height > self.height_threshold)
+        if current_num_points > 2:
+            current_dimensions = self._history_info[-1].dimensions
+            check_door = check_door and current_dimensions[0] < self.length_threshold
+        print(check_door)
+        return check_door
+        
     def is_misc(self):
         is_misc = True
         for obj in self._histories:
@@ -195,52 +250,22 @@ class ResidentPerson:
     def push_history(self, obj):
         self._histories.append(obj)
         self._update_starting_zone(obj)
-
-        # self.calculate_svd(obj)
-
+        self._history_info.append(HistoryInfo(obj))
 
     def _update_starting_zone(self, obj):
         if not self._enter_zone:
             for zone_id in obj.zone_ids:
                 self._enter_zone = zone_id
                 break
+
+    def calculate_travel_distance(self):
+        travel_distance = 0.0
+        for index in range(len(self._histories)-1):
+            current_pos, next_pos = self._histories[index].bbox.position, self._histories[index+1].bbox.position
+            travel_distance += np.sqrt((current_pos.x - next_pos.x)**2 + (current_pos.y - next_pos.y)**2)
+        # print("travel_distance {dist}".format(dist=travel_distance))
+        return travel_distance
     
-    @staticmethod
-    def calculate_svd(obj):
-        points_topview = load_object_points(obj)[:,:2]
-
-        if (points_topview.shape[0] > 2): # Sometimes there are no points, then this will fail
-
-            center = np.mean(points_topview, axis=0)
-            centered_points_topview = points_topview - center
-
-            _, D, _ = np.linalg.svd(centered_points_topview)
-            # svd_ratio = D[0] / D[1]
-            return D
-            # print(D)
-            # print(svd_ratio)
-            # print("--------------")
-
-            # fig = plt.figure()
-            # ax = fig.add_subplot(1, 1, 1)
-
-            # ax.plot(centered_points_topview[:,0], centered_points_topview[:,1], '.', markersize = 2)
-            # axis_limit = 1.5
-            # ax.set_xlim([-axis_limit, axis_limit])
-            # ax.set_ylim([-axis_limit, axis_limit])
-
-            # object_info_string = "Eigenval ratio is {ratio:.2f}\nLabel is {object_label}\nHeight is {height:.2f}".format(
-            #     ratio = svd_ratio, 
-            #     object_label = sensr_type.LabelType.Name(int(obj.label)),
-            #     height = obj.bbox.size.z)
-            # ax.text(-1, 1, object_info_string)
-            
-            # now = datetime.now()
-            # dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-            # plt.savefig("temp/" + dt_string + ".png")
-            # plt.close()
-
-
 
 
 class Bank(MessageListener):
@@ -334,7 +359,7 @@ class Bank(MessageListener):
             message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream'):
-            DebugPlotter.plot_scene(message.stream.objects)
+            # DebugPlotter.plot_scene(message.stream.objects)
 
             for obj in message.stream.objects:
                 found_obj = self._residents.get(obj.id)
