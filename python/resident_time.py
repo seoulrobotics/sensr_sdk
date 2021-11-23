@@ -21,7 +21,7 @@ def load_object_points(obj) -> np.ndarray:
 class DebugPlotter:
 
     @staticmethod
-    def plot_scene(residents, event_name):
+    def plot_scene(residents, event_object_id, event_name):
         if (len(residents) == 0):
             return
 
@@ -30,6 +30,12 @@ class DebugPlotter:
 
         for _, resident in residents.items():
             DebugPlotter.plot_resident(ax, resident)
+            obj = resident._histories[-1]
+            is_event_object = obj.id == event_object_id
+            if is_event_object:
+                DebugPlotter.AddHighlight(ax, obj.bbox.position)
+
+            
 
         ax.set_xlim([-10, 10])
         ax.set_ylim([-10, 10])
@@ -45,19 +51,23 @@ class DebugPlotter:
 
         points_topview = load_object_points(obj)[:,:2]
         num_points = points_topview.shape[0]
-
-        if (num_points == 0):
-            return
-        points_center = np.mean(points_topview, axis=0)
-
+        
         DebugPlotter.plot_cluster(ax, points_topview)
+        DebugPlotter.plot_center(ax, obj.bbox.position.x, obj.bbox.position.y)
         DebugPlotter.plot_travel(ax, resident)
-        DebugPlotter.plot_text(ax, resident, points_center) 
+
+        if (num_points != 0):
+            points_center = np.mean(points_topview, axis=0)
+            DebugPlotter.plot_text(ax, resident, points_center) 
 
         
     @staticmethod
     def plot_cluster(ax, points):
         ax.plot(points[:,0], points[:,1], '.', markersize = 1)
+    
+    @staticmethod
+    def plot_center(ax, x, y):
+        ax.plot(x, y, 'x', markersize=2, color='k')
 
     @staticmethod
     def plot_travel(ax, resident):
@@ -83,11 +93,10 @@ class DebugPlotter:
         
         text_color = 'r' if resident.is_door() else 'k'
         ax.text(text_position[0], text_position[1], object_info_string, fontsize=2.0, alpha=0.75, color=text_color)
-
-    
-
-
         
+    @staticmethod
+    def AddHighlight(ax, position):
+        ax.plot(position.x, position.y, 'x', markersize=6, color='r')
 
 
 class RESTAPI:
@@ -324,8 +333,7 @@ class Bank(MessageListener):
             found_atm.on_enter(obj_id, timestamp)
 
     def _on_exit_event_handler(self, zone_id, obj_id, timestamp):
-        # objs = [res._histories[-1] for id, res in self._residents.items()]
-        DebugPlotter.plot_scene(self._residents, "exit-")
+        DebugPlotter.plot_scene(self._residents, obj_id, "exit-")
         # ATM exiting
         found_atm = self._ATMs.get(zone_id)
         if found_atm != None:
@@ -348,8 +356,7 @@ class Bank(MessageListener):
                 
 
     def _on_losing_event_handler(self, obj_id, timestamp):
-        # objs = [res._histories[-1] for id, res in self._residents.items()]
-        DebugPlotter.plot_scene(self._residents, "lose-")
+        DebugPlotter.plot_scene(self._residents, obj_id, "lose-")
         # Calc resident time
         resident = self._residents.get(obj_id)
         if not resident.is_misc() and not resident.is_door():
