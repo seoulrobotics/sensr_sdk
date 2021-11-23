@@ -34,7 +34,6 @@ class DebugPlotter:
             is_event_object = obj.id == event_object_id
             if is_event_object:
                 DebugPlotter.AddHighlight(ax, obj.bbox.position)
-
             
 
         ax.set_xlim([-10, 10])
@@ -59,8 +58,8 @@ class DebugPlotter:
 
         if (has_points):
             DebugPlotter.plot_text(ax, resident, obj_center)
-        # else:
-        #     DebugPlotter.plot_text_empty(ax, resident)
+        else:
+            DebugPlotter.plot_text_no_points(ax, resident, obj_center)
 
         
     @staticmethod
@@ -84,7 +83,7 @@ class DebugPlotter:
 
 
         travel_distance = resident.calculate_travel_distance()
-        object_info_string = "{object_label}, id {obj_id}, height {height:.2f}, dims ({x_svd:.2f},{y_svd:.2f}), dim_ratio {ratio:.2f}, travel {travel:.2f}".format(
+        object_info_string = "{object_label}, id {obj_id}, height {height:.2f}, travel {travel:.2f}, dims ({x_svd:.2f},{y_svd:.2f}), dim_ratio {ratio:.2f}".format(
             obj_id = obj.id,
             object_label = sensr_type.LabelType.Name(int(obj.label)),
             height = obj.bbox.size.z,
@@ -95,7 +94,21 @@ class DebugPlotter:
         
         text_color = 'r' if resident.is_door() else 'k'
         ax.text(text_position[0], text_position[1], object_info_string, fontsize=2.0, alpha=0.75, color=text_color)
+
+    @staticmethod
+    def plot_text_no_points(ax, resident, text_position):
+        obj = resident._histories[-1]
+
+        travel_distance = resident.calculate_travel_distance()
+        object_info_string = "{object_label}, id {obj_id}, height {height:.2f}, travel {travel:.2f}, [no points]".format(
+            obj_id = obj.id,
+            object_label = sensr_type.LabelType.Name(int(obj.label)),
+            height = obj.bbox.size.z,
+            travel = travel_distance)
         
+        text_color = 'r' if resident.is_door() else 'k'
+        ax.text(text_position[0], text_position[1], object_info_string, fontsize=2.0, alpha=0.75, color=text_color)
+
     @staticmethod
     def AddHighlight(ax, position):
         ax.plot(position.x, position.y, 'x', markersize=6, color='r')
