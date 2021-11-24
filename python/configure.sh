@@ -12,7 +12,7 @@ then
   echo protobuf-compiler is not found! It is being downloaded...
 
   PB_REL="https://github.com/protocolbuffers/protobuf/releases"
-  PB_VER="3.11.4"
+  PB_VER="3.12.0"
   PB_ZIP="protoc-$PB_VER-linux-x86_64.zip"
   PROTOC_DIR="$SRC_DIR/protoc-$PB_VER"
   PROTOC="$PROTOC_DIR/bin/protoc"
