@@ -12,7 +12,6 @@ import numpy as np
 from io import BytesIO
 import matplotlib.pyplot as plt
 from datetime import datetime
-from operator import attrgetter
 
 def load_object_points(obj) -> np.ndarray:
     object_point_num = len(obj.points) // (ctypes.sizeof(ctypes.c_float) * 3) # Each point is 3 floats (x,y,z)
