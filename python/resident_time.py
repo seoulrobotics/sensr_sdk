@@ -209,11 +209,9 @@ class ObjectStatistics:
         points_topview = load_object_points(obj)[:,:2]
         self.num_points = points_topview.shape[0]
         if (self.num_points > 0):
-            svd_ratio, svd_dimensions = ObjectStatistics.calculate_svd(points_topview)
-            self.svd_ratio = svd_ratio # TODO just use dimension ratio instead?
+            svd_dimensions = ObjectStatistics.calculate_svd(points_topview)
             self.dimensions = svd_dimensions
         else:
-            self.svd_ratio = None
             self.dimensions = None
             
         
@@ -225,12 +223,10 @@ class ObjectStatistics:
 
         U, sigma, _ = np.linalg.svd(centered_points_topview, full_matrices=False, compute_uv=True)
 
-        svd_ratio = sigma[0] / sigma[1]
-
         svd_points = np.dot(U, np.diag(sigma))
         svd_dimensions = svd_points.max(axis=0) - svd_points.min(axis=0)
 
-        return svd_ratio, svd_dimensions
+        return svd_dimensions
 
 
 class ResidentPerson:
@@ -239,6 +235,7 @@ class ResidentPerson:
         self._enter_zone = None
         self._histories = []
         self.current_stats = None
+        self.last_stats_with_points = None
         self._born_time = timestamp
         
         self.push_history(obj)
@@ -247,6 +244,7 @@ class ResidentPerson:
         self.travel_threshold = 0.5 # meter
         self.height_threshold = 2.2 # meter
         self.length_threshold = 1.0 # meter
+        self.dimension_ratio_threshold = 2.5 
 
 
     def is_door(self):
@@ -255,9 +253,14 @@ class ResidentPerson:
         current_num_points = self.current_stats.num_points
 
         check_door = (travel_distance < self.travel_threshold) and (current_height > self.height_threshold)
-        if current_num_points > 2:
+        if current_num_points > 0:
             current_dimensions = self.current_stats.dimensions
             check_door = check_door and current_dimensions[0] < self.length_threshold
+            check_door = check_door and (current_dimensions[0] / current_dimensions[1]) > self.dimension_ratio_threshold
+        elif self.last_stats_with_points != None and self.last_stats_with_points.num_points > 0: # Use old data if frame doesn't have points in current frame
+            last_dimensions = self.last_stats_with_points.dimensions
+            check_door = check_door and last_dimensions[0] < self.length_threshold
+            check_door = check_door and (last_dimensions[0] / last_dimensions[1]) > self.dimension_ratio_threshold
         return check_door
         
     def is_misc(self):
@@ -285,6 +288,8 @@ class ResidentPerson:
         self._histories.append(obj)
         self._update_starting_zone(obj)
         self.current_stats = ObjectStatistics(obj)
+        if self.current_stats.num_points > 0:
+            self.last_stats_with_points = self.current_stats
 
     def _update_starting_zone(self, obj):
         if not self._enter_zone:
