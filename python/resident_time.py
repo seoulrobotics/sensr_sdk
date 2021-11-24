@@ -358,7 +358,7 @@ class Bank(MessageListener):
             found_atm.on_enter(obj_id, timestamp)
 
     def _on_exit_event_handler(self, zone_id, obj_id, timestamp):
-        DebugPlotter.plot_scene(self._residents, obj_id, "exit-")
+        # DebugPlotter.plot_scene(self._residents, obj_id, "exit-")
         # ATM exiting
         found_atm = self._ATMs.get(zone_id)
         if found_atm != None:
@@ -381,7 +381,7 @@ class Bank(MessageListener):
                 
 
     def _on_losing_event_handler(self, obj_id, timestamp):
-        DebugPlotter.plot_scene(self._residents, obj_id, "lose-")
+        # DebugPlotter.plot_scene(self._residents, obj_id, "lose-")
         # Calc resident time
         resident = self._residents.get(obj_id)
         if not resident.is_misc() and not resident.is_door():
