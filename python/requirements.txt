@@ -1,2 +1,2 @@
-protobuf>=3.6
+protobuf==3.12.0
 websockets>=8.1
