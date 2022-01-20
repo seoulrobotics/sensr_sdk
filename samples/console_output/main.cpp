@@ -1,14 +1,32 @@
 #include "sensr.h"
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #if defined(__linux__)
 #include <sys/time.h>
+#include <sys/stat.h>
 #endif
 #include <google/protobuf/util/time_util.h>
 
 class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  ~ZoneEventListener() {
+    std::cout<<"save log"<<std::endl;
+    PrintElements();
+    std::string save_path = "/home/seoulrobotics/sensr_sdk/";
+    std::string file_name = "id_log.txt";
+    std::ofstream log_file(save_path + file_name, std::ios::out);
+    for (const auto& id : id_set_) {
+      log_file<<"id: "<<id<<" "<<std::endl;
+    }
+    log_file.close();
+  }
+  void PrintElements() {
+    for (const auto& id : id_set_) {
+      std::cout<<"id: "<<id<<" "<<std::endl;
+    }
+  }
   void OnError(Error error, const std::string& reason) {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
@@ -16,11 +34,28 @@ public:
       client_->Reconnect();
     }
   }
-  void OnGetOutputMessage(const sensr_proto::OutputMessage &message) {
+  void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
     if (message.has_event()) {
+      auto objects = message.stream().objects();
       for(const auto& zone_event : message.event().zone()) {
-        if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
+        int zone_obj_id = zone_event.object().id();
+        bool is_tracked_car = false;
+        for (const auto& object : objects) {
+          int id = object.id();
+          if (zone_obj_id == id && object.label() == sensr_proto::LabelType::LABEL_CAR 
+            && object.tracking_status() == sensr_proto::TrackingStatus::TRACKING) {
+            is_tracked_car = true;
+            break;
+          } 
+        }
+        if (is_tracked_car && zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
           std::cout << "Entering Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
+          auto iter = id_set_.find(zone_obj_id);
+          if (iter != id_set_.end()) {
+            id_set_.erase(iter);
+          } else {
+            id_set_.insert(zone_obj_id);
+          }
         } else if (zone_event.type() == sensr_proto::ZoneEvent_Type_EXIT) {
           std::cout << "Exiting Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
         }
@@ -29,6 +64,7 @@ public:
   }
 private:
   sensr::Client* client_;
+  std::set<int> id_set_;
 };
 
 class PointResultListener : public sensr::MessageListener {
@@ -140,10 +176,10 @@ int main(int argc, char *argv[])
   }
   std::string address = std::string(client_address);
   sensr::Client client(address);
+  std::shared_ptr<sensr::MessageListener> listener;
   // Add sample listeners
   if (argc > 2) {
     for (int i = 2; i < argc; ++i) {
-      std::shared_ptr<sensr::MessageListener> listener;
       if(strcmp(argv[i], "zone") == 0) {
         listener = std::make_shared<ZoneEventListener>(&client);
       } else if (strcmp(argv[i], "point") == 0) {
@@ -161,14 +197,17 @@ int main(int argc, char *argv[])
     }
   } else {
     // Default sample listeners
-    std::shared_ptr<sensr::MessageListener> listener = std::make_shared<ZoneEventListener>(&client);
+    listener = std::make_shared<ZoneEventListener>(&client);
     client.SubscribeMessageListener(listener);
   }
   std::string s;
   std::getline(std::cin, s);
-  while(s != "") { // if the person hits enter, s == "" and leave the loop
-      std::cout << s << std::endl;
-      std::getline(std::cin, s);
+  auto listener_ptr = std::dynamic_pointer_cast<ZoneEventListener>(listener);
+  while(s != "s") { // if the person hits "s", leave the loop
+    if (s == "p" && listener_ptr) {
+      listener_ptr->PrintElements();
+    }
+    std::getline(std::cin, s);
   }
   return 0;
 }
