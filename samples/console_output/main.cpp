@@ -14,7 +14,7 @@ public:
   ~ZoneEventListener() {
     std::cout<<"save log"<<std::endl;
     PrintElements();
-    std::string save_path = "/home/seoulrobotics/sensr_sdk/";
+    std::string save_path = "../";
     std::string file_name = "id_log.txt";
     std::ofstream log_file(save_path + file_name, std::ios::out);
     for (const auto& id : id_set_) {
