@@ -57,16 +57,18 @@ public:
             break;
           } 
         }
-        if (is_tracked_car && zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
-          std::cout << "Entering Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
-          auto iter = id_set_.find(zone_obj_id);
-          if (iter != id_set_.end()) {
-            id_set_.erase(iter);
-          } else {
-            id_set_.insert(zone_obj_id);
+        if (is_tracked_car) {
+          if (zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
+            std::cout << "Entering Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
+            auto iter = id_set_.find(zone_obj_id);
+            if (iter != id_set_.end()) {
+              id_set_.erase(iter);
+            } else {
+              id_set_.insert(zone_obj_id);
+            }
+          } else if (zone_event.type() == sensr_proto::ZoneEvent_Type_EXIT) {
+            std::cout << "Exiting Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
           }
-        } else if (zone_event.type() == sensr_proto::ZoneEvent_Type_EXIT) {
-          std::cout << "Exiting Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
         }
       }
     }
