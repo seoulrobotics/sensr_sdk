@@ -22,7 +22,12 @@ public:
     }
     log_file.close();
   }
+  void SetZone(int entrance, int exit) {
+    zone_entrance_ = entrance;
+    zone_exit_ = exit;
+  }
   void PrintElements() {
+    std::cout<<"Print cars in the highway."<<std::endl;
     for (const auto& id : id_set_) {
       std::cout<<"id: "<<id<<" "<<std::endl;
     }
@@ -38,6 +43,10 @@ public:
     if (message.has_event()) {
       auto objects = message.stream().objects();
       for(const auto& zone_event : message.event().zone()) {
+        int zone_id = zone_event.id();
+        if (zone_id != zone_entrance_ && zone_id != zone_exit_) {
+          continue;
+        }
         int zone_obj_id = zone_event.object().id();
         bool is_tracked_car = false;
         for (const auto& object : objects) {
@@ -65,6 +74,8 @@ public:
 private:
   sensr::Client* client_;
   std::set<int> id_set_;
+  int zone_entrance_;
+  int zone_exit_;
 };
 
 class PointResultListener : public sensr::MessageListener {
@@ -201,8 +212,19 @@ int main(int argc, char *argv[])
     client.SubscribeMessageListener(listener);
   }
   std::string s;
-  std::getline(std::cin, s);
   auto listener_ptr = std::dynamic_pointer_cast<ZoneEventListener>(listener);
+  if (listener_ptr) {
+    std::cout<<"Enter zone entrance id :";
+    std::getline(std::cin, s);
+    int entrance = std::stoi(s);
+    std::cout<<"Enter zone exit id :";
+    std::getline(std::cin, s);
+    int exit = std::stoi(s);
+    listener_ptr->SetZone(entrance, exit);
+    std::cout<<"Type 'p' to print cars. Type 's' to save the current log."<<std::endl;
+  }
+
+  std::getline(std::cin, s);
   while(s != "s") { // if the person hits "s", leave the loop
     if (s == "p" && listener_ptr) {
       listener_ptr->PrintElements();
