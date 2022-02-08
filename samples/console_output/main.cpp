@@ -5,30 +5,29 @@
 #if defined(__linux__)
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <chrono>
 #endif
 #include <google/protobuf/util/time_util.h>
+#include <queue>
 
 class ZoneEventListener : public sensr::MessageListener {
+  using sys_clock = std::chrono::system_clock;
 public:
-  ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
+  ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client), failure_cnt_(0u) {
+    save_log_.open("fifo_failure_log.txt");
+    prev_time_ = sys_clock::now();
+  }
   ~ZoneEventListener() {
-    std::cout<<"save log"<<std::endl;
     PrintElements();
-    std::string save_path = "/home/seoulrobotics/sensr_sdk/";
-    std::string file_name = "id_log.txt";
-    std::ofstream log_file(save_path + file_name, std::ios::out);
-    for (const auto& id : id_set_) {
-      log_file<<"id: "<<id<<" "<<std::endl;
-    }
-    log_file.close();
+    save_log_.close();
   }
   void SetZone(int entrance, int exit) {
     zone_entrance_ = entrance;
     zone_exit_ = exit;
   }
   void PrintElements() {
-    std::cout<<"Print cars in the highway."<<std::endl;
-    for (const auto& id : id_set_) {
+    std::cout<<"Print cars on the highway."<<std::endl;
+    for (const auto& id : cars_on_highway_) {
       std::cout<<"id: "<<id<<" "<<std::endl;
     }
   }
@@ -39,7 +38,44 @@ public:
       client_->Reconnect();
     }
   }
+  void SaveCurrentCarsOnHighway() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+    std::string now_str = std::ctime(&now_t);
+    if (car_logs_.size() > 5u) {
+      car_logs_.pop_front();
+    }
+    car_logs_.emplace_back(now_str, cars_on_highway_);
+  }
+  void SaveLog(int zone_obj_id) {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+    save_log_ << "[" + std::to_string(failure_cnt_) + "]" <<"FIFO failed. logs are saved."<<std::endl;
+    save_log_ << "System_time : " << std::ctime(&now_t);
+    save_log_ << "Zone entered id : " << zone_obj_id << std::endl;
+    save_log_ << std::endl;
+    save_log_ << "Car logs" << std::endl;
+    for (const auto& car_log : car_logs_) {
+      save_log_ << "Logged time: " << car_log.first;
+      for (const auto& car : car_log.second) {
+        save_log_<<"id : "<< car << std::endl;
+      }
+      save_log_ << std::endl;
+    }
+    save_log_ << "Current Cars On the Highway" << std::endl;
+    for (const auto& car : cars_on_highway_) {
+      save_log_ << "id : " << car << std::endl;
+    }
+    save_log_ << std::endl;
+  }
   void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
+    auto now = sys_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - prev_time_);
+    if (duration.count() >= 20) {
+      SaveCurrentCarsOnHighway();
+      prev_time_ = now;
+    }
+
     if (message.has_event()) {
       auto objects = message.stream().objects();
       for(const auto& zone_event : message.event().zone()) {
@@ -59,11 +95,22 @@ public:
         }
         if (is_tracked_car && zone_event.type() == sensr_proto::ZoneEvent_Type_ENTRY) {
           std::cout << "Entering Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
-          auto iter = id_set_.find(zone_obj_id);
-          if (iter != id_set_.end()) {
-            id_set_.erase(iter);
+          auto iter = std::find(cars_on_highway_.begin(), cars_on_highway_.end(), zone_obj_id); 
+          if (iter == cars_on_highway_.end()) {
+            cars_on_highway_.emplace_back(zone_obj_id);
           } else {
-            id_set_.insert(zone_obj_id);
+            auto car_front = cars_on_highway_.front();
+            if (car_front == zone_obj_id) {
+              cars_on_highway_.pop_front();      
+            } else {
+              SaveLog(zone_obj_id);
+              ++failure_cnt_;
+              while (car_front != zone_obj_id) {
+                cars_on_highway_.pop_front();
+                car_front = cars_on_highway_.front();
+              }
+              cars_on_highway_.pop_front();
+            }
           }
         } else if (zone_event.type() == sensr_proto::ZoneEvent_Type_EXIT) {
           std::cout << "Exiting Zone(" << zone_event.id() << ") : obj( " << zone_event.object().id() << ")" << std::endl;
@@ -73,9 +120,13 @@ public:
   }
 private:
   sensr::Client* client_;
-  std::set<int> id_set_;
+  std::deque<int> cars_on_highway_;
+  std::ofstream save_log_;
   int zone_entrance_;
   int zone_exit_;
+  int failure_cnt_;
+  std::deque<std::pair<std::string, std::deque<int>>> car_logs_;
+  sys_clock::time_point prev_time_;
 };
 
 class PointResultListener : public sensr::MessageListener {
@@ -221,11 +272,11 @@ int main(int argc, char *argv[])
     std::getline(std::cin, s);
     int exit = std::stoi(s);
     listener_ptr->SetZone(entrance, exit);
-    std::cout<<"Type 'p' to print cars. Type 's' to save the current log."<<std::endl;
+    std::cout<<"Type 'p' to print cars. Type 'exit' to exit."<<std::endl;
   }
 
   std::getline(std::cin, s);
-  while(s != "s") { // if the person hits "s", leave the loop
+  while(s != "exit") { // if the person type "exit", leave the loop
     if (s == "p" && listener_ptr) {
       listener_ptr->PrintElements();
     }
