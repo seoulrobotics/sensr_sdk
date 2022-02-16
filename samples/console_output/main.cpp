@@ -13,12 +13,16 @@
 class ZoneEventListener : public sensr::MessageListener {
   using sys_clock = std::chrono::system_clock;
 public:
-  ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client), failure_cnt_(0u) {
+  ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client), failure_cnt_(0u), passed_car_num_(0u) {
     save_log_.open("fifo_failure_log.txt");
     prev_time_ = sys_clock::now();
   }
   ~ZoneEventListener() {
     PrintElements();
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+    save_log_ << "System_time : " << std::ctime(&now_t);
+    LogNumberOfPassedCars();
     save_log_.close();
   }
   void SetZone(int entrance, int exit) {
@@ -47,11 +51,15 @@ public:
     }
     car_logs_.emplace_back(now_str, cars_on_highway_);
   }
+  void LogNumberOfPassedCars() {
+    save_log_ << "Number of Passed Cars : " << passed_car_num_ << std::endl;
+  }
   void SaveLog(int zone_obj_id) {
     auto now = std::chrono::system_clock::now();
     std::time_t now_t = std::chrono::system_clock::to_time_t(now);
     save_log_ << "[" + std::to_string(failure_cnt_) + "]" <<"FIFO failed. logs are saved."<<std::endl;
     save_log_ << "System_time : " << std::ctime(&now_t);
+    LogNumberOfPassedCars();
     save_log_ << "Zone entered id : " << zone_obj_id << std::endl;
     save_log_ << std::endl;
     save_log_ << "Car logs" << std::endl;
@@ -101,7 +109,8 @@ public:
           } else {
             auto car_front = cars_on_highway_.front();
             if (car_front == zone_obj_id) {
-              cars_on_highway_.pop_front();      
+              cars_on_highway_.pop_front();
+              ++passed_car_num_;
             } else {
               SaveLog(zone_obj_id);
               ++failure_cnt_;
@@ -125,6 +134,7 @@ private:
   int zone_entrance_;
   int zone_exit_;
   int failure_cnt_;
+  int passed_car_num_;
   std::deque<std::pair<std::string, std::deque<int>>> car_logs_;
   sys_clock::time_point prev_time_;
 };
