@@ -15,12 +15,18 @@ class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client), failure_cnt_(0u), passed_car_num_(0u) {
     save_log_.open("fifo_failure_log.txt");
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+    save_log_ << "Log start" << std::endl;
+    save_log_ << "System_time : " << std::ctime(&now_t);
+    save_log_ << std::endl;
     prev_time_ = sys_clock::now();
   }
   ~ZoneEventListener() {
     PrintElements();
     auto now = std::chrono::system_clock::now();
     std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+    save_log_ << "Log end" << std::endl;
     save_log_ << "System_time : " << std::ctime(&now_t);
     LogNumberOfPassedCars();
     save_log_.close();
@@ -46,7 +52,7 @@ public:
     auto now = std::chrono::system_clock::now();
     std::time_t now_t = std::chrono::system_clock::to_time_t(now);
     std::string now_str = std::ctime(&now_t);
-    if (car_logs_.size() > 5u) {
+    if (car_logs_.size() > 10u) {
       car_logs_.pop_front();
     }
     car_logs_.emplace_back(now_str, cars_on_highway_);
