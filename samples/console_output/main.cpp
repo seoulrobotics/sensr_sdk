@@ -36,6 +36,7 @@ public:
     zone_exit_ = exit;
   }
   void PrintElements() {
+    std::cout<<"Passed Car number : "<<passed_car_num_<<std::endl;
     std::cout<<"Print cars on the highway."<<std::endl;
     for (const auto& id : cars_on_highway_) {
       std::cout<<"id: "<<id<<" "<<std::endl;
@@ -66,8 +67,11 @@ public:
     save_log_ << "[" + std::to_string(failure_cnt_) + "]" <<"FIFO failed. logs are saved."<<std::endl;
     save_log_ << "System_time : " << std::ctime(&now_t);
     LogNumberOfPassedCars();
-    save_log_ << "Zone entered id : " << zone_obj_id << std::endl;
-    save_log_ << std::endl;
+    save_log_ << "Zone entered id : " << zone_obj_id << std::endl << "Queue: [ ";
+    for (auto id : cars_on_highway_) {
+      save_log_ << id << ", ";
+    }
+    save_log_ << "]" << std::endl;
     save_log_ << "Car logs" << std::endl;
     for (const auto& car_log : car_logs_) {
       save_log_ << "Logged time: " << car_log.first;
@@ -76,11 +80,6 @@ public:
       }
       save_log_ << std::endl;
     }
-    save_log_ << "Current Cars On the Highway" << std::endl;
-    for (const auto& car : cars_on_highway_) {
-      save_log_ << "id : " << car << std::endl;
-    }
-    save_log_ << std::endl;
   }
   void OnGetOutpuMessage(const sensr_proto::OutputMessage &message) {
     auto now = sys_clock::now();
