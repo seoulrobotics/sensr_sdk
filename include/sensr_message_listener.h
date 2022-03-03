@@ -17,6 +17,7 @@ namespace sensr {
         kNone,
         kOutputMessageConnection,
         kPointResultConnection,
+        kOutputBufferOverflow,
         kMax
     };
 

@@ -12,7 +12,8 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow ) {
       client_->Reconnect();
     }
   }
@@ -37,7 +38,8 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow ) {
       client_->Reconnect();
     }
   }
@@ -62,7 +64,8 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
@@ -126,7 +129,9 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
+      std::cout << "Reconnect" << std::endl;
       client_->Reconnect();
     }
   }
@@ -154,7 +159,9 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
+      std::cout << "Reconnect" << std::endl;
       client_->Reconnect();
     }
   }
@@ -179,7 +186,8 @@ public:
   void OnError(Error error, const std::string& reason) override {
     (void)reason;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
