@@ -7,15 +7,14 @@ import google.protobuf.timestamp_pb2
 import ctypes
 import argparse
 import signal
-import sys
-
 
 class ZoneEvenListener(MessageListener):
 
     def __init__(self, address):
         super().__init__(address=address, 
                          listener_type=ListenerType.OUTPUT_MESSAGE)
-
+    def _on_error(self, message):
+        self.disconnect()    
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
@@ -104,6 +103,9 @@ class TimeChecker(MessageListener):
     def __init__(self,address):
         super().__init__(address=address,
                          listener_type=ListenerType.OUTPUT_MESSAGE)
+    def _on_error(self, message):
+        print(message)
+        self.reconnect()
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -150,3 +152,4 @@ if __name__ == "__main__":
     if current_listner is not None:
         signal.signal(signal.SIGINT, signal_handler)
         current_listner.connect()
+        current_listner = None

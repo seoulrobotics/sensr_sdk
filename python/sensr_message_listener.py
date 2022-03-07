@@ -5,7 +5,7 @@ import os
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
 
-from sensr_proto.output_pb2 import OutputMessage
+from sensr_proto.output_pb2 import OutputMessage, SystemHealth
 from sensr_proto.point_cloud_pb2 import PointResult
 
 class ListenerType(Enum):
@@ -14,7 +14,13 @@ class ListenerType(Enum):
     POINT_RESULT = 2
     BOTH = 3
 
+
 class MessageListener(metaclass=ABCMeta):
+    class State(Enum):
+        READY = 0
+        RUNNING = 1
+        STOP_REQUESTED = 2
+        STOPPED = 3
     
     @abstractmethod
     def __init__(self, 
@@ -39,6 +45,7 @@ class MessageListener(metaclass=ABCMeta):
         self._listener_type = listener_type
         self._output_ws = None
         self._point_ws = None
+        self._state = MessageListener.State.STOPPED
         
 
     def is_output_message_listening(self):
@@ -48,70 +55,111 @@ class MessageListener(metaclass=ABCMeta):
         return self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH
     
     async def _output_stream(self):
-        async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
-            self._output_ws = websocket
-            while not self._output_ws.closed:
-                try:
-                    message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR                    
-                    output = OutputMessage()
-                    output.ParseFromString(message)
-                    self._on_get_output_message(output)
-                except asyncio.TimeoutError:
-                    pass
+       while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
+            async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
+                if self._output_ws != websocket:
+                    self._output_ws = websocket
+                while not self._output_ws.closed:
+                    try:
+                        message = await asyncio.wait_for(self._output_ws.recv(), timeout=1.0) # Receive output messages from SENSR                    
+                        output = OutputMessage()
+                        output.ParseFromString(message)
+                        if output.HasField('event') and output.event.HasField('health'):
+                            if output.event.health.master == SystemHealth.Status.OUTPUT_BUFFER_OVERFLOW:
+                                self._on_error("Output Buffer Overflow.")
+                        self._on_get_output_message(output)
+                    except asyncio.TimeoutError:
+                        pass
+                    except websockets.ConnectionClosedOK:
+                        pass
+                    except websockets.ConnectionClosedError:
+                        self._on_error("Closed by error.")
 
     async def _point_stream(self):
-        async with websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
-            self._point_ws = websocket
-            while not self._point_ws.closed:
-                try:
-                    message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR
-                    points = PointResult()
-                    points.ParseFromString(message)
-                    self._on_get_point_result(points)
-                except asyncio.TimeoutError:
-                    pass
-    
+        while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
+            async with websocket in websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
+                if self._point_ws != websocket:
+                    self._point_ws = websocket
+                while not self._point_ws.closed:
+                    try:
+                        message = await asyncio.wait_for(self._point_ws.recv(), timeout=1.0) # Receive output messages from SENSR
+                        points = PointResult()
+                        points.ParseFromString(message)
+                        self._on_get_point_result(points)
+                    except asyncio.TimeoutError:
+                        pass
+                    except websockets.ConnectionClosedOK:
+                        pass
+                    except websockets.ConnectionClosedError:
+                        self._on_error("Closed by error.")
+
+    # async def open_connection(self, type):
+    #     if type == ListenerType.OUTPUT_MESSAGE:
+    #         return websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None)
+    #     elif type == ListenerType.POINT_RESULT:
+    #         return websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None)
     
     async def _main(self):
         # Initialize
-        await asyncio.sleep(1)
+        # self._state = MessageListener.State.RUNNING
         # Main loop (_output_stream and _point_stream)
-        while self._is_running:
-            await asyncio.sleep(0.1)
+        while self._state != MessageListener.State.STOPPED:
+
+            if self._state == MessageListener.State.STOP_REQUESTED:
+                await self.close_connection()
+                self._state = MessageListener.State.STOPPED
+            elif self._state == MessageListener.State.READY:
+                await self.close_connection()
+                self._state = MessageListener.State.RUNNING
+            else:
+                await asyncio.sleep(0.1)
+        
         # Finalize
-        if self.is_output_message_listening():
-            await self._output_ws.close()
-        if self.is_point_result_listening():
-            await self._point_ws.close()
-        #self._is_running = False
         self._loop.stop()
 
+    async def close_connection(self):
+        if self._output_ws != None and self.is_output_message_listening():
+            print('close')
+            await self._output_ws.close()
+            self._output_ws = None
+        if self._point_ws != None and self.is_point_result_listening():
+            await self._point_ws.close()
+            self._point_ws = None
 
     def connect(self):
-        print('Receiving SENSR output from {}...'.format(self._address))
-        try:
-            self._loop = asyncio.get_event_loop()
-        except asyncio.RuntimeError:
-            print('Fail to create event loop')
-            return False
-        self._is_running = True
+        if self._state == MessageListener.State.STOPPED:
+            print('Receiving SENSR output from {}...'.format(self._address))
+            try:
+                self._loop = asyncio.get_event_loop()
+            except asyncio.RuntimeError:
+                print('Fail to create event loop')
+                return False
+            self._state = MessageListener.State.READY
 
-        if self.is_output_message_listening():
-            self._loop.create_task(self._output_stream())
+            if self.is_output_message_listening():
+                self._loop.create_task(self._output_stream())
 
-        if self.is_point_result_listening():
-            self._loop.create_task(self._point_stream())
+            if self.is_point_result_listening():
+                self._loop.create_task(self._point_stream())
 
-        self._loop.create_task(self._main())
-        self._loop.run_forever()
-        self._loop = None
-        return True
+            self._loop.create_task(self._main())
+            self._loop.run_forever()
+            self._loop = None
+            return True
+        return False
     
     def disconnect(self):
-        self._is_running = False
+        self._state = MessageListener.State.STOP_REQUESTED
+    
+    def reconnect(self):
+        print('reconnect')
+        self._state = MessageListener.State.READY
 
     def _on_get_output_message(self, message):
         raise Exception('on_get_output_message() needs to be implemented in the derived class')
+    
+    def _on_error(self, message):
+        raise Exception('on_error() needs to be implemented in the derived class')
 
     def _on_get_point_result(self, message):
         raise Exception('on_get_point_result() needs to be implemented in the derived class')
