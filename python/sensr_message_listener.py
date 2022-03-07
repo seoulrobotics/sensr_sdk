@@ -46,11 +46,11 @@ class MessageListener(metaclass=ABCMeta):
 
     def is_point_result_listening(self):
         return self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH
-
+    
     async def _output_stream(self):
         async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
             self._output_ws = websocket
-            while self._is_running:
+            while not self._output_ws.closed:
                 try:
                     message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR                    
                     output = OutputMessage()
@@ -58,19 +58,11 @@ class MessageListener(metaclass=ABCMeta):
                     self._on_get_output_message(output)
                 except asyncio.TimeoutError:
                     pass
-            # Clean up websocket connection
-            await self._output_ws.close()
-            # if point websocket is already closed, then call loop.stop()
-            # loop.stop should be called to exit `loop.run_forever`
-            if ((self._point_ws == None) or 
-                (self._point_ws != None and self._point_ws.closed == True)):
-                if (self._loop != None and self._loop.is_running()):
-                    self._loop.stop()
 
     async def _point_stream(self):
         async with websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
             self._point_ws = websocket
-            while self._is_running:
+            while not self._point_ws.closed:
                 try:
                     message = await asyncio.wait_for(websocket.recv(), timeout=1.0) # Receive output messages from SENSR
                     points = PointResult()
@@ -78,14 +70,22 @@ class MessageListener(metaclass=ABCMeta):
                     self._on_get_point_result(points)
                 except asyncio.TimeoutError:
                     pass
-            # Clean up websocket connection
+    
+    
+    async def _main(self):
+        # Initialize
+        await asyncio.sleep(1)
+        # Main loop (_output_stream and _point_stream)
+        while self._is_running:
+            await asyncio.sleep(0.1)
+        # Finalize
+        if self.is_output_message_listening():
+            await self._output_ws.close()
+        if self.is_point_result_listening():
             await self._point_ws.close()
-            # if object websocket is already closed, then call loop.stop()
-            # loop.stop should be called to exit `loop.run_forever`
-            if ((self._output_ws == None) or 
-                (self._output_ws != None and self._output_ws.closed == True)):
-                if (self._loop != None and self._loop.is_running()):
-                    self._loop.stop()
+        #self._is_running = False
+        self._loop.stop()
+
 
     def connect(self):
         print('Receiving SENSR output from {}...'.format(self._address))
@@ -102,6 +102,7 @@ class MessageListener(metaclass=ABCMeta):
         if self.is_point_result_listening():
             self._loop.create_task(self._point_stream())
 
+        self._loop.create_task(self._main())
         self._loop.run_forever()
         self._loop = None
         return True
