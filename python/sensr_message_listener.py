@@ -54,6 +54,12 @@ class MessageListener(metaclass=ABCMeta):
     def is_point_result_listening(self):
         return self._listener_type == ListenerType.POINT_RESULT or self._listener_type == ListenerType.BOTH
     
+    def check_oveflow_error(self, output):
+        if output.HasField('event') and output.event.HasField('health'):
+            if output.event.health.master == SystemHealth.Status.OUTPUT_BUFFER_OVERFLOW:
+                return True
+        return False
+
     async def _output_stream(self):
        while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
             async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
@@ -64,9 +70,8 @@ class MessageListener(metaclass=ABCMeta):
                         message = await asyncio.wait_for(self._output_ws.recv(), timeout=1.0) # Receive output messages from SENSR                    
                         output = OutputMessage()
                         output.ParseFromString(message)
-                        if output.HasField('event') and output.event.HasField('health'):
-                            if output.event.health.master == SystemHealth.Status.OUTPUT_BUFFER_OVERFLOW:
-                                self._on_error("Output Buffer Overflow.")
+                        if self.check_oveflow_error(output):
+                            self._on_error("Output Buffer Overflow.")
                         self._on_get_output_message(output)
                     except asyncio.TimeoutError:
                         pass
@@ -93,18 +98,8 @@ class MessageListener(metaclass=ABCMeta):
                     except websockets.ConnectionClosedError:
                         self._on_error("Closed by error.")
 
-    # async def open_connection(self, type):
-    #     if type == ListenerType.OUTPUT_MESSAGE:
-    #         return websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None)
-    #     elif type == ListenerType.POINT_RESULT:
-    #         return websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None)
-    
     async def _main(self):
-        # Initialize
-        # self._state = MessageListener.State.RUNNING
-        # Main loop (_output_stream and _point_stream)
         while self._state != MessageListener.State.STOPPED:
-
             if self._state == MessageListener.State.STOP_REQUESTED:
                 await self.close_connection()
                 self._state = MessageListener.State.STOPPED
@@ -119,7 +114,6 @@ class MessageListener(metaclass=ABCMeta):
 
     async def close_connection(self):
         if self._output_ws != None and self.is_output_message_listening():
-            print('close')
             await self._output_ws.close()
             self._output_ws = None
         if self._point_ws != None and self.is_point_result_listening():
@@ -152,7 +146,6 @@ class MessageListener(metaclass=ABCMeta):
         self._state = MessageListener.State.STOP_REQUESTED
     
     def reconnect(self):
-        print('reconnect')
         self._state = MessageListener.State.READY
 
     def _on_get_output_message(self, message):
