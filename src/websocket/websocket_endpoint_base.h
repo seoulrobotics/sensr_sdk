@@ -73,7 +73,7 @@ namespace sensr {
         auto close_code = connection->get_remote_close_code();
         std::string close_reason = connection->get_remote_close_reason();
         if (close_code == websocketpp::close::status::abnormal_close) {
-          OnFail("SENSR bened the connection because of no responding.");
+          OnFail("The connection to SENSR was banned because of no responding.");
         } else if (close_code == websocketpp::close::status::internal_endpoint_error && 
                    close_reason.find("Writing buffer is full") != std::string::npos) {
           OnFail(close_reason);
