@@ -10,9 +10,10 @@ class ZoneEventListener : public sensr::MessageListener {
 public:
   ZoneEventListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow ) {
       client_->Reconnect();
     }
   }
@@ -35,9 +36,10 @@ class PointResultListener : public sensr::MessageListener {
 public:
   PointResultListener(sensr::Client* client) : MessageListener(ListeningType::kPointResult), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow ) {
       client_->Reconnect();
     }
   }
@@ -60,9 +62,10 @@ class ObjectListener : public sensr::MessageListener {
 public:
   ObjectListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
@@ -124,9 +127,10 @@ class HealthListener : public sensr::MessageListener {
 public:
   HealthListener(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
@@ -152,9 +156,10 @@ class TimeChecker : public sensr::MessageListener {
 public:
   TimeChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
@@ -177,9 +182,10 @@ class ProfilingChecker : public sensr::MessageListener {
 public:
   ProfilingChecker(sensr::Client* client) : MessageListener(ListeningType::kOutputMessage), client_(client) {}
   void OnError(Error error, const std::string& reason) override {
-    (void)reason;
+    std::cerr << reason << std::endl;
     if (error == sensr::MessageListener::Error::kOutputMessageConnection || 
-      error == sensr::MessageListener::Error::kPointResultConnection ) {
+      error == sensr::MessageListener::Error::kPointResultConnection ||
+      error == sensr::MessageListener::Error::kOutputBufferOverflow) {
       client_->Reconnect();
     }
   }
