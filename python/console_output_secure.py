@@ -20,9 +20,6 @@ class ZoneEvenListener(MessageListener):
                          use_ssl=True,
                          crt_file_path=cert_file_path)
 
-    def _on_error(self, message):
-        self.reconnect()
-
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
@@ -41,10 +38,7 @@ class PointResultListener(MessageListener):
                          listener_type=ListenerType.POINT_RESULT,
                          use_ssl=True,
                          crt_file_path=cert_file_path)
-
-    def _on_error(self, message):
-        self.reconnect()
-
+    
     def _on_get_point_result(self, message):
         assert isinstance(message, sensr_pcloud.PointResult), "message should be of type PointResult"
         
@@ -67,9 +61,6 @@ class ObjectListener(MessageListener):
                          listener_type=ListenerType.OUTPUT_MESSAGE,
                          use_ssl=True,
                          crt_file_path=cert_file_path)
-
-    def _on_error(self, message):
-        self.reconnect()
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -95,9 +86,6 @@ class HealthListener(MessageListener):
                          listener_type=ListenerType.OUTPUT_MESSAGE,
                          use_ssl=True,
                          crt_file_path=cert_file_path)
-
-    def _on_error(self, message):
-        self.reconnect()
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
@@ -128,9 +116,6 @@ class TimeChecker(MessageListener):
                          listener_type=ListenerType.OUTPUT_MESSAGE,
                          use_ssl=True,
                          crt_file_path=cert_file_path)
-
-    def _on_error(self, message):
-        self.reconnect()
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
