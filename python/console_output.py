@@ -162,4 +162,3 @@ if __name__ == "__main__":
     if current_listner is not None:
         signal.signal(signal.SIGINT, signal_handler)
         current_listner.connect()
-        current_listner = None

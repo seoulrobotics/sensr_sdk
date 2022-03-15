@@ -11,7 +11,8 @@ namespace sensr {
     void MessageListener::OnError(MessageListener::Error error, const std::string& reason) {
         switch (error) {
             case Error::kOutputMessageConnection: 
-            case Error::kPointResultConnection: {
+            case Error::kPointResultConnection:
+            case Error::kOutputBufferOverflow: {
                 ERROR_LOG("Lost SENSR Connection fail(Reason: " + reason + "). Please reconnect."); 
                 break;
             }

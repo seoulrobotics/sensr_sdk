@@ -82,7 +82,7 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _point_stream(self):
         while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
-            async with websocket in websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
+            async with websockets.connect(self._point_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
                 if self._point_ws != websocket:
                     self._point_ws = websocket
                 while not self._point_ws.closed:
@@ -138,7 +138,6 @@ class MessageListener(metaclass=ABCMeta):
 
             self._loop.create_task(self._main())
             self._loop.run_forever()
-            self._loop = None
             return True
         return False
     
