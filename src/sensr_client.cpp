@@ -101,10 +101,17 @@ namespace sensr
       std::cerr << "Wrong format" << std::endl;
       return;
     }
+    bool is_output_buffer_overflow = false;
+    if (output.has_event() && output.event().has_health() && 
+        output.event().health().master() == sensr_proto::SystemHealth_Status_OUTPUT_BUFFER_OVERFLOW) {
+      is_output_buffer_overflow = true;
+    }
     for (const auto& listener : listeners_) {
       if (listener->IsOutputMessageListening()) {
         listener->OnGetOutputMessage(output);
-        listener->OnGetOutpuMessage(output); //TODO: Remove this in next release.
+        if (is_output_buffer_overflow) {
+          listener->OnError(MessageListener::Error::kOutputBufferOverflow, message);
+        }  
       }
     }
   }
