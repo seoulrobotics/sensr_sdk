@@ -15,6 +15,7 @@ namespace sensr {
 
     virtual bool Connect(const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) = 0;
     virtual void Close(websocketpp::close::status::value code) = 0;
+    bool IsConnected() const { return status_ == Status::kOpen; }
 
   protected:
     enum struct Status {
