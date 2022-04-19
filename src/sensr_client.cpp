@@ -40,20 +40,20 @@ namespace sensr
           for (const auto& listener : temp) {
             SubscribeMessageListener(listener);
           }
-          bool is_output_ep_connected = true;
-          bool is_point_ep_connected = true;
+          bool is_output_connected = true;
+          bool is_point_connected = true;
           if (IsResultListening()) {
             if (!output_endpoint_->IsConnected()) {
-              is_output_ep_connected = false;
+              is_output_connected = false;
             }
           }
           if (IsPointListening()) {
             if (!point_endpoint_->IsConnected()) {
-              is_point_ep_connected = false;
+              is_point_connected = false;
             }
           }
 
-          if (is_output_ep_connected && is_point_ep_connected) {
+          if (is_output_connected && is_point_connected) {
             INFO_LOG("Reconnected!");
             break;
           } else if (!is_reconnecting_) {
