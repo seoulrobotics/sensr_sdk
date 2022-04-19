@@ -6,6 +6,7 @@
 #include <memory>
 #include <functional>
 #include <atomic>
+#include <thread>
 
 namespace sensr
 {
@@ -27,6 +28,7 @@ namespace sensr
     const std::string address_;
     bool use_ssl_;
     std::atomic<bool> is_reconnecting_;
+    std::thread reconnection_thread_;
     static constexpr size_t kMaxReconnectTrialCount = 100;
 
     void OnResultMessage(const std::string &msg);
@@ -35,6 +37,7 @@ namespace sensr
     void OnPointError(const std::string &err);
     bool IsResultListening() const;
     bool IsPointListening() const;
+    void StopReconnecting();
     std::string GetProtocol() const { return use_ssl_ ? "wss" : "ws"; }
   };
 } // namespace sensr
