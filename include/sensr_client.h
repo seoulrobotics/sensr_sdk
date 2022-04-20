@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <atomic>
+#include <thread>
 
 namespace sensr
 {
@@ -15,7 +17,7 @@ namespace sensr
   public:
     Client(const std::string &address, const std::string& cert_path = "");
     ~Client();
-    bool Reconnect(); // Call when Error occur
+    void Reconnect(); // Call when Error occur
     bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
     void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
@@ -25,11 +27,17 @@ namespace sensr
     std::vector<std::shared_ptr<MessageListener>> listeners_;
     const std::string address_;
     bool use_ssl_;
+    std::atomic<bool> is_reconnecting_;
+    std::thread reconnection_thread_;
+    static constexpr size_t kMaxReconnectTrialCount = 100;
 
     void OnResultMessage(const std::string &msg);
     void OnPointMessage(const std::string &msg);
     void OnResultError(const std::string &err);
     void OnPointError(const std::string &err);
+    bool IsResultListening() const;
+    bool IsPointListening() const;
+    void StopReconnecting();
     std::string GetProtocol() const { return use_ssl_ ? "wss" : "ws"; }
   };
 } // namespace sensr

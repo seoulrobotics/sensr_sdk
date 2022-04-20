@@ -7,7 +7,7 @@
 namespace sensr
 {
   Client::Client(const std::string& address, const std::string& cert_path) 
-      : address_(address), use_ssl_(!cert_path.empty()) {
+      : address_(address), use_ssl_(!cert_path.empty()), is_reconnecting_(false) {
     if (use_ssl_) {
       output_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
       point_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
@@ -22,34 +22,49 @@ namespace sensr
     for (const auto& listener : listeners_) {
       UnsubscribeMessageListener(listener);
     }
+    StopReconnecting();
   }
 
-  bool Client::Reconnect() {
-    bool ret1 = false;
-    bool ret2 = false;
-    // Reconnect if no listener is listening OutputMessage.
-    if (std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsOutputMessageListening();
-    })) {
-      output_endpoint_->Close(websocketpp::close::status::normal);
-      ret1 = output_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5050", 
-        std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
-        std::bind(&Client::OnResultError, this, std::placeholders::_1));
-    } else {
-      ret1 = true;
+  void Client::Reconnect() {
+    if (!is_reconnecting_) {
+      StopReconnecting();
+      reconnection_thread_ = std::thread([this]() {
+        is_reconnecting_ = true;
+        auto temp = listeners_;
+        size_t reconnection_attempts_ = 0;
+        while (reconnection_attempts_++ < Client::kMaxReconnectTrialCount) {
+          INFO_LOG("Reconnecting...");
+          for (const auto& listener : listeners_) {
+            UnsubscribeMessageListener(listener);
+          }
+          for (const auto& listener : temp) {
+            SubscribeMessageListener(listener);
+          }
+          bool is_output_connected = true;
+          bool is_point_connected = true;
+          if (IsResultListening()) {
+            if (!output_endpoint_->IsConnected()) {
+              is_output_connected = false;
+            }
+          }
+          if (IsPointListening()) {
+            if (!point_endpoint_->IsConnected()) {
+              is_point_connected = false;
+            }
+          }
+
+          if (is_output_connected && is_point_connected) {
+            INFO_LOG("Reconnected!");
+            break;
+          } else if (!is_reconnecting_) {
+            INFO_LOG("Stop reconnection!");
+            break;
+          }
+          std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        is_reconnecting_ = false;
+      });
     }
-    // Close if no listener is listening PointResult.
-    if (std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsPointResultListening();
-    })) {
-      point_endpoint_->Close(websocketpp::close::status::normal);
-      ret2 = point_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5051", 
-        std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
-        std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
-    } else {
-      ret2 = true;
-    }
-    return ret1 && ret2;
   }
 
   bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) { 
@@ -58,15 +73,23 @@ namespace sensr
     if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
       // OutputMessage Port
       if (listener->IsOutputMessageListening()) {
-        ret = output_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5050", 
-        std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
-        std::bind(&Client::OnResultError, this, std::placeholders::_1));
+         if (!IsResultListening()) {
+          ret = output_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5050", 
+          std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
+          std::bind(&Client::OnResultError, this, std::placeholders::_1));
+        } else {
+          ret = true;
+        }
       } 
       // PointResult Port
       if (listener->IsPointResultListening()) {
-        ret = point_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5051", 
-        std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
-        std::bind(&Client::OnPointError, this, std::placeholders::_1)); 
+        if (!IsPointListening()) {
+          ret = point_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5051", 
+          std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
+          std::bind(&Client::OnPointError, this, std::placeholders::_1));
+        } else {
+          ret = true;
+        }
       }
     }
     // Add listener in case connection success.
@@ -116,6 +139,12 @@ namespace sensr
     }
   }
 
+  bool Client::IsResultListening() const {
+    return std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+      return listener->IsOutputMessageListening();
+    });
+  }
+
   void Client::OnPointMessage(const std::string& message) {
     sensr_proto::PointResult output;
     if (!output.ParseFromString(message)) {
@@ -142,6 +171,19 @@ namespace sensr
       if (listener->IsPointResultListening()) {
         listener->OnError(MessageListener::Error::kPointResultConnection, err);
       }
+    }
+  }
+
+  bool Client::IsPointListening() const {
+    return std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+      return listener->IsPointResultListening();
+    });
+  }
+
+  void Client::StopReconnecting() {
+    if (reconnection_thread_.joinable()) {
+      is_reconnecting_ = false;
+      reconnection_thread_.join();
     }
   }
 
