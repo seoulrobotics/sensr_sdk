@@ -31,6 +31,9 @@ const get_point_data = (client) => {
           else if(pointCloud.getType() == pointMsg.PointResult.PointCloud.Type.ENVIRONMENT){
             console.log("Environment points no. points - {%f}", num_points);
           }
+          const intensities = new Float32Array(pointCloud.getIntensities().slice().buffer).sort()
+          const mid = Math.floor((intensities.length - 1) / 2)
+          console.log("Intensity [min, median, max] is [%f, %f, %f]", intensities[0], intensities[mid], intensities[intensities.length-1]);
       });
       }
   });
