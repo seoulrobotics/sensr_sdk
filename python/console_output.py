@@ -7,6 +7,7 @@ import google.protobuf.timestamp_pb2
 import ctypes
 import argparse
 import signal
+import numpy as np
 
 class ZoneEvenListener(MessageListener):
 
@@ -43,13 +44,21 @@ class PointResultListener(MessageListener):
         for point_cloud in message.points:
             float_size = ctypes.sizeof(ctypes.c_float)
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
+            
+            intensity_np = np.frombuffer(point_cloud.intensities, np.float32)
+            min_intensity = np.min(intensity_np)
+            median_intensity = np.median(intensity_np)
+            max_intensity = np.max(intensity_np)
 
             if point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.RAW:
-                print('Topic ({0}) no. of points - {1}'.format(point_cloud.id, num_points))
+                print('Topic ({0}) no. of points - {1}. Min and max intensity is [{2}, {3}]'.format(point_cloud.id, num_points, min_intensity, max_intensity))
+                print('Intensity [min, median, max] is [{0}, {1}, {2}]'.format(min_intensity, median_intensity, max_intensity))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.GROUND:
-                print('Ground points no. of points - {0}'.format(num_points))
+                print('Ground points no. of points - {0}.'.format(num_points))
+                print('Intensity [min, median, max] is [{0}, {1}, {2}]'.format(min_intensity, median_intensity, max_intensity))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.BACKGROUND:
                 print('Environment points no. of points - {0}'.format(num_points))
+                print('Point intensity [min, median, max] is [{0}, {1}, {2}]'.format(min_intensity, median_intensity, max_intensity))
 
 
 class ObjectListener(MessageListener):
@@ -68,8 +77,14 @@ class ObjectListener(MessageListener):
             for obj in message.stream.objects:
                 float_size = ctypes.sizeof(ctypes.c_float)
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
+
+                intensity_np = np.frombuffer(obj.intensities, np.float32)
+                min_intensity = np.min(intensity_np)
+                median_intensity = np.median(intensity_np)
+                max_intensity = np.max(intensity_np)
                 
                 print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
+                print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
                 print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
                 print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
                 print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
