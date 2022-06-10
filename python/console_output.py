@@ -8,6 +8,8 @@ import ctypes
 import argparse
 import signal
 import sys
+import logging
+from pythonjsonlogger import jsonlogger
 
 
 class ZoneEvenListener(MessageListener):
@@ -53,23 +55,38 @@ class ObjectListener(MessageListener):
     def __init__(self,address):
         super().__init__(address=address,
                          listener_type=ListenerType.OUTPUT_MESSAGE)
+        self.cnt = 0
+        self.frame_info = {}
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.INFO)
+        filename = 'obj_output.json'
+        loghandler = logging.FileHandler('obj_output.json', mode='w')
+        formatter = jsonlogger.JsonFormatter('%(frame_num)s %(output)s')
+        loghandler.setFormatter(formatter)
+        self.logger.addHandler(loghandler)
 
     def _on_get_output_message(self, message):
+        self.cnt += 1
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
-
+        frmae_info = {}
         if message.HasField('stream'):
+            obj_infos = {}
             for obj in message.stream.objects:
+                msg = '{0} {1} {2} {3} {4} {5} {6} {7} {8}'.format(obj.bbox.position.x, obj.bbox.position.y, obj.bbox.position.z, obj.bbox.size.x, obj.bbox.size.y, obj.bbox.size.z, obj.bbox.yaw, obj.label, obj.confidence)
+                print(msg)
+                obj_infos[obj.id] = msg
                 float_size = ctypes.sizeof(ctypes.c_float)
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
                 
-                print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
-                print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
-                print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
-                print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
-                print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
-                print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
-
-
+                # print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
+                # print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
+                # print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
+                # print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
+                # print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
+                # print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
+            self.frame_info[self.cnt] = obj_infos
+            self.logger.info({"frame_num" : self.cnt, "output" : obj_infos})
+        
 
 class HealthListener(MessageListener):
 
