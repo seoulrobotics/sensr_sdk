@@ -31,7 +31,7 @@ sudo ldconfig
 Update submodule:
 
 ```bash
-git submodule update --init
+git submodule update --init --recursive
 ```
 
 Make sure you have the listed dependencies installed:
