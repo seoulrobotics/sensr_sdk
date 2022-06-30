@@ -14,8 +14,11 @@ custom | - | [CustomMessage](#custommessage) | SENSR additional result message (
 Field | Unit | Type | Description
 --- | --- | --- | ---
 objects | - | [Object](#object) | object list in the latest frame.
+has_objects | - | bool | A flag to check `objects` field is valid or not
 zones | - | [ZoneConfig](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | general zone configuration. (Freq. appx. 10s) 
+has_zones | - | bool | A flag to check `zones` field is valid or not
 health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | system health in the latest frame. (Freq. appx. 10s) 
+static_object | - | [Object](#object) | static object list in the latest frame. 
 
 ## EventMessage
 
@@ -52,10 +55,14 @@ confidnece | - | float | 0 to 1 probability of the object classification.
 bbox | - | [BoundingBox](#boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
 tracking_status | - | [TrackingStatus](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | tracking status.
+yaw_rate | - | float | Object rotation angle along the Z axis. (radian)
+time_offset | - | [Duration](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/duration) | Life time of the object.
+retro_reflective | - | bool | A flag to indicate the object has retro reflective point or not.
 points | meters | bytes | List of sequential 3 float value set (XYZ).
 history | - | [History](#history) | History of the object.
 prediction | - | [Prediction](#prediction) | Prediction of the object.
 zone_ids | - | int32 | List of zone occurpied by the object.
+intensities | - | bytes | Sequential 1 float value set
 
 ### BoundingBox
 
