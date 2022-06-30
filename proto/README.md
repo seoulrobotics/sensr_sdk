@@ -4,7 +4,7 @@
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | time stampe of the event was occurred.
+timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Timestamp of the event was occurred.
 stream | - | [StreamMessage](#streammessage) | SENSR perception result stream message.(Freq.: appx. 100ms)
 event | - | [EventMessage](#eventmessage) | SENSR event message (Zone, Losing, SystemHealth)
 custom | - | [CustomMessage](#custommessage) | SENSR additional result message (Field of Regard)
@@ -13,34 +13,37 @@ custom | - | [CustomMessage](#custommessage) | SENSR additional result message (
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-objects | - | [Object](#object) | object list in the latest frame.
-zones | - | [ZoneConfig](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | general zone configuration. (Freq. appx. 10s) 
-health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | system health in the latest frame. (Freq. appx. 10s) 
+objects | - | [Object](#object) | Object list in the latest frame.
+has_objects | - | bool | A flag to check `objects` field is valid or not
+zones | - | [ZoneConfig](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | General zone configuration. (Freq. appx. 10s) 
+has_zones | - | bool | A flag to check `zones` field is valid or not
+health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | System health in the latest frame. (Freq. appx. 10s) 
+static_object | - | [Object](#object) | Static object list in the latest frame. 
 
 ## EventMessage
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-zone | - | [ZoneEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event list related to zone.
-losing | - | [LosingEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event when SENSR lose tracking.
-health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | event when SENSR has trouble inside.
+zone | - | [ZoneEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | Event list related to zone.
+losing | - | [LosingEvent](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | Event when SENSR lose tracking.
+health | - | [SystemHealth](https://github.com/seoulrobotics/sensr_proto/blob/master/output.proto) | Event when SENSR has trouble inside.
 
 ## CustomMessage
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
 field_of_regard | - | [PolygonBox](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of object-occupied and blind area.
-bg_learning_progress | - | float | background learning progress (0.0 - 1.0).
-replay | - | [ReplayInfo](#replayinfo) | replay detailed information.
-record | - | [RecordingInfo](#recordinginfo) | recording detailed information.
-profiling | - | [ProfilingResultSet](#profilingresultset) | profiling information.
+bg_learning_progress | - | float | Background learning progress (0.0 - 1.0).
+replay | - | [ReplayInfo](#replayinfo) | Replay detailed information.
+record | - | [RecordingInfo](#recordinginfo) | Recording detailed information.
+profiling | - | [ProfilingResultSet](#profilingresultset) | Profiling information.
 
 ## PointResult
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-points | - | [PointCloud](https://github.com/seoulrobotics/sensr_proto/blob/master/point_cloud.proto) | point cloud stream data.
-uri | - | string | address of point cloud.
+points | - | [PointCloud](https://github.com/seoulrobotics/sensr_proto/blob/master/point_cloud.proto) | Point cloud stream data.
+uri | - | string | Address of point cloud.
 
 ## Object
 
@@ -51,11 +54,15 @@ label | - | [LabelType](https://github.com/seoulrobotics/sensr_proto/blob/master
 confidnece | - | float | 0 to 1 probability of the object classification.
 bbox | - | [BoundingBox](#boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
-tracking_status | - | [TrackingStatus](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | tracking status.
+tracking_status | - | [TrackingStatus](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | Tracking status.
+yaw_rate | - | float | Object rotation angle along the Z axis. (radian)
+time_offset | - | [Duration](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/duration) | Last updated time offset relative to `first_cloud_arrival_timestamp`
+retro_reflective | - | bool | A flag to show if the object is classified as retro reflective.
 points | meters | bytes | List of sequential 3 float value set (XYZ).
 history | - | [History](#history) | History of the object.
 prediction | - | [Prediction](#prediction) | Prediction of the object.
 zone_ids | - | int32 | List of zone occurpied by the object.
+intensities | - | bytes | Sequential 1 float value set
 
 ### BoundingBox
 
@@ -76,7 +83,7 @@ states | - | [History.State](#historystate) (list) | List of object’s tracked 
 Field | Unit | Type | Description
 --- | --- | --- | ---
 position | meters | Vector3 | List of object’s tracked XYZ position.
-timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | time stampe of the tracked XYZ position.
+timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Timestamp of the tracked XYZ position.
 
 ### Prediction
 
@@ -101,5 +108,5 @@ saving_progress | - | float | Progress of saving recorded file into disk.(0.0 to
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | profiling result of master node.
-algo_nodes | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | list of profiling result of connected algo nodes.
+master_node | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | Profiling result of master node.
+algo_nodes | - | [ProfilingResult](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | List of profiling result of connected algo nodes.
