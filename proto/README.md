@@ -4,7 +4,7 @@
 
 Field | Unit | Type | Description
 --- | --- | --- | ---
-timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Time stampe of the event was occurred.
+timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Timestamp of the event was occurred.
 stream | - | [StreamMessage](#streammessage) | SENSR perception result stream message.(Freq.: appx. 100ms)
 event | - | [EventMessage](#eventmessage) | SENSR event message (Zone, Losing, SystemHealth)
 custom | - | [CustomMessage](#custommessage) | SENSR additional result message (Field of Regard)
@@ -83,7 +83,7 @@ states | - | [History.State](#historystate) (list) | List of object’s tracked 
 Field | Unit | Type | Description
 --- | --- | --- | ---
 position | meters | Vector3 | List of object’s tracked XYZ position.
-timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Time stampe of the tracked XYZ position.
+timestamp | - | [Timestamp](https://developers.google.com/protocol-buffers/docs/reference/csharp/class/google/protobuf/well-known-types/timestamp) | Timestamp of the tracked XYZ position.
 
 ### Prediction
 
