@@ -85,7 +85,6 @@ class ObjectListener(MessageListener):
                 intensity_np = np.frombuffer(obj.intensities, np.float32)
                 
                 if len(intensity_np) == 0:
-                    print('continue')
                     continue
                 
                 min_intensity = np.min(intensity_np)
