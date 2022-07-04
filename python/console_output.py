@@ -46,6 +46,10 @@ class PointResultListener(MessageListener):
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
             
             intensity_np = np.frombuffer(point_cloud.intensities, np.float32)
+            
+            if len(intensity_np) == 0:
+                continue    
+            
             min_intensity = np.min(intensity_np)
             median_intensity = np.median(intensity_np)
             max_intensity = np.max(intensity_np)
@@ -79,10 +83,15 @@ class ObjectListener(MessageListener):
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
 
                 intensity_np = np.frombuffer(obj.intensities, np.float32)
+                
+                if len(intensity_np) == 0:
+                    print('continue')
+                    continue
+                
                 min_intensity = np.min(intensity_np)
                 median_intensity = np.median(intensity_np)
                 max_intensity = np.max(intensity_np)
-                
+
                 print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
                 print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
                 print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
