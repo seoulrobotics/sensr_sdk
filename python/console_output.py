@@ -46,9 +46,15 @@ class PointResultListener(MessageListener):
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
             
             intensity_np = np.frombuffer(point_cloud.intensities, np.float32)
-            min_intensity = np.min(intensity_np)
-            median_intensity = np.median(intensity_np)
-            max_intensity = np.max(intensity_np)
+            
+            if len(intensity_np) != 0:
+                min_intensity = np.min(intensity_np)
+                median_intensity = np.median(intensity_np)
+                max_intensity = np.max(intensity_np)
+            else:
+                min_intensity = 0.0
+                median_intensity = 0.0
+                max_intensity = 0.0
 
             if point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.RAW:
                 print('Topic ({0}) no. of points - {1}. Min and max intensity is [{2}, {3}]'.format(point_cloud.id, num_points, min_intensity, max_intensity))
@@ -79,10 +85,16 @@ class ObjectListener(MessageListener):
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
 
                 intensity_np = np.frombuffer(obj.intensities, np.float32)
-                min_intensity = np.min(intensity_np)
-                median_intensity = np.median(intensity_np)
-                max_intensity = np.max(intensity_np)
                 
+                if len(intensity_np) != 0:
+                    min_intensity = np.min(intensity_np)
+                    median_intensity = np.median(intensity_np)
+                    max_intensity = np.max(intensity_np)
+                else:
+                    min_intensity = 0.0
+                    median_intensity = 0.0
+                    max_intensity = 0.0
+
                 print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
                 print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
                 print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
