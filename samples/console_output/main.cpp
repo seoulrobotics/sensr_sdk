@@ -1,10 +1,18 @@
 #include "sensr.h"
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #if defined(__linux__)
 #include <sys/time.h>
 #endif
 #include <google/protobuf/util/time_util.h>
+
+std::vector<float> BytesToFloatVector(const std::string& bytes) {
+  std::vector<float> output;
+  output.resize(bytes.length() / sizeof(float));
+  memcpy(output.data(), bytes.data(), bytes.length());
+  return output;
+}
 
 class ZoneEventListener : public sensr::MessageListener {
 public:
@@ -44,7 +52,8 @@ public:
     }
   }
   void OnGetPointResult(const sensr_proto::PointResult &message) override {
-    for(const auto& point_cloud : message.points()) {
+    for(const auto& point_cloud : message.points()) {      
+
       if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_RAW) {
         std::cout << "Topic(" << point_cloud.id() << ") no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_GROUND) {
@@ -52,6 +61,14 @@ public:
       } else if (point_cloud.type() == sensr_proto::PointResult_PointCloud_Type_BACKGROUND) {
         std::cout << "Background points no. of points - " << point_cloud.points().length() / (sizeof(float) * 3) << std::endl;
       }
+
+      std::vector<float> intensities = BytesToFloatVector(point_cloud.intensities());
+      std::cout << "Intensity [min, median, max] is [";
+      std::cout << *std::min_element(std::begin(intensities), std::end(intensities)) << ", ";
+      const int mid = intensities.size()/2;
+      std::nth_element(std::begin(intensities), std::begin(intensities)+mid, std::end(intensities));
+      std::cout << intensities[mid] << ", ";
+      std::cout << *std::max_element(std::begin(intensities), std::end(intensities)) << "].\n";
     }
   }
 private:
