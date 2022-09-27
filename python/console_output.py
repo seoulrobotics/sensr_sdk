@@ -80,28 +80,29 @@ class ObjectListener(MessageListener):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream'):
-            for obj in message.stream.objects:
-                float_size = ctypes.sizeof(ctypes.c_float)
-                object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
+            if message.stream.has_objects:
+                for obj in message.stream.objects:
+                    float_size = ctypes.sizeof(ctypes.c_float)
+                    object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
 
-                intensity_np = np.frombuffer(obj.intensities, np.float32)
-                
-                if len(intensity_np) != 0:
-                    min_intensity = np.min(intensity_np)
-                    median_intensity = np.median(intensity_np)
-                    max_intensity = np.max(intensity_np)
-                else:
-                    min_intensity = 0.0
-                    median_intensity = 0.0
-                    max_intensity = 0.0
+                    intensity_np = np.frombuffer(obj.intensities, np.float32)
 
-                print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
-                print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
-                print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
-                print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
-                print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
-                print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
-                print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
+                    if len(intensity_np) != 0:
+                        min_intensity = np.min(intensity_np)
+                        median_intensity = np.median(intensity_np)
+                        max_intensity = np.max(intensity_np)
+                    else:
+                        min_intensity = 0.0
+                        median_intensity = 0.0
+                        max_intensity = 0.0
+
+                    print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
+                    print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
+                    print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
+                    print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
+                    print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
+                    print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
+                    print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
 
 
 
@@ -118,7 +119,7 @@ class HealthListener(MessageListener):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream') and message.stream.HasField('health'):
-            
+
             system_health = message.stream.health
             print('System health: {0}'.format(system_health.master))
 

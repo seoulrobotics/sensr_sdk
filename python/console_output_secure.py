@@ -75,16 +75,17 @@ class ObjectListener(MessageListener):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream'):
-            for obj in message.stream.objects:
-                float_size = ctypes.sizeof(ctypes.c_float)
-                object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
-                
-                print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
-                print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
-                print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
-                print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
-                print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
-                print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
+            if message.stream.has_objects:
+                for obj in message.stream.objects:
+                    float_size = ctypes.sizeof(ctypes.c_float)
+                    object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
+
+                    print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
+                    print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
+                    print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
+                    print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
+                    print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
+                    print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
 
 
 
