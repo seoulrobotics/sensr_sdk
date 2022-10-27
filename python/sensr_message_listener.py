@@ -65,7 +65,7 @@ class MessageListener(metaclass=ABCMeta):
             async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
                 if self._output_ws != websocket:
                     self._output_ws = websocket
-                while not self._output_ws.closed:
+                while self._output_ws is not None and not self._output_ws.closed:
                     try:
                         message = await asyncio.wait_for(self._output_ws.recv(), timeout=1.0) # Receive output messages from SENSR                    
                         output = OutputMessage()
