@@ -21,7 +21,7 @@ class ZoneEvenListener(MessageListener):
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
-        if message.HasField('event') and message.stream.has_zones:
+        if message.HasField('event'):
             for zone_event in message.event.zone:
                 if zone_event.type == sensr_output.ZoneEvent.Type.ENTRY:
                     print('Entering zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
