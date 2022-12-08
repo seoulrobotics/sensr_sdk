@@ -22,7 +22,7 @@ class MessageListener(metaclass=ABCMeta):
         RUNNING = 1
         STOP_REQUESTED = 2
         STOPPED = 3
-
+    
     @abstractmethod
     def __init__(self, 
                  address="localhost", 
@@ -61,7 +61,7 @@ class MessageListener(metaclass=ABCMeta):
         self._output_ws = None
         self._point_ws = None
         self._state = MessageListener.State.STOPPED
-
+        
 
     def is_output_message_listening(self):
         return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
@@ -170,5 +170,3 @@ class MessageListener(metaclass=ABCMeta):
 
     def _on_get_point_result(self, message):
         raise Exception('on_get_point_result() needs to be implemented in the derived class')
-
-        

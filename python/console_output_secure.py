@@ -51,7 +51,7 @@ class PointResultListener(MessageListener):
 
     def _on_get_point_result(self, message):
         assert isinstance(message, sensr_pcloud.PointResult), "message should be of type PointResult"
-
+        
         for point_cloud in message.points:
             float_size = ctypes.sizeof(ctypes.c_float)
             num_points = len(point_cloud.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
@@ -84,6 +84,7 @@ class ObjectListener(MessageListener):
             for obj in message.stream.objects:
                 float_size = ctypes.sizeof(ctypes.c_float)
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
+
                 print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
                 print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
                 print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
@@ -109,7 +110,7 @@ class HealthListener(MessageListener):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
         if message.HasField('stream') and message.stream.HasField('health'):
-
+            
             system_health = message.stream.health
             print('System health: {0}'.format(system_health.master))
 
@@ -166,7 +167,7 @@ def signal_handler(sig, frame):
         current_listner.disconnect()
 
 if __name__ == "__main__":
-
+    
     args = parse_arguments()
 
     address = args.address
