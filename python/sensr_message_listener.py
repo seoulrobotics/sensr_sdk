@@ -3,7 +3,8 @@ import asyncio
 import ssl
 import os
 from enum import Enum
-from abc import ABCMeta, abstractmethod # Abstract base classes
+from abc import ABCMeta, abstractmethod  # Abstract base classes
+import certifi
 
 from sensr_proto.output_pb2 import OutputMessage, SystemHealth
 from sensr_proto.point_cloud_pb2 import PointResult
@@ -21,7 +22,7 @@ class MessageListener(metaclass=ABCMeta):
         RUNNING = 1
         STOP_REQUESTED = 2
         STOPPED = 3
-    
+
     @abstractmethod
     def __init__(self, 
                  address="localhost", 
@@ -30,23 +31,37 @@ class MessageListener(metaclass=ABCMeta):
                  point_port = "5051",
                  use_ssl=False,
                  crt_file_path=""):
-        protocol = 'ws'
-        if use_ssl:
-            protocol = 'wss'
-            self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-            self._ssl_context.verify_mode = ssl.CERT_REQUIRED
-            assert os.path.exists(crt_file_path), "Please indicate a valid certificate file."
-            self._ssl_context.load_verify_locations(crt_file_path)
+        # use wss protocol
+        if address.startswith("wss") or address.startswith("https"):
+            if os.path.exists(certifi.where()):
+                crt_file_path = certifi.where()
+                self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                self._ssl_context.load_verify_locations(crt_file_path)
+                self._ssl_context.verify_mode = ssl.CERT_REQUIRED
+            else:
+                self._ssl_context = ssl.SSLContext(ssl.PROTOCO_TLS)
+
+            if address.startswith("https"):
+                address = address.replace("https", "wss")
+        # use ws protocol
+        elif address.startswith("ws"):
+            self._ssl_context = None
+        # use ws protocol
         else:
             self._ssl_context = None
-        self._address = f"{protocol}://{address}"
-        self._output_address = self._address + ':' + output_port
-        self._point_address = self._address + ':' + point_port
+            if address.startswith("http"):
+                address = address.replace("http", "ws")
+            else:
+                address = "ws://" + address
+
+        self._address = address
+        self._output_address = self._address + ":" + output_port
+        self._point_address = self._address + ":" + point_port
         self._listener_type = listener_type
         self._output_ws = None
         self._point_ws = None
         self._state = MessageListener.State.STOPPED
-        
+
 
     def is_output_message_listening(self):
         return self._listener_type == ListenerType.OUTPUT_MESSAGE or self._listener_type == ListenerType.BOTH
@@ -156,3 +171,4 @@ class MessageListener(metaclass=ABCMeta):
     def _on_get_point_result(self, message):
         raise Exception('on_get_point_result() needs to be implemented in the derived class')
 
+        
