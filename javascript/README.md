@@ -1,6 +1,10 @@
 # Javascript Guide
 
 This guide will show you how to use the SENSR output with Javascript using our SDK. 
+## Prerequisite
+Before following the steps below, please make sure the SDK has been correctly deployed according to the instructions [here](../README.md)
+
+## Instructions
 We use NodeJS for these examples so make sure you have the dev environment set up.
 
 ```bash

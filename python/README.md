@@ -1,6 +1,8 @@
 # Python Guide
 
 This Python SDK shows how to communicate with SENSR and parse the output in Python. There are some sample scripts, which are standalone programs that can be used as a reference. 
+## Prerequisite
+Before following the steps below, please make sure the SDK has been correctly deployed according to the instructions [here](../README.md)
 
 ## Installation
 
