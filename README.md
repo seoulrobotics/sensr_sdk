@@ -66,16 +66,22 @@ make
 ```
 
 Or you can simply run build_console_output.sh from the root source folder.
+
 #### How to run
+
 console_output_sample takes below arguments.
 arg[1]     : ip address of SENSR program running machine
 arg[2]-[5] : sample types. (zone object point time)
+
+```bash
+./build_console/console_output_sample localhost zone
 ```
-e.g.)
-$ ./build_console/console_output_sample localhost zone
-```
+
 #### How to enable WSS
+
 WSS can be used if you need secure output communication.
 You can enable WSS by passing the certificate key path when you create a `Client` instance.
-```
+
+```cpp
 sensr::Client client(address, "$HOME/seoulrobotics/keys/sensr-ca.crt");
+```
