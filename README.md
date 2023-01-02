@@ -1,30 +1,36 @@
 # Seoul Robotics SENSR SDK
 
-## Installation
 
-### Dependencies
+## Dependencies
 
-SENSR SDK depends on [Websocket](https://tools.ietf.org/html/rfc6455) and [Protobuf](https://developers.google.com/protocol-buffers/) (tested with 3.11.4).
+- [Websocket](https://tools.ietf.org/html/rfc6455)
+- [Protobuf](https://developers.google.com/protocol-buffers/) (tested with `3.11.4`)
 
 You can install prebuilt binaries or build from source as following.
 
-#### Build Dependencies from Source
+### Protobuf
 
-Protobuf (3.11.4) from source:
+- Option 1) Download pre-built binary from release, install to system (**recommended**)
 
-```bash
-sudo apt-get install autoconf automake libtool curl make g++ unzip
-curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-cpp-3.11.4.zip
-unzip protobuf-cpp-3.11.4.zip
-rm protobuf-cpp-3.11.4.zip
-cd protobuf-3.11.4
-./autogen.sh
-./configure CXXFLAGS=-fPIC
-make
-make check
-sudo make install
-sudo ldconfig
-```
+    ```bash
+    sudo apt-get install -y curl
+    # NOTE: Replace x86_64 with aarch_64 accordingly
+    curl -fSsL https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip -o protoc-3.11.4-linux-x86_64.zip
+    unzip protoc-3.11.4-linux-x86_64.zip -d /usr/local
+    ```
+
+- Option 2) Build protobuf from source on Ubuntu 18/20: (**advanced**)
+
+    ```bash
+    sudo apt-get install -y autoconf automake libtool curl make g++ unzip
+    curl -fSsLO https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-cpp-3.11.4.zip && unzip protobuf-cpp-3.11.4.zip && rm protobuf-cpp-3.11.4.zip
+    cd protobuf-3.11.4
+    ./autogen.sh && ./configure CXXFLAGS=-fPIC
+    make -j`nproc` && make check
+    sudo make install
+    sudo ldconfig
+    ```
+
 
 ### Build SENSR SDK
 
