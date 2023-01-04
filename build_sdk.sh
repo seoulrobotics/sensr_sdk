@@ -7,7 +7,7 @@ function make_cpp_sdk() {
     mkdir build
     cd build
     cmake ..
-    make -j6
+    make -j$(nproc)
     sudo make install
 }
 
