@@ -4,7 +4,7 @@ SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 OUT_DIR="$SRC_DIR"
 PROTO_DIR="$SRC_DIR/../proto"
 
-pip3 install -r $SRC_DIR/requirements.txt
+pip3 install -r "$SRC_DIR"/requirements.txt
 
 PROTOC="$(command -v protoc)"
 if [ -z "$PROTOC" ]
@@ -18,13 +18,13 @@ then
   PROTOC="$PROTOC_DIR/bin/protoc"
 
   curl -LO $PB_REL/download/v$PB_VER/$PB_ZIP
-  unzip $PB_ZIP -d $PROTOC_DIR
+  unzip $PB_ZIP -d "$PROTOC_DIR"
   rm $PB_ZIP
 fi
 
-if [ ! -d $OUT_DIR ]; then
-  mkdir $OUT_DIR
+if [ ! -d "$OUT_DIR" ]; then
+  mkdir "$OUT_DIR"
 fi
 
-echo Found protobuf-compiler at $PROTOC
-$PROTOC -I=$PROTO_DIR --python_out=$OUT_DIR $PROTO_DIR/*/*.proto
+echo Found protobuf-compiler at "$PROTOC"
+$PROTOC -I="$PROTO_DIR" --python_out="$OUT_DIR" "$PROTO_DIR"/*/*.proto
