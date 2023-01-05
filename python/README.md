@@ -1,53 +1,74 @@
-# Python Guide
+# Seoul Robotics SENSR SDK - Python
 
 This Python SDK shows how to communicate with SENSR and parse the output in Python. There are some sample scripts, which are standalone programs that can be used as a reference.
 
-## Installation
+## Quick start
 
-In order to run the sample code properly, the system needs to be configured first by running the command below.
+1. Prerequisites
 
-```bash
-./configure.sh
-```
+    - Network connection to SENSR master (`>=2.4.0`) (Assuming already running at the same computer in runtime mode)
+    - Linux `x86_64`/`aarch_64` or macOS `x86_64`/`arm64`
+    - Python`>=3.6`
+    - python packages in [requirements.txt](./requirements.txt)
 
-## Execution
+2. Clone repository with submodules, build protobuf for python
 
-After installation, you can run the example.
+    ```bash
+    git clone https://github.com/seoulrobotics/sensr_sdk --recursive
+    cd sensr_sdk/python
+    ```
 
-### Print output to console
+3. Build protobuf for python using `configure.sh`
 
-- Launch SENSR
-- Open another terminal and type the following
+    > **NOTE**: If protoc is not available, this script will automatically download and run protobuf-compiler from [github.com](https://github.com/protocolbuffers/protobuf/releases)
 
-  ```bash
-  python3 console_output.py --address localhost --example_type zone
-  # You need to put the correct IP address instead of localhost if SENSR is running on a different machine.
-  # You can replace "zone" with "point", "object", "health", or "time" to run the other included examples.
-  ```
+    ```bash
+    ./configure.sh
+    ```
 
-#### Print output to console (Secure communication)
+4. Install python3 pip packages
 
-- Launch SENSR with ssl on.
-- Open another terminal and type the following
+    ```bash
+    python3 -m pip install --upgrade pip # Optional, recommended
+    python3 -m pip install -r requirements.txt
+    ```
+
+5. Run example script
+
+    > **NOTE**:
+    >
+    > 1. If SENSR is running in the remote machine, replace `localhost` to other IP address or hostname accordingly.
+    >
+    > 2. Replace `zone` to other value to print other types, one of: `zone`, `point`, `object`, `health`, `time`
+
+    ```bash
+    python3 ./console_output.py --address localhost --example_type zone
+    ```
+
+## Running examples
+
+### Print output to console with SSL
+
+> **NOTE**: This example requires pair of SSL certificates used in the SENSR. Currently, this example does not support SSL verification with Root Certifacte from OS.
+
+1. Launch SENSR with SSL enabled
+2. Copy `sensr-ca.crt` to `$HOME/seoulrobotics/keys/sensr-ca.crt`
+3. Open another terminal and type the following
 
   ```bash
   python3 console_output_secure.py --address localhost --example_type zone
   ```
 
-### Save output to files
+### Recording and Playing SDK outputs
 
-- Launch SENSR
-- Open another terminal and type the following to save output
+- Saving output to file
 
-  ```bash
-  # You need to put the correct IP address instead of localhost if SENSR is running on a different machine.
-  python3 save_load_output.py --mode save --address localhost --dir <folder_path_to_save>
-  ```
+    ```bash
+    python3 save_load_output.py --mode save --address localhost --dir {output_path}
+    ```
 
-### Load output from files
-
-- Open terminal and type the following to load output
+- Loading output from file
 
   ```bash
-  python3 save_load_output.py --mode load --dir <folder_path_to_load>
+  python3 save_load_output.py --mode load --dir {output_path}
   ```
