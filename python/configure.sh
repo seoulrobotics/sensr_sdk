@@ -108,11 +108,11 @@ PB_PATH="$script_dir/protoc"
 PROTOC="$PB_PATH/bin/protoc"
 
 echo "Finding protoc ..."
-if [ ! -x "$PROTOC" ]; then
+if [ -x "$PROTOC" ]; then
   echo "  protoc found in local directory:"
   echo "  remove this path to use protoc from system PATH"
   echo "  $PROTOC"
-elif [ ! -x "$(command -v protoc)" ]; then
+elif [ -x "$(command -v protoc)" ]; then
   PROTOC=$(command -v protoc)
 else
   set_protoc_os_arch
