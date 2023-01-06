@@ -102,6 +102,9 @@ build_proto() {
   echo "  protobuf files has generated to $PROTO_OUT"
 }
 
+echo "Installing python pip dependencies ..."
+python3 -m pip install --upgrade pip
+python3 -m pip install -r "$script_dir/requirements.txt"
 
 PB_VER="3.12.0"
 PB_PATH="$script_dir/protoc"
