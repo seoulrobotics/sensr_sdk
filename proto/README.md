@@ -51,7 +51,7 @@ Field | Unit | Type | Description
 --- | --- | --- | ---
 id | - | int32 | ID of the object.
 label | - | [LabelType](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | Classification of the object.
-confidnece | - | float | 0 to 1 probability of the object classification.
+confidence | - | float | 0 to 1 probability of the object classification.
 bbox | - | [BoundingBox](#boundingbox) | Bounding box of the object.
 velocity | m/s | Vector3 | XYZ velocity of the object.
 tracking_status | - | [TrackingStatus](https://github.com/seoulrobotics/sensr_proto/blob/master/type.proto) | Tracking status.
