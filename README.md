@@ -37,7 +37,7 @@ git submodule update --init --recursive
 Make sure you have the listed dependencies installed:
 
 ```bash
-sudo apt-get install autoconf automake libtool curl make g++ unzip
+sudo apt-get install autoconf automake libtool curl make g++ unzip cmake libssl-dev libz-dev
 ```
 
 Build SENSR SDK:
