@@ -80,7 +80,7 @@ class ObjectListener(MessageListener):
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
-        if message.HasField('stream'):
+        if message.HasField('stream') and message.stream.has_objects:
             for obj in message.stream.objects:
                 float_size = ctypes.sizeof(ctypes.c_float)
                 object_point_num = len(obj.points) // (float_size * 3) # Each point is 3 floats (x,y,z)
