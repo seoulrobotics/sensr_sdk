@@ -8,6 +8,7 @@ import ctypes
 import argparse
 import signal
 import numpy as np
+from datetime import datetime
 
 class ZoneEvenListener(MessageListener):
 
@@ -23,10 +24,12 @@ class ZoneEvenListener(MessageListener):
 
         if message.HasField('event'):
             for zone_event in message.event.zone:
-                if zone_event.type == sensr_output.ZoneEvent.Type.ENTRY:
-                    print('Entering zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
-                elif zone_event.type == sensr_output.ZoneEvent.Type.EXIT:
-                    print('Exiting zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
+                print(f"event {zone_event.type}")
+                print(f"object {zone_event.object.id}")
+                # if zone_event.type == sensr_output.ZoneEvent.Type.ENTRY:
+                #     print('Entering zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
+                # elif zone_event.type == sensr_output.ZoneEvent.Type.EXIT:
+                #     print('Exiting zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
 
 
 class PointResultListener(MessageListener):
@@ -68,7 +71,6 @@ class PointResultListener(MessageListener):
 
 
 class ObjectListener(MessageListener):
-
     def __init__(self,address):
         super().__init__(address=address,
                          listener_type=ListenerType.OUTPUT_MESSAGE)
@@ -78,7 +80,6 @@ class ObjectListener(MessageListener):
 
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
-
         if message.HasField('stream') and message.stream.has_objects:
             for obj in message.stream.objects:
                 float_size = ctypes.sizeof(ctypes.c_float)
@@ -94,14 +95,15 @@ class ObjectListener(MessageListener):
                     min_intensity = 0.0
                     median_intensity = 0.0
                     max_intensity = 0.0
-
-                print('Obj ({0}): point no. {1}'.format(obj.id, object_point_num))
-                print('Obj ({0}): point intensity [min, median, max] is [{1}, {2}, {3}]'.format(obj.id, min_intensity, median_intensity, max_intensity))
-                print('Obj ({0}): velocity {1}'.format(obj.id, obj.velocity))
-                print('Obj ({0}): bbox {1}'.format(obj.id, obj.bbox))
-                print('Obj ({0}): tracking status {1}'.format(obj.id, sensr_type.TrackingStatus.Name(int(obj.tracking_status))))
-                print('Obj ({0}): Object type {1}'.format(obj.id, sensr_type.LabelType.Name(int(obj.label))))
-                print('Obj ({0}): prediction {1}'.format(obj.id, obj.prediction))
+                
+                print(f"Obj {obj.id} Type: {sensr_type.LabelType.Name(int(obj.label))} ")
+                print(f"Obj {obj.id} Traking Status: {sensr_type.TrackingStatus.Name(int(obj.tracking_status))}")
+                print(f"Obj {obj.id} Point Intensity min: {min_intensity}, median: {median_intensity}, max: {max_intensity}") 
+                print(f"Obj {obj.id} Velocity X: {obj.velocity.x}, Y: {obj.velocity.y}")
+                print(f"Obj {obj.id} Bbox Position X: {obj.bbox.position.x}, Y: {obj.bbox.position.y}, Z: {obj.bbox.position.z}")
+                print(f"Obj {obj.id} Size X: {obj.bbox.size.x}, Y: {obj.bbox.size.y}, Z: {obj.bbox.size.z}")
+                print(f"Obj {obj.id} Yaw angle {obj.yaw_rate}")
+                print()
 
 
 
