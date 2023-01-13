@@ -3,7 +3,7 @@ import asyncio
 import ssl
 import os
 from enum import Enum
-from abc import ABCMeta, abstractmethod  # Abstract base classes
+from abc import ABCMeta, abstractmethod # Abstract base classes
 import certifi
 
 from sensr_proto.output_pb2 import OutputMessage, SystemHealth
