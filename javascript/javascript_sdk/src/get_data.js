@@ -46,14 +46,28 @@ const get_object_data = (client) => {
       objects.forEach(object => {
         if(object.getPoints().length !== 0){
           let object_point_num = Math.floor((object.getPoints().length)/3);
-          //print object point nummber
-          console.log('Obj (%d): point no. %f',object.getId(), object_point_num);
+
+          let type = Object.keys(sensrType.LabelType).find(
+            key => sensrType.LabelType[key] === parseInt(object.getLabel()))
+          
+          // print object id and object type
+          console.log(`Obj ${object.getId} type: ${type}`)
+          
+          // print tracking status
+          console.log('Obj (%d) Tracking Status: %s',
+          object.getId(),
+          Object.keys(sensrType.TrackingStatus).find(
+            key => sensrType.TrackingStatus[key] === parseInt(object.getTrackingStatus())
+          ));
+
+          //print point number of object
+          console.log('Obj (%d) point number: %f',object.getId(), object_point_num);
 
           //print velocity of object
-          console.log('Obj (%d): velocity [%f, %f]', object.getId(), object.getVelocity().getX(), object.getVelocity().getY());
+          console.log('Obj (%d) Velocity X: %f, Y: %f', object.getId(), object.getVelocity().getX(), object.getVelocity().getY());
 
           //print bbox
-          console.log('Obj (%d): bbox position [%f, %f, %f], bbox size [%f %f %f], bbox yaw [%f]', 
+          console.log('Obj (%d) Bbox position X: %f, Y: %f, Z: %f, Bbox size X: %f, Y: %f, Z: %f, Bbox yaw: %f', 
                       object.getId(), 
                       object.getBbox().getPosition().getX(),
                       object.getBbox().getPosition().getY(),
@@ -62,26 +76,9 @@ const get_object_data = (client) => {
                       object.getBbox().getSize().getY(),
                       object.getBbox().getSize().getZ(),
                       object.getBbox().getYaw())
-
-          //print tracking status
-          console.log('Obj (%d): tracking status %s',
-                      object.getId(),
-                      Object.keys(sensrType.TrackingStatus).find(
-                        key => sensrType.TrackingStatus[key] === parseInt(object.getTrackingStatus())
-                      ));
-
-          //print object type
-          console.log('Obj (%d): Object type %s',
-                      object.getId(),
-                      Object.keys(sensrType.LabelType).find(
-                        key => sensrType.LabelType[key] === parseInt(object.getLabel())
-                      ));
-
-          //print Prediction
-          console.log('Obj (%d): prediction %s', 
-                      object.getId(), 
-                      object.getPrediction()
-                      );
+          
+          // print yaw anagle
+          console.log(`Obj ${object.getId()} Yaw angle: ${object.yawRate()}`)
         }
       });
     }
