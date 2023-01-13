@@ -51,14 +51,7 @@ const get_object_data = (client) => {
             key => sensrType.LabelType[key] === parseInt(object.getLabel()))
           
           // print object id and object type
-          console.log(`Obj ${object.getId} type: ${type}`)
-          
-          // print tracking status
-          console.log('Obj (%d) Tracking Status: %s',
-          object.getId(),
-          Object.keys(sensrType.TrackingStatus).find(
-            key => sensrType.TrackingStatus[key] === parseInt(object.getTrackingStatus())
-          ));
+          console.log(`Obj ${object.getId()} type: ${type}`)
 
           //print point number of object
           console.log('Obj (%d) point number: %f',object.getId(), object_point_num);
@@ -78,7 +71,9 @@ const get_object_data = (client) => {
                       object.getBbox().getYaw())
           
           // print yaw anagle
-          console.log(`Obj ${object.getId()} Yaw angle: ${object.yawRate()}`)
+          console.log(`Obj ${object.getId()} Yaw angle: ${object.getYawRate()}`)
+
+          console.log()
         }
       });
     }
