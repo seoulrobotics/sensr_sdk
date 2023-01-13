@@ -98,7 +98,7 @@ class ObjectListener(MessageListener):
                 
                 print(f"Obj {obj.id} Type: {sensr_type.LabelType.Name(int(obj.label))} ")
                 print(f"Obj {obj.id} Traking Status: {sensr_type.TrackingStatus.Name(int(obj.tracking_status))}")
-                print(f"Obj {obj.id} Point Intensity min: {min_intensity}, median: {median_intensity}, max: {max_intensity}") 
+                print(f"Obj {obj.id} Point Intensity {intensity_np}") 
                 print(f"Obj {obj.id} Velocity X: {obj.velocity.x}, Y: {obj.velocity.y}")
                 print(f"Obj {obj.id} Bbox Position X: {obj.bbox.position.x}, Y: {obj.bbox.position.y}, Z: {obj.bbox.position.z}")
                 print(f"Obj {obj.id} Size X: {obj.bbox.size.x}, Y: {obj.bbox.size.y}, Z: {obj.bbox.size.z}")

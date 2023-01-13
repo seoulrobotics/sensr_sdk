@@ -56,6 +56,9 @@ const get_object_data = (client) => {
           //print point number of object
           console.log('Obj (%d) point number: %f',object.getId(), object_point_num);
 
+          // print point intensity
+          console.log(`Obj ${object.getId()} Point Intensity min: ${object.getIntensities()}`)
+
           //print velocity of object
           console.log('Obj (%d) Velocity X: %f, Y: %f', object.getId(), object.getVelocity().getX(), object.getVelocity().getY());
 
