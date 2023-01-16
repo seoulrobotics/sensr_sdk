@@ -35,8 +35,8 @@ msg() {
 die() {
   local msg=$1
   local code=${2-1} # default exit status 1
-  msg "$msg"
-  exit "$code"
+  msg "${msg}"
+  exit "${code}"
 }
 
 parse_params() {
@@ -75,46 +75,46 @@ set_protoc_os_arch() {
 }
 
 print_protoc_status() {
-  echo "  protoc found: $PROTOC"
-  echo "  protoc version: $($PROTOC --version)"
+  echo "  protoc found: ${PROTOC}"
+  echo "  protoc version: $(${PROTOC} --version)"
 }
 
 download_protoc_locally() {
-  PB_ZIP="protoc-$PB_VER-$PB_OS-$PB_ARCH.zip"
+  PB_ZIP="protoc-${PB_VER}-${PB_OS}-${PB_ARCH}.zip"
 
-  if [ -z "$(unzip -tqq "$PB_PATH/$PB_ZIP" 2> /dev/null)" ]; then
+  if [ -z "$(unzip -tqq "${PB_PATH}/${PB_ZIP}" 2> /dev/null)" ]; then
     echo "  protoc release found, skipping download ..."
-    echo "    $PB_PATH/$PB_ZIP"
+    echo "    ${PB_PATH}/${PB_ZIP}"
   else
     echo "Downloading protoc release to local directory..."
-    mkdir -p "$PB_PATH"
-    curl -fSsL "https://github.com/protocolbuffers/protobuf/releases/download/v$PB_VER/$PB_ZIP" -o "$PB_PATH/$PB_ZIP"    
+    mkdir -p "${PB_PATH}"
+    curl -fSsL "https://github.com/protocolbuffers/protobuf/releases/download/v${PB_VER}/${PB_ZIP}" -o "${PB_PATH}/${PB_ZIP}"    
   fi
-  unzip -oq "$PB_PATH/$PB_ZIP" -d "$PB_PATH"
+  unzip -oq "${PB_PATH}/${PB_ZIP}" -d "${PB_PATH}"
 }
 
 build_proto() {
   echo "Generating protobuf definition for python ..."
-  PROTO_OUT=$script_dir # NOTE: python files will be generated. e.g.) ./sensr_proto/custom_pb2.py
-  PROTO_SRC="$script_dir/../proto"
-  mkdir -p "$PROTO_OUT"
-  $PROTOC -I="$PROTO_SRC" --python_out="$PROTO_OUT" "$PROTO_SRC"/*/*.proto
-  echo "  protobuf files has generated to $PROTO_OUT"
+  PROTO_OUT=${script_dir} # NOTE: python files will be generated. e.g.) ./sensr_proto/custom_pb2.py
+  PROTO_SRC="${script_dir}/../proto"
+  mkdir -p "${PROTO_OUT}"
+  ${PROTOC} -I="${PROTO_SRC}" --python_out="${PROTO_OUT}" "${PROTO_SRC}"/*/*.proto
+  echo "  protobuf files has generated to ${PROTO_OUT}"
 }
 
 echo "Installing python pip dependencies ..."
 python3 -m pip install --upgrade pip
-python3 -m pip install -r "$script_dir/requirements.txt"
+python3 -m pip install -r "${script_dir}/requirements.txt"
 
 PB_VER="3.12.0"
-PB_PATH="$script_dir/protoc"
-PROTOC="$PB_PATH/bin/protoc"
+PB_PATH="${script_dir}/protoc"
+PROTOC="${PB_PATH}/bin/protoc"
 
 echo "Finding protoc ..."
-if [ -x "$PROTOC" ]; then
+if [ -x "${PROTOC}" ]; then
   echo "  protoc found in local directory:"
   echo "  remove this path to use protoc from system PATH"
-  echo "  $PROTOC"
+  echo "  ${PROTOC}"
 elif [ -x "$(command -v protoc)" ]; then
   PROTOC=$(command -v protoc)
 else
