@@ -22,16 +22,42 @@ class ZoneEvenListener(MessageListener):
     def _on_get_output_message(self, message):
         assert isinstance(message, sensr_output.OutputMessage), "message should be of type OutputMessage"
 
+        if message.HasField('stream') and message.stream.has_zones:
+            for zone in message.stream.zones:
+                print(f"Zone id: {zone.id}, Zone name: {zone.name}")
+                for idx in range(4):
+                    print(f"Polygon box X: {zone.pbox.points[idx].x}, Polygon box Y: {zone.pbox.points[idx].y}")
+                print(f"Polygon box min Z: {zone.pbox.min_z}, Polygon box max Z: {zone.pbox.max_z}")
+                print(f"Zone Type: {zone.type}")
+                print()
+
         if message.HasField('event'):
             for zone_event in message.event.zone:
-                print(f"event {zone_event.type}")
-                print(f"object {zone_event.object.id}")
-                # if zone_event.type == sensr_output.ZoneEvent.Type.ENTRY:
-                #     print('Entering zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
-                # elif zone_event.type == sensr_output.ZoneEvent.Type.EXIT:
-                #     print('Exiting zone ({0}) : obj ({1}) '.format(zone_event.id, zone_event.object.id))
+                zone_event_type = zone_event.type
+                if zone_event_type == sensr_output.ZoneEvent.Type.NONE:
+                    print(f"Zone event type: {zone_event_type}, NONE")
+                elif zone_event_type == sensr_output.ZoneEvent.Type.ENTRY:
+                    print(f"Zone event type: {zone_event.type}, ENTRY")
+                elif zone_event_type == sensr_output.ZoneEvent.Type.EXIT:
+                    print(f"Zone event type: {zone_event.type}, EXIT")
+                elif zone_event_type == sensr_output.ZoneEvent.Type.LOITERING:
+                    print(f"Zone event type: {zone_event.type}, LOITERING")
+                elif zone_event_type == sensr_output.ZoneEvent.Type.EXCEEDS_SPEED:
+                    print(f"Zone event type: {zone_event.type}, EXCEEDS_SPEED")
+                print()
 
+            for zone_losing in message.event.losing:
+                print(f"Losing evnet time: {zone_losing.timestamp}")
+                print(f"Losing evnet object: {zone_losing.id}")
+                print(f"Losing evnet position X: {zone_losing.position.x}, Y: {zone_losing.position.y}")
+                print(f"Losing evnet heading: {zone_losing.heading}")
+                print()
 
+        # if message.HasField('custom'):
+        #     print(f"Custom field of regard: {}")
+        #     print(message.custom)
+        #     # for custom_message in message.custom:
+        #     #     print(custom_message)
 class PointResultListener(MessageListener):
 
     def __init__(self,address):
@@ -60,7 +86,7 @@ class PointResultListener(MessageListener):
                 max_intensity = 0.0
 
             if point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.RAW:
-                print('Topic ({0}) no. of points - {1}. Min and max intensity is [{2}, {3}]'.format(point_cloud.id, num_points, min_intensity, max_intensity))
+                print('RAW Topic ({0}) no. of points - {1}. Min and max intensity is [{2}, {3}]'.format(point_cloud.id, num_points, min_intensity, max_intensity))
                 print('Intensity [min, median, max] is [{0}, {1}, {2}]'.format(min_intensity, median_intensity, max_intensity))
             elif point_cloud.type == sensr_pcloud.PointResult.PointCloud.Type.GROUND:
                 print('Ground points no. of points - {0}.'.format(num_points))
