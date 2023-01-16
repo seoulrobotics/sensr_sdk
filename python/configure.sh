@@ -82,7 +82,7 @@ print_protoc_status() {
 download_protoc_locally() {
   PB_ZIP="protoc-$PB_VER-$PB_OS-$PB_ARCH.zip"
 
-  if [ "$(unzip -t "$PB_PATH/$PB_ZIP" 2> /dev/null)" ]; then
+  if [ -z "$(unzip -tqq "$PB_PATH/$PB_ZIP" 2> /dev/null)" ]; then
     echo "  protoc release found, skipping download ..."
     echo "    $PB_PATH/$PB_ZIP"
   else
