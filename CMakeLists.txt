@@ -3,10 +3,12 @@ project(sensr_sdk VERSION 1.0.0 LANGUAGES CXX)
 
 ######## PACKAGE Dependency Management ##########
 find_package(OpenSSL REQUIRED)
-######## PACKAGE Dependency Management ##########
+find_path(Asio_INCLUDE_DIR NAMES asio.hpp NO_CMAKE_FIND_ROOT_PATH)
+mark_as_advanced(ASIO_INCLUDE_DIR)
 
-option(ENABLE_INFO_LOG "enable lnfo level log message"  OFF)
-option(ENABLE_ERROR_LOG "enable error level log message"  ON)
+######## PACKAGE Dependency Management ##########
+option(ENABLE_INFO_LOG "enable lnfo level log message" OFF)
+option(ENABLE_ERROR_LOG "enable error level log message" ON)
 
 if(${ENABLE_INFO_LOG})
     add_definitions(-DINFO_LOG_ENABLE=1)
@@ -22,11 +24,11 @@ endif()
 
 add_definitions(-DASIO_STANDALONE)
 
-set(SOURCE_FILES 
-    src/sensr_client.cpp 
-    src/sensr_message_listener.cpp 
-    src/websocket/websocket_endpoint_base.cpp 
-    src/websocket/websocket_endpoint.cpp 
+set(SOURCE_FILES
+    src/sensr_client.cpp
+    src/sensr_message_listener.cpp
+    src/websocket/websocket_endpoint_base.cpp
+    src/websocket/websocket_endpoint.cpp
     src/websocket/websocket_secure_endpoint.cpp)
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
@@ -34,23 +36,23 @@ add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE
 target_compile_features(sensr_sdk PRIVATE cxx_std_11)
 target_compile_options(sensr_sdk PRIVATE -fPIC -Wall -Werror -rdynamic)
 target_compile_options(sensr_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-comment -Wno-strict-aliasing -Wno-format-security -Wno-int-to-pointer-cast -Wno-unused-result -Wno-unused-function)
-####### Compiler Flags ###########
 
+####### Compiler Flags ###########
 target_include_directories(sensr_sdk
-    PUBLIC 
-        $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/websocketpp>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/asio/asio/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+    ${ASIO_INCLUDE_DIR}
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/websocketpp>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
 
-target_link_libraries(sensr_sdk PUBLIC  sensr_proto
-                                        ${OPENSSL_LIBRARIES}
-                                PRIVATE pthread)
+target_link_libraries(sensr_sdk PUBLIC sensr_proto
+    ${OPENSSL_LIBRARIES}
+    PRIVATE pthread)
 
 ######## Installation script ##########
-
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
@@ -62,12 +64,12 @@ set(TARGETS_EXPORT_NAME "${PROJECT_NAME}Targets")
 set(namespace "")
 
 file(GLOB_RECURSE header_files
-  "${PROJECT_SOURCE_DIR}/include/*.h"
+    "${PROJECT_SOURCE_DIR}/include/*.h"
 )
 
 add_subdirectory(proto)
 
-set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")  
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
 
 write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion
@@ -101,5 +103,3 @@ install(
 )
 
 ######## Installation script ##########
-
-

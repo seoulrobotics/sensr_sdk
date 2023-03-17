@@ -7,6 +7,3 @@
 [submodule "proto/sensr_proto"]
 	path = proto/sensr_proto
 	url = https://github.com/seoulrobotics/sensr_proto.git
-[submodule "external/asio"]
-	path = external/asio
-	url = https://github.com/chriskohlhoff/asio
