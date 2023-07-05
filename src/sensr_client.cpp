@@ -26,45 +26,43 @@ namespace sensr
   }
 
   void Client::Reconnect() {
-    if (!is_reconnecting_) {
+    if (is_reconnecting_) {
       StopReconnecting();
-      reconnection_thread_ = std::thread([this]() {
-        is_reconnecting_ = true;
-        auto temp = listeners_;
-        size_t reconnection_attempts_ = 0;
-        while (reconnection_attempts_++ < Client::kMaxReconnectTrialCount) {
-          INFO_LOG("Reconnecting...");
-          for (const auto& listener : listeners_) {
-            UnsubscribeMessageListener(listener);
-          }
-          for (const auto& listener : temp) {
-            SubscribeMessageListener(listener);
-          }
-          bool is_output_connected = true;
-          bool is_point_connected = true;
-          if (IsResultListening()) {
-            if (!output_endpoint_->IsConnected()) {
-              is_output_connected = false;
-            }
-          }
-          if (IsPointListening()) {
-            if (!point_endpoint_->IsConnected()) {
-              is_point_connected = false;
-            }
-          }
-
-          if (is_output_connected && is_point_connected) {
-            INFO_LOG("Reconnected!");
-            break;
-          } else if (!is_reconnecting_) {
-            INFO_LOG("Stop reconnection!");
-            break;
-          }
-          std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-        is_reconnecting_ = false;
-      });
     }
+    reconnection_thread_ = std::thread([this]() {
+      is_reconnecting_ = true;
+      auto temp = listeners_;
+      while (is_reconnecting_) {
+        INFO_LOG("Reconnecting...");
+        for (const auto& listener : listeners_) {
+          UnsubscribeMessageListener(listener);
+        }
+        for (const auto& listener : temp) {
+          SubscribeMessageListener(listener);
+        }
+        bool is_output_connected = true;
+        bool is_point_connected = true;
+        if (IsResultListening()) {
+          if (!output_endpoint_->IsConnected()) {
+            is_output_connected = false;
+          }
+        }
+        if (IsPointListening()) {
+          if (!point_endpoint_->IsConnected()) {
+            is_point_connected = false;
+          }
+        }
+
+        if (is_output_connected && is_point_connected) {
+          INFO_LOG("Reconnected!");
+          break;
+        } else if (!is_reconnecting_) {
+          INFO_LOG("Stop reconnection!");
+          break;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+      }
+    });
   }
 
   bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) { 
@@ -181,8 +179,8 @@ namespace sensr
   }
 
   void Client::StopReconnecting() {
+    is_reconnecting_ = false;
     if (reconnection_thread_.joinable()) {
-      is_reconnecting_ = false;
       reconnection_thread_.join();
     }
   }

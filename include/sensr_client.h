@@ -29,7 +29,6 @@ namespace sensr
     bool use_ssl_;
     std::atomic<bool> is_reconnecting_;
     std::thread reconnection_thread_;
-    static constexpr size_t kMaxReconnectTrialCount = 100;
 
     void OnResultMessage(const std::string &msg);
     void OnPointMessage(const std::string &msg);
