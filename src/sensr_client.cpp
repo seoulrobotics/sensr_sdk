@@ -1,12 +1,13 @@
 #include "sensr_client.h"
-#include "websocket/websocket_endpoint.h"
-#include "websocket/websocket_secure_endpoint.h"
-#include "sensr_message_listener.h"
+
 #include <algorithm>
 
-namespace sensr
-{
-  Client::Client(const std::string& address, const std::string& cert_path) 
+#include "sensr_message_listener.h"
+#include "websocket/websocket_endpoint.h"
+#include "websocket/websocket_secure_endpoint.h"
+
+namespace sensr {
+  Client::Client(const std::string& address, const std::string& cert_path)
       : address_(address), use_ssl_(!cert_path.empty()), is_reconnecting_(false) {
     if (use_ssl_) {
       output_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
@@ -14,84 +15,86 @@ namespace sensr
     } else {
       output_endpoint_.reset(new WebSocketEndPoint());
       point_endpoint_.reset(new WebSocketEndPoint());
-    }    
+    }
   }
 
-  Client::~Client()
-  {
+  Client::~Client() {
     for (const auto& listener : listeners_) {
       UnsubscribeMessageListener(listener);
     }
-    StopReconnecting();
   }
 
   void Client::Reconnect() {
-    if (is_reconnecting_) {
-      StopReconnecting();
-    }
-    reconnection_thread_ = std::thread([this]() {
+    if (!is_reconnecting_) {
       is_reconnecting_ = true;
-      auto temp = listeners_;
-      while (is_reconnecting_) {
-        INFO_LOG("Reconnecting...");
-        for (const auto& listener : listeners_) {
-          UnsubscribeMessageListener(listener);
-        }
-        for (const auto& listener : temp) {
-          SubscribeMessageListener(listener);
-        }
-        bool is_output_connected = true;
-        bool is_point_connected = true;
-        if (IsResultListening()) {
-          if (!output_endpoint_->IsConnected()) {
-            is_output_connected = false;
-          }
-        }
-        if (IsPointListening()) {
-          if (!point_endpoint_->IsConnected()) {
-            is_point_connected = false;
-          }
-        }
-
-        if (is_output_connected && is_point_connected) {
-          INFO_LOG("Reconnected!");
-          break;
-        } else if (!is_reconnecting_) {
-          INFO_LOG("Stop reconnection!");
-          break;
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
-    });
+      asio::post([this]() { reconnection_async(); });
+    }
+    io_context_.poll();
   }
 
-  bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) { 
+  void Client::reconnection_async() {
+    if (is_reconnecting_) {
+      INFO_LOG("Reconnecting...");
+      auto temp = listeners_;
+      for (const auto& listener : listeners_) {
+        UnsubscribeMessageListener(listener);
+      }
+      for (const auto& listener : temp) {
+        SubscribeMessageListener(listener);
+      }
+      bool is_output_connected = true;
+      bool is_point_connected = true;
+      if (IsResultListening()) {
+        if (!output_endpoint_->IsConnected()) {
+          is_output_connected = false;
+        }
+      }
+      if (IsPointListening()) {
+        if (!point_endpoint_->IsConnected()) {
+          is_point_connected = false;
+        }
+      }
+
+      if (is_output_connected && is_point_connected) {
+        INFO_LOG("Reconnected!");
+        is_reconnecting_ = false;
+      } else {
+        asio::steady_timer sleep_timer(io_context_, asio::chrono::seconds(1));
+        sleep_timer.wait();
+        asio::post([this]() { reconnection_async(); });
+      }
+    }
+  }
+
+  bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {
     bool ret = false;
     // Connect to SENSR
     if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
       // OutputMessage Port
       if (listener->IsOutputMessageListening()) {
-         if (!IsResultListening()) {
-          ret = output_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5050", 
-          std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
-          std::bind(&Client::OnResultError, this, std::placeholders::_1));
+        if (!IsResultListening()) {
+          ret = output_endpoint_->Connect(
+              GetProtocol() + "://" + address_ + ":5050",
+              std::bind(&Client::OnResultMessage, this, std::placeholders::_1),
+              std::bind(&Client::OnResultError, this, std::placeholders::_1));
         } else {
           ret = true;
         }
-      } 
+      }
       // PointResult Port
       if (listener->IsPointResultListening()) {
         if (!IsPointListening()) {
-          ret = point_endpoint_->Connect(GetProtocol() + "://" + address_ + ":5051", 
-          std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
-          std::bind(&Client::OnPointError, this, std::placeholders::_1));
+          ret = point_endpoint_->Connect(
+              GetProtocol() + "://" + address_ + ":5051",
+              std::bind(&Client::OnPointMessage, this, std::placeholders::_1),
+              std::bind(&Client::OnPointError, this, std::placeholders::_1));
         } else {
           ret = true;
         }
       }
     }
     // Add listener in case connection success.
-    if (ret) {    
+    if (ret) {
       listeners_.push_back(listener);
     }
     return ret;
@@ -99,19 +102,23 @@ namespace sensr
 
   void Client::UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {
     auto itr = std::find(listeners_.begin(), listeners_.end(), listener);
-    if (itr != listeners_.end()) {      
+    if (itr != listeners_.end()) {
       listeners_.erase(itr);
     }
     // Close if no listener is listening OutputMessage.
-    if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsOutputMessageListening();
-    })) {
+    if (std::none_of(listeners_.begin(),
+                    listeners_.end(),
+                    [](const std::shared_ptr<MessageListener>& listener) {
+                      return listener->IsOutputMessageListening();
+                    })) {
       output_endpoint_->Close(websocketpp::close::status::normal);
     }
     // Close if no listener is listening PointResult.
-    if (std::none_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsPointResultListening();
-    })) {
+    if (std::none_of(listeners_.begin(),
+                    listeners_.end(),
+                    [](const std::shared_ptr<MessageListener>& listener) {
+                      return listener->IsPointResultListening();
+                    })) {
       point_endpoint_->Close(websocketpp::close::status::normal);
     }
   }
@@ -123,7 +130,7 @@ namespace sensr
       return;
     }
     bool is_output_buffer_overflow = false;
-    if (output.has_event() && output.event().has_health() && 
+    if (output.has_event() && output.event().has_health() &&
         output.event().health().master() == sensr_proto::SystemHealth_Status_OUTPUT_BUFFER_OVERFLOW) {
       is_output_buffer_overflow = true;
     }
@@ -132,15 +139,16 @@ namespace sensr
         listener->OnGetOutputMessage(output);
         if (is_output_buffer_overflow) {
           listener->OnError(MessageListener::Error::kOutputBufferOverflow, message);
-        }  
+        }
       }
     }
   }
 
   bool Client::IsResultListening() const {
-    return std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsOutputMessageListening();
-    });
+    return std::any_of(
+        listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+          return listener->IsOutputMessageListening();
+        });
   }
 
   void Client::OnPointMessage(const std::string& message) {
@@ -156,7 +164,7 @@ namespace sensr
     }
   }
 
-  void Client::OnResultError(const std::string &err) {
+  void Client::OnResultError(const std::string& err) {
     for (const auto& listener : listeners_) {
       if (listener->IsOutputMessageListening()) {
         listener->OnError(MessageListener::Error::kOutputMessageConnection, err);
@@ -164,7 +172,7 @@ namespace sensr
     }
   }
 
-  void Client::OnPointError(const std::string &err) {
+  void Client::OnPointError(const std::string& err) {
     for (const auto& listener : listeners_) {
       if (listener->IsPointResultListening()) {
         listener->OnError(MessageListener::Error::kPointResultConnection, err);
@@ -173,16 +181,9 @@ namespace sensr
   }
 
   bool Client::IsPointListening() const {
-    return std::any_of(listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
-      return listener->IsPointResultListening();
-    });
+    return std::any_of(
+        listeners_.begin(), listeners_.end(), [](const std::shared_ptr<MessageListener>& listener) {
+          return listener->IsPointResultListening();
+        });
   }
-
-  void Client::StopReconnecting() {
-    is_reconnecting_ = false;
-    if (reconnection_thread_.joinable()) {
-      reconnection_thread_.join();
-    }
-  }
-
-} // namespace sensr
+}  // namespace sensr
