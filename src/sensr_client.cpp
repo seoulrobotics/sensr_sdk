@@ -33,7 +33,6 @@ namespace sensr {
   }
 
   void Client::reconnection_async() {
-    if (is_reconnecting_) {
       INFO_LOG("Reconnecting...");
       auto temp = listeners_;
       for (const auto& listener : listeners_) {
@@ -63,7 +62,6 @@ namespace sensr {
         sleep_timer.wait();
         asio::post([this]() { reconnection_async(); });
       }
-    }
   }
 
   bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {
