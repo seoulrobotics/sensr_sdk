@@ -22,46 +22,58 @@ namespace sensr {
     for (const auto& listener : listeners_) {
       UnsubscribeMessageListener(listener);
     }
+
+    io_context_.stop();
+    if (reconnection_thread_.joinable()) {
+      reconnection_thread_.join();
+    }
   }
 
   void Client::Reconnect() {
     if (!is_reconnecting_) {
+      if (reconnection_thread_.joinable()) {
+        reconnection_thread_.join();
+      }
+
       is_reconnecting_ = true;
-      asio::post([this]() { reconnection_async(); });
+      asio::post(io_context_, [this]() { reconnection_async(); });
+      reconnection_thread_ = std::thread([this] {
+        io_context_.restart();
+        io_context_.run();
+      });
     }
-    io_context_.poll();
   }
 
   void Client::reconnection_async() {
-      INFO_LOG("Reconnecting...");
-      auto temp = listeners_;
-      for (const auto& listener : listeners_) {
-        UnsubscribeMessageListener(listener);
+    INFO_LOG("Reconnecting...");
+    auto temp = listeners_;
+    for (const auto& listener : listeners_) {
+      UnsubscribeMessageListener(listener);
+    }
+    for (const auto& listener : temp) {
+      SubscribeMessageListener(listener);
+    }
+    bool is_output_connected = true;
+    bool is_point_connected = true;
+    if (IsResultListening()) {
+      if (!output_endpoint_->IsConnected()) {
+        is_output_connected = false;
       }
-      for (const auto& listener : temp) {
-        SubscribeMessageListener(listener);
+    }
+    if (IsPointListening()) {
+      if (!point_endpoint_->IsConnected()) {
+        is_point_connected = false;
       }
-      bool is_output_connected = true;
-      bool is_point_connected = true;
-      if (IsResultListening()) {
-        if (!output_endpoint_->IsConnected()) {
-          is_output_connected = false;
-        }
-      }
-      if (IsPointListening()) {
-        if (!point_endpoint_->IsConnected()) {
-          is_point_connected = false;
-        }
-      }
+    }
 
-      if (is_output_connected && is_point_connected) {
-        INFO_LOG("Reconnected!");
-        is_reconnecting_ = false;
-      } else {
-        asio::steady_timer sleep_timer(io_context_, asio::chrono::seconds(1));
-        sleep_timer.wait();
-        asio::post([this]() { reconnection_async(); });
-      }
+    if (is_output_connected && is_point_connected) {
+      INFO_LOG("Reconnected!");
+      is_reconnecting_ = false;
+    } else {
+      asio::steady_timer sleep_timer(io_context_, asio::chrono::seconds(1));
+      sleep_timer.wait();
+      asio::post(io_context_, [this]() { reconnection_async(); });
+    }
   }
 
   bool Client::SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {

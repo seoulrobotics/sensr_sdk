@@ -28,8 +28,9 @@ namespace sensr
     std::vector<std::shared_ptr<MessageListener>> listeners_;
     const std::string address_;
     bool use_ssl_;
-    std::atomic<bool> is_reconnecting_;
 
+    std::atomic<bool> is_reconnecting_;
+    std::thread reconnection_thread_;
     asio::io_context io_context_;
     void reconnection_async();
 
