@@ -36,9 +36,10 @@ namespace sensr {
       }
 
       is_reconnecting_ = true;
+      io_context_.restart();
+      
       asio::post(io_context_, [this]() { reconnection_async(); });
       reconnection_thread_ = std::thread([this] {
-        io_context_.restart();
         io_context_.run();
       });
     }
@@ -72,7 +73,7 @@ namespace sensr {
     } else {
       asio::steady_timer sleep_timer(io_context_, asio::chrono::seconds(1));
       sleep_timer.wait();
-      asio::post(io_context_, [this]() { reconnection_async(); });
+      reconnection_async();
     }
   }
 
