@@ -7,6 +7,7 @@
 #include <functional>
 #include <atomic>
 #include <thread>
+#include <asio.hpp>
 
 namespace sensr
 {
@@ -27,9 +28,11 @@ namespace sensr
     std::vector<std::shared_ptr<MessageListener>> listeners_;
     const std::string address_;
     bool use_ssl_;
+
     std::atomic<bool> is_reconnecting_;
     std::thread reconnection_thread_;
-    static constexpr size_t kMaxReconnectTrialCount = 100;
+    asio::io_context io_context_;
+    void reconnection_async();
 
     void OnResultMessage(const std::string &msg);
     void OnPointMessage(const std::string &msg);
@@ -37,7 +40,6 @@ namespace sensr
     void OnPointError(const std::string &err);
     bool IsResultListening() const;
     bool IsPointListening() const;
-    void StopReconnecting();
     std::string GetProtocol() const { return use_ssl_ ? "wss" : "ws"; }
   };
 } // namespace sensr
