@@ -23,6 +23,9 @@ namespace sensr
     void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
   private:
+    void ClearListeners();
+
+  private:
     std::unique_ptr<WebSocketEndPointBase> output_endpoint_;
     std::unique_ptr<WebSocketEndPointBase> point_endpoint_;
     std::vector<std::shared_ptr<MessageListener>> listeners_;

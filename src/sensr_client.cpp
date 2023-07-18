@@ -10,18 +10,16 @@ namespace sensr {
   Client::Client(const std::string& address, const std::string& cert_path)
       : address_(address), use_ssl_(!cert_path.empty()), is_reconnecting_(false) {
     if (use_ssl_) {
-      output_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
-      point_endpoint_.reset(new WebSocketSecureEndPoint(cert_path));
+      output_endpoint_ = std::make_unique<WebSocketSecureEndPoint>(cert_path);
+      point_endpoint_ = std::make_unique<WebSocketSecureEndPoint>(cert_path);
     } else {
-      output_endpoint_.reset(new WebSocketEndPoint());
-      point_endpoint_.reset(new WebSocketEndPoint());
+      output_endpoint_ = std::make_unique<WebSocketEndPoint>();
+      point_endpoint_ = std::make_unique<WebSocketEndPoint>();
     }
   }
 
   Client::~Client() {
-    for (const auto& listener : listeners_) {
-      UnsubscribeMessageListener(listener);
-    }
+    ClearListeners();
 
     io_context_.stop();
     if (reconnection_thread_.joinable()) {
@@ -37,7 +35,7 @@ namespace sensr {
 
       is_reconnecting_ = true;
       io_context_.restart();
-      
+
       asio::post(io_context_, [this]() { reconnection_async(); });
       reconnection_thread_ = std::thread([this] {
         io_context_.run();
@@ -48,24 +46,14 @@ namespace sensr {
   void Client::reconnection_async() {
     INFO_LOG("Reconnecting...");
     auto temp = listeners_;
-    for (const auto& listener : listeners_) {
-      UnsubscribeMessageListener(listener);
-    }
+
+    ClearListeners();
+
     for (const auto& listener : temp) {
       SubscribeMessageListener(listener);
     }
-    bool is_output_connected = true;
-    bool is_point_connected = true;
-    if (IsResultListening()) {
-      if (!output_endpoint_->IsConnected()) {
-        is_output_connected = false;
-      }
-    }
-    if (IsPointListening()) {
-      if (!point_endpoint_->IsConnected()) {
-        is_point_connected = false;
-      }
-    }
+    const bool is_output_connected = !IsResultListening() || output_endpoint_->IsConnected();
+    const bool is_point_connected = !IsPointListening() || point_endpoint_->IsConnected();
 
     if (is_output_connected && is_point_connected) {
       INFO_LOG("Reconnected!");
@@ -109,6 +97,13 @@ namespace sensr {
       listeners_.push_back(listener);
     }
     return ret;
+  }
+
+  void Client::ClearListeners() {
+    listeners_.clear();
+
+    output_endpoint_->Close(websocketpp::close::status::normal);
+    point_endpoint_->Close(websocketpp::close::status::normal);
   }
 
   void Client::UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener) {
