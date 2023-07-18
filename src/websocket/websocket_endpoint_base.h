@@ -76,12 +76,12 @@ namespace sensr {
         std::string close_reason = connection->get_remote_close_reason();
         if (close_code == websocketpp::close::status::abnormal_close) {
           OnFail("The connection to SENSR was banned because of no responding.");
-        } else if (close_code == websocketpp::close::status::internal_endpoint_error && 
+        } else if (close_code == websocketpp::close::status::internal_endpoint_error &&
                    close_reason.find("Writing buffer is full") != std::string::npos) {
           OnFail(close_reason);
         } else {
-          status_ = Status::kClosed;          
-        } 
+          status_ = Status::kClosed;
+        }
       });
     } catch(const std::exception& e) {
       std::string error_msg = "> Failed to connect SENSR.";
@@ -96,18 +96,20 @@ namespace sensr {
   void WebSocketEndPointBase::Unbind(websocketpp::client<T>& endpoint, websocketpp::close::status::value code) {
     std::error_code ec;
     if (connection_hdl_.expired()) {
-      //std::cout << "> No connection found" << std::endl;
+      // std::cout << "> No connection found" << std::endl;
     } else {
       if (status_ != Status::kClosed) {
-        // Only close open connections
-        endpoint.close(connection_hdl_, code, "", ec);
-        if (ec) {
-          ERROR_LOG("> Error closing connection : " + ec.message());
+        if (auto c = endpoint.get_con_from_hdl(connection_hdl_);
+            c->get_state() == websocketpp::session::state::open) {
+          endpoint.close(connection_hdl_, code, "", ec);
+          if (ec) {
+            ERROR_LOG("> Error closing connection : " + ec.message());
+          }
         }
       }
-    }    
+    }
     connection_hdl_.reset();
     msg_receiver_ = 0;
     err_receiver_ = 0;
   }
-} // namespace sensr
+}  // namespace sensr
