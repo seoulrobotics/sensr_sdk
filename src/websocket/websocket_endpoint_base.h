@@ -5,37 +5,49 @@
 #include <functional>
 #include <thread>
 #include <memory>
+
 namespace sensr {
   class WebSocketEndPointBase {
   public:
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
-    WebSocketEndPointBase();
+
+    WebSocketEndPointBase(std::string uri, MsgReceiver msg_cb, ErrorReceiver err_cb);
+
     virtual ~WebSocketEndPointBase() = default;
 
-    virtual bool Connect(const std::string &uri, const MsgReceiver& func, const ErrorReceiver& err_func) = 0;
+    virtual bool Connect() = 0;
     virtual void Close(websocketpp::close::status::value code) = 0;
     bool IsConnected() const { return status_ == Status::kOpen; }
 
+   protected:
+    static std::string ConvertToUri(const std::string& protocol, const std::string& address, uint16_t port);
+
   protected:
+    const std::string kUri;
+
+    MsgReceiver msg_receiver_;
+    ErrorReceiver err_receiver_;
+
     enum struct Status {
       kConnecting,
       kOpen,
       kClosed,
       kFailed
     };
-    std::thread thread_;
+    Status status_ = Status::kConnecting;
+
     websocketpp::connection_hdl connection_hdl_;
-    Status status_;
-    MsgReceiver msg_receiver_;
-    ErrorReceiver err_receiver_;
+
+    std::thread thread_;
+
   protected:
     template <typename T>
     void Init(websocketpp::client<T>& endpoint);
     template <typename T>
     void Fin(websocketpp::client<T>& endpoint);
     template <typename T>
-    bool Bind(const std::shared_ptr<websocketpp::connection<T>>& con, const MsgReceiver& func, const ErrorReceiver& err_func);
+    bool Bind(const std::shared_ptr<websocketpp::connection<T>>& con);
     template <typename T>
     void Unbind(websocketpp::client<T>& endpoint, websocketpp::close::status::value code);
     void OnFail(const std::string& err_msg);
@@ -63,10 +75,8 @@ namespace sensr {
   }
 
   template <typename T>
-  bool WebSocketEndPointBase::Bind(const std::shared_ptr<websocketpp::connection<T>>& con, const MsgReceiver& func, const ErrorReceiver& err_func) {
+  bool WebSocketEndPointBase::Bind(const std::shared_ptr<websocketpp::connection<T>>& con) {
     try {
-      msg_receiver_ = func;
-      err_receiver_ = err_func;
       con->set_open_handler([this] (websocketpp::connection_hdl hdl) {
         status_ = Status::kOpen;
       });
@@ -109,7 +119,5 @@ namespace sensr {
       }
     }
     connection_hdl_.reset();
-    msg_receiver_ = 0;
-    err_receiver_ = 0;
   }
 }  // namespace sensr
