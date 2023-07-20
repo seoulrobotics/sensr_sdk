@@ -11,7 +11,8 @@
 
 namespace sensr {
 class MessageListener;
-class WebSocketEndPointBase;
+class MessageBrokerBase;
+
 class Client {
  public:
   Client(const std::string& address, const std::string& cert_path = "");
@@ -24,20 +25,12 @@ class Client {
   void ClearListeners();
 
  private:
-  std::unique_ptr<WebSocketEndPointBase> output_endpoint_;
-  std::unique_ptr<WebSocketEndPointBase> point_endpoint_;
-  std::vector<std::shared_ptr<MessageListener>> listeners_;
+  enum struct MessageType : uint32_t { Output = 0u, Points, Max };
+  std::array<std::unique_ptr<MessageBrokerBase>, static_cast<uint32_t>(MessageType::Max)> message_brokers_;
 
   std::atomic<bool> is_reconnecting_;
   std::thread reconnection_thread_;
   asio::io_context io_context_;
   void reconnection_async();
-
-  void OnResultMessage(const std::string& msg);
-  void OnPointMessage(const std::string& msg);
-  void OnResultError(const std::string& err);
-  void OnPointError(const std::string& err);
-  bool IsResultListening() const;
-  bool IsPointListening() const;
 };
 }  // namespace sensr

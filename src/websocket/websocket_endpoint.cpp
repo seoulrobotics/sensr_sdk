@@ -3,13 +3,8 @@
 #include "../logging.h"
 
 namespace sensr {
-WebSocketEndPoint::WebSocketEndPoint(const std::string& address,
-                                     uint16_t port,
-                                     WebSocketEndPointBase::MsgReceiver msg_cb,
-                                     WebSocketEndPointBase::ErrorReceiver err_cb)
-    : WebSocketEndPointBase(WebSocketEndPointBase::ConvertToUri(kProtocol, address, port),
-                            std::move(msg_cb),
-                            std::move(err_cb)) {
+WebSocketEndPoint::WebSocketEndPoint(const std::string& address, uint16_t port)
+    : WebSocketEndPointBase(kProtocol, address, port) {
   Init(endpoint_);
 }
 

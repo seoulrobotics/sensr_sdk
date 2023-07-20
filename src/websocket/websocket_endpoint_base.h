@@ -12,13 +12,14 @@ namespace sensr {
     using MsgReceiver = std::function<void(const std::string& msg)>;
     using ErrorReceiver = std::function<void(const std::string& err)>;
 
-    WebSocketEndPointBase(std::string uri, MsgReceiver msg_cb, ErrorReceiver err_cb);
-
+    WebSocketEndPointBase(const std::string& protocol, const std::string& address, uint16_t port);
     virtual ~WebSocketEndPointBase() = default;
 
     virtual bool Connect() = 0;
     virtual void Close(websocketpp::close::status::value code) = 0;
     bool IsConnected() const { return status_ == Status::kOpen; }
+
+    void SetCallbacks(MsgReceiver msg_cb, ErrorReceiver err_cb);
 
    protected:
     static std::string ConvertToUri(const std::string& protocol, const std::string& address, uint16_t port);

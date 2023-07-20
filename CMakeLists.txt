@@ -22,11 +22,12 @@ endif()
 
 add_definitions(-DASIO_STANDALONE)
 
-set(SOURCE_FILES 
-    src/sensr_client.cpp 
-    src/sensr_message_listener.cpp 
-    src/websocket/websocket_endpoint_base.cpp 
-    src/websocket/websocket_endpoint.cpp 
+set(SOURCE_FILES
+    src/sensr_client.cpp
+    src/sensr_message_listener.cpp
+    src/message_broker.cpp
+    src/websocket/websocket_endpoint_base.cpp
+    src/websocket/websocket_endpoint.cpp
     src/websocket/websocket_secure_endpoint.cpp)
 add_library(sensr_sdk SHARED ${generated_code} ${generated_header_code} ${SOURCE_FILES})
 
@@ -37,7 +38,7 @@ target_compile_options(sensr_sdk PRIVATE -Wno-attributes -Wno-deprecated -Wno-co
 ####### Compiler Flags ###########
 
 target_include_directories(sensr_sdk
-    PUBLIC 
+    PUBLIC
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/websocketpp>
@@ -67,7 +68,7 @@ file(GLOB_RECURSE header_files
 
 add_subdirectory(proto)
 
-set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")  
+set_target_properties(sensr_sdk PROPERTIES PUBLIC_HEADER "${header_files}")
 
 write_basic_package_version_file(
     "${version_config}" COMPATIBILITY SameMajorVersion

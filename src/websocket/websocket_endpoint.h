@@ -9,10 +9,7 @@ class WebSocketEndPoint : public WebSocketEndPointBase {
   using websocketpp_client = websocketpp::client<websocketpp::config::asio_client>;
 
  public:
-  WebSocketEndPoint(const std::string& address,
-                    uint16_t port,
-                    WebSocketEndPointBase::MsgReceiver msg_cb,
-                    WebSocketEndPointBase::ErrorReceiver err_cb);
+  WebSocketEndPoint(const std::string& address, uint16_t port);
   ~WebSocketEndPoint() override;
 
   bool Connect() override;

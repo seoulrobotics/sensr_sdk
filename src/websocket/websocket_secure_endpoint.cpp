@@ -7,13 +7,8 @@
 namespace sensr {
 WebSocketSecureEndPoint::WebSocketSecureEndPoint(const std::string& address,
                                                  uint16_t port,
-                                                 WebSocketEndPointBase::MsgReceiver msg_cb,
-                                                 WebSocketEndPointBase::ErrorReceiver err_cb,
                                                  const std::string& cert_path)
-    : WebSocketEndPointBase(WebSocketEndPointBase::ConvertToUri(kProtocol, address, port),
-                            std::move(msg_cb),
-                            std::move(err_cb)),
-      cert_path_(cert_path) {
+    : WebSocketEndPointBase(kProtocol, address, port), cert_path_(cert_path) {
   Init(endpoint_);
 }
 

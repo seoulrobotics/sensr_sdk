@@ -10,11 +10,7 @@ class WebSocketSecureEndPoint : public WebSocketEndPointBase {
   using context_ptr = websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context>;
 
  public:
-  WebSocketSecureEndPoint(const std::string& address,
-                          uint16_t port,
-                          WebSocketEndPointBase::MsgReceiver msg_cb,
-                          WebSocketEndPointBase::ErrorReceiver err_cb,
-                          const std::string& cert_path);
+  WebSocketSecureEndPoint(const std::string& address, uint16_t port, const std::string& cert_path);
   ~WebSocketSecureEndPoint() override;
 
   bool Connect() override;
