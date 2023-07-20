@@ -1,6 +1,5 @@
 #pragma once
 
-#include <asio.hpp>
 #include <atomic>
 #include <memory>
 #include <string>
@@ -25,12 +24,10 @@ class Client {
   void ClearListeners();
 
  private:
-  enum struct MessageType : uint32_t { Output = 0u, Points, Max };
-  std::array<std::unique_ptr<MessageBrokerBase>, static_cast<uint32_t>(MessageType::Max)> message_brokers_;
+  enum struct MessageType : uint32_t { Output = 0u, Points };
+  std::array<std::unique_ptr<MessageBrokerBase>, 2u> message_brokers_;
 
-  std::atomic<bool> is_reconnecting_;
+  std::atomic<bool> is_reconnecting_ = false;
   std::thread reconnection_thread_;
-  asio::io_context io_context_;
-  void reconnection_async();
 };
 }  // namespace sensr

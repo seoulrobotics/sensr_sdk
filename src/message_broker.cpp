@@ -19,6 +19,19 @@ bool MessageBrokerBase::IsConnected() const { return endpoint_->IsConnected(); }
 
 bool MessageBrokerBase::IsListening() const { return !listeners_.empty(); }
 
+void MessageBrokerBase::Reconnect() {
+  if (listeners_.empty()) {
+    return;
+  }
+
+  endpoint_->Close(websocketpp::close::status::normal);
+
+  using namespace std::chrono_literals;
+  std::this_thread::sleep_for(1ms);
+
+  endpoint_->Connect();
+}
+
 void MessageBrokerBase::TryAttachListener(const std::shared_ptr<MessageListener>& listener) {
   bool start_connection = listeners_.empty();
 

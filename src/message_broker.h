@@ -16,6 +16,8 @@ class MessageBrokerBase {
   bool IsConnected() const;
   bool IsListening() const;
 
+  void Reconnect();
+
   void TryAttachListener(const std::shared_ptr<MessageListener>& listener);
   void TryDetachListener(const std::shared_ptr<MessageListener>& listener);
 
