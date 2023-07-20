@@ -42,8 +42,7 @@ void Client::Reconnect() {
   reconnection_thread_ = std::thread([this] {
     size_t reconnection_counter = 0u;
     while (is_reconnecting_) {
-      std::cout << "Reconnecting... " << ++reconnection_counter << "-th trial" << std::endl;
-      INFO_LOG("Reconnecting...");
+      INFO_LOG("Reconnecting... TryCount: "s + std::to_string(++reconnection_counter));
 
       for (const auto& broker : message_brokers_) {
         broker->Reconnect();
