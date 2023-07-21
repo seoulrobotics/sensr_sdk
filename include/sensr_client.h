@@ -1,45 +1,33 @@
 #pragma once
 
+#include <atomic>
+#include <memory>
+#include <string>
+#include <thread>
+
 #include "sensr_proto/output.pb.h"
 #include "sensr_proto/point_cloud.pb.h"
-#include <string>
-#include <memory>
-#include <functional>
-#include <atomic>
-#include <thread>
-#include <asio.hpp>
 
-namespace sensr
-{
-  class MessageListener;
-  class WebSocketEndPointBase;
-  class Client
-  {
-  public:
-    Client(const std::string &address, const std::string& cert_path = "");
-    ~Client();
-    void Reconnect(); // Call when Error occur
-    bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
-    void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
+namespace sensr {
+class MessageListener;
+class MessageBrokerBase;
 
-  private:
-    std::unique_ptr<WebSocketEndPointBase> output_endpoint_;
-    std::unique_ptr<WebSocketEndPointBase> point_endpoint_;
-    std::vector<std::shared_ptr<MessageListener>> listeners_;
-    const std::string address_;
-    bool use_ssl_;
+class Client {
+ public:
+  Client(const std::string& address, const std::string& cert_path = "");
+  ~Client();
+  void Reconnect();  // Call when Error occur
+  bool SubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
+  void UnsubscribeMessageListener(const std::shared_ptr<MessageListener>& listener);
 
-    std::atomic<bool> is_reconnecting_;
-    std::thread reconnection_thread_;
-    asio::io_context io_context_;
-    void reconnection_async();
+ private:
+  void ClearListeners();
 
-    void OnResultMessage(const std::string &msg);
-    void OnPointMessage(const std::string &msg);
-    void OnResultError(const std::string &err);
-    void OnPointError(const std::string &err);
-    bool IsResultListening() const;
-    bool IsPointListening() const;
-    std::string GetProtocol() const { return use_ssl_ ? "wss" : "ws"; }
-  };
-} // namespace sensr
+ private:
+  enum struct MessageType : uint32_t { Output = 0u, Points };
+  std::array<std::unique_ptr<MessageBrokerBase>, 2u> message_brokers_;
+
+  std::atomic<bool> is_reconnecting_ = false;
+  std::thread reconnection_thread_;
+};
+}  // namespace sensr
