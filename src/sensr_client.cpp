@@ -40,7 +40,8 @@ void Client::Reconnect() {
   is_reconnecting_ = true;
 
   reconnection_thread_ = std::thread([this] {
-    size_t reconnection_counter = 0u;
+    [[maybe_unused]] size_t reconnection_counter = 0u;
+
     while (is_reconnecting_) {
       INFO_LOG("Reconnecting... TryCount: "s + std::to_string(++reconnection_counter));
 
