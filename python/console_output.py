@@ -133,6 +133,20 @@ class HealthListener(MessageListener):
                             print('    Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
                     else:
                         print('    No sensors are connected')
+                    
+                    if len(node_health.edges) > 0:
+                        for edge_key in node_health.edges:
+                            edge_health = node_health.edges[edge_key]
+                            print('    Edge ({0}) health: {1}'.format(edge_key, edge_health))
+                            if len(edge_health.sensors) > 0:
+                                print('      Sensor are connected to Edge nodes')
+                                for sensor_key in edge_health.sensors:
+                                    sensor_health = edge_health.sensors[sensor_key]
+                                    print('    Sensor ({0}) health: {1}'.format(sensor_key, sensor_health))
+                            else:
+                                print('      No sensors connected to edge node')
+                    else:
+                        print('    No edge nodes are connected')
             else:
                 print('  No nodes are connected')
 
