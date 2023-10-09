@@ -159,7 +159,7 @@ public:
         auto node_health = node.second;
         std::cout << "Node("<< node.first <<") health: " << node_health.status() << std::endl;
         for (const auto& sensor : node_health.sensors()) {
-          std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second << std::endl;
+          std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second.DebugString() << std::endl;
         }
       }
     } else if (message.has_custom()) {
