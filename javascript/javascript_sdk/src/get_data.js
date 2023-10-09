@@ -99,7 +99,7 @@ const get_health_data = (client) => {
         let sensor_info = v.getSensorsMap();
         if (sensor_info.arr_ !== undefined){
           sensor_info.forEach((v1, k1) => {
-            console.log('   Sensors(%s) health: %d', k1, v1);
+            console.log('   Sensors(%s) health: %s', k1, v1);
           });
         } else {
           console.log('No Sensors are connected');
