@@ -159,7 +159,7 @@ public:
         auto node_health = node.second;
         std::cout << "Node("<< node.first <<") health: " << node_health.status() << std::endl;
         for (const auto& sensor : node_health.sensors()) {
-          std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second << std::endl;
+          std::cout << "Sensor("<< sensor.first <<") health: " << sensor.second.DebugString() << std::endl;
         }
       }
     } else if (message.has_custom()) {
@@ -209,11 +209,17 @@ public:
   void OnGetOutputMessage(const sensr_proto::OutputMessage &message) override {
     if (message.has_custom() && message.custom().has_profiling()) {
       auto& master_proc_infos = message.custom().profiling().master_node().processing_times();
-      std::cout << "Master node overall : " << master_proc_infos.at("UIRuntimeState-OnUpdate") << std::endl;
+      auto master_frame_overall_it = master_proc_infos.find("FrameOverall");
+      if (master_frame_overall_it != std::cend(master_proc_infos)) {
+        std::cout << "Master node overall : " << master_frame_overall_it->second << " ns" << std::endl;
+      }
       for (auto& node : message.custom().profiling().algo_nodes()) {
         auto uid = node.first;
         auto node_proc_infos = node.second.processing_times();
-        std::cout << uid << " node overall : " << node_proc_infos.at("FrameOverall") << std::endl;      
+        auto node_frame_overall_it = node_proc_infos.find("FrameOverall");
+        if (node_frame_overall_it != std::cend(node_proc_infos)) {
+          std::cout << uid << " node overall : " << node_frame_overall_it->second << " ns" << std::endl;      
+        }
       }
     }              
   }
