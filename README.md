@@ -28,6 +28,12 @@ sudo ldconfig
 
 ### Build SENSR SDK
 
+Download the repository using git clone
+
+```bash
+git clone https://github.com/seoulrobotics/sensr_sdk 
+```
+
 Update submodule:
 
 ```bash
