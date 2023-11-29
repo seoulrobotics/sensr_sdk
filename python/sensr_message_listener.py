@@ -2,6 +2,7 @@ import websockets
 import asyncio
 import ssl
 import os
+import time
 from enum import Enum
 from abc import ABCMeta, abstractmethod # Abstract base classes
 
@@ -62,23 +63,26 @@ class MessageListener(metaclass=ABCMeta):
 
     async def _output_stream(self):
        while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
-            async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
-                if self._output_ws != websocket:
-                    self._output_ws = websocket
-                while self._output_ws is not None and not self._output_ws.closed:
-                    try:
-                        message = await asyncio.wait_for(self._output_ws.recv(), timeout=1.0) # Receive output messages from SENSR                    
-                        output = OutputMessage()
-                        output.ParseFromString(message)
-                        if self.check_oveflow_error(output):
-                            self._on_error("Output Buffer Overflow.")
-                        self._on_get_output_message(output)
-                    except asyncio.TimeoutError:
-                        pass
-                    except websockets.ConnectionClosedOK:
-                        pass
-                    except websockets.ConnectionClosedError:
-                        self._on_error("Closed by error.")
+            try:
+                async with websockets.connect(self._output_address, ssl=self._ssl_context, compression=None, max_size=None, ping_interval=None) as websocket:
+                    if self._output_ws != websocket:
+                        self._output_ws = websocket
+                    while self._output_ws is not None and not self._output_ws.closed:
+                        try:
+                            message = await asyncio.wait_for(self._output_ws.recv(), timeout=1.0) # Receive output messages from SENSR                    
+                            output = OutputMessage()
+                            output.ParseFromString(message)
+                            if self.check_oveflow_error(output):
+                                self._on_error("Output Buffer Overflow.")
+                            self._on_get_output_message(output)
+                        except asyncio.TimeoutError:
+                            pass
+                        except websockets.ConnectionClosedOK:
+                            pass
+                        except websockets.ConnectionClosedError:
+                            self._on_error("Closed by error.")
+            except:
+                time.sleep(1)
 
     async def _point_stream(self):
         while self._state != MessageListener.State.STOPPED and self._state != MessageListener.State.STOP_REQUESTED:
