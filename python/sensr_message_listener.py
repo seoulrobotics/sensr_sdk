@@ -81,7 +81,8 @@ class MessageListener(metaclass=ABCMeta):
                             pass
                         except websockets.ConnectionClosedError:
                             self._on_error("Closed by error.")
-            except:
+            except OSError:
+                print('Failed to connect to SENSR, attempting reconnect...')
                 time.sleep(1)
 
     async def _point_stream(self):
