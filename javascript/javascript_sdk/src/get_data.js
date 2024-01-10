@@ -38,7 +38,7 @@ const get_point_data = (client) => {
       }
   });
 }
-  
+
 const get_object_data = (client) => {
   client.listenToObjectUpdate(response => {
     const objects = response.getObjectsList();
@@ -109,11 +109,17 @@ const get_health_data = (client) => {
     }
   });
 }
-  
+
+function convertTimestampToMillis(timestamp) {
+  const seconds = timestamp.getSeconds();
+  const nanos = timestamp.getNanos();
+  return (seconds * 1000) + Math.floor((nanos / 1000000));
+}
+
 const get_time_data = (client) => {
-    client.listenToObjectUpdate(null, null, response => { 
+  client.listenToObjectUpdate(null, null, response => { 
       let cur_time = new Date();
-      console.log('Diff: %f ms', cur_time.getTime()- (response.array[0]*1000));
+      console.log('Diff: %f ms', cur_time.getTime()- convertTimestampToMillis(response));
     });
 }
 
