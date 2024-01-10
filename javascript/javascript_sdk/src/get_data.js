@@ -118,9 +118,9 @@ function convertTimestampToMillis(timestamp) {
 
 const get_time_data = (client) => {
   client.listenToObjectUpdate(null, null, response => { 
-      let cur_time = new Date();
-      console.log('Diff: %f ms', cur_time.getTime()- convertTimestampToMillis(response));
-    });
+    let cur_time = new Date();
+    console.log('Diff: %f ms', cur_time.getTime()- convertTimestampToMillis(response));
+  });
 }
 
 module.exports = {
