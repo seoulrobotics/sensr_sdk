@@ -21,7 +21,6 @@ cd protobuf-3.11.4
 ./autogen.sh
 ./configure CXXFLAGS=-fPIC
 make
-make check
 sudo make install
 sudo ldconfig
 ```
