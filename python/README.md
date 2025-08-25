@@ -39,10 +39,10 @@ This Python SDK shows how to communicate with SENSR and parse the output in Pyth
     >
     > 1. If SENSR is running in the remote machine, replace `localhost` to other IP address or hostname accordingly.
     >
-    > 2. Replace `zone` to other value to print other types, one of: `zone`, `point`, `object`, `health`, `time`
+    > 2. Replace `object` to other value to print other types, one of: `zone`, `point`, `object`, `health`, `time`
 
     ```bash
-    python3 ./console_output.py --address localhost --example_type zone
+    python3 ./console_output.py --address localhost --example_type object
     ```
 
 ## Running examples
