@@ -1,4 +1,4 @@
 pip>=20.0.1
-protobuf==3.12.4
+protobuf==5.29.6
 websockets==10.1
 numpy>=1.19.0
